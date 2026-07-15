@@ -1,0 +1,6 @@
+{
+  "name": "Olive Law Chambers",
+  "description": "A premium, lag-free, highly polished website for Olive Law Chambers — led by Advocate Reynold D'Souza. Built with elegant typography, smooth scrolling, and optimal performance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

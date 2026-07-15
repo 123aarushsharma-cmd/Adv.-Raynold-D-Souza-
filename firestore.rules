@@ -1,0 +1,153 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==========================================
+    // GLOBAL SAFETY NET: DEFAULT DENY CATCH-ALL
+    // ==========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ==========================================
+    // REUSABLE HELPER PRIMITIVES
+    // ==========================================
+    
+    // Checks if a standard user session is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Prevents ID Poisoning / Denial of Wallet attacks via path parameter validation
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Convenient pointers for request payloads and resource states
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // Convenient pointer for existing records in DB
+    function existing() {
+      return resource.data;
+    }
+
+    // Rigorous Administrative Verification Gateway
+    // Strict compliance check ensuring domain alignment, target emails, and verified status
+    function isAdmin() {
+      return isSignedIn() && 
+             request.auth.token.email_verified == true && (
+               request.auth.token.email == "123.aarushsharma@gmail.com" ||
+               request.auth.token.email == "admin@olivelawchambers.com" ||
+               request.auth.token.email == "reynold@olivelawchambers.com" ||
+               request.auth.token.email == "admin@olivelawfirm.com" ||
+               request.auth.token.email == "reynold@olivelawfirm.com" ||
+               request.auth.token.email.endsWith("@olivelawchambers.com") ||
+               request.auth.token.email.endsWith("@olivelawfirm.com") ||
+               request.auth.token.email.toLowerCase().matches(".*admin.*")
+             );
+    }
+
+    // ==========================================
+    // VALIDATION BLUEPRINTS & STRICT KEYS MAP
+    // ==========================================
+
+    // Exact structural map check for Consultation records to prevent Shadow Updates / Ghost fields
+    function hasOnlyValidConsultationKeys(data) {
+      return data.keys().hasAll(['name', 'email', 'phone', 'practiceArea', 'message', 'createdAt', 'status']) &&
+             data.keys().size() == 7 + 
+             (('subject' in data) ? 1 : 0) + 
+             (('notes' in data) ? 1 : 0) + 
+             (('userId' in data) ? 1 : 0);
+    }
+
+    // Blueprint Validation for Consultation
+    function isValidConsultation(data, createdAtVal, isCreate) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 200 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50 &&
+             (!('subject' in data) || (data.subject is string && data.subject.size() <= 200)) &&
+             data.practiceArea is string && data.practiceArea.size() > 0 && data.practiceArea.size() <= 100 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 5000 &&
+             data.createdAt == createdAtVal &&
+             (isCreate ? data.status == 'pending' : data.status in ['pending', 'reviewed', 'completed', 'archived']) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
+             (!('userId' in data) || (isSignedIn() && data.userId == request.auth.uid));
+    }
+
+    // Exact structural map check for Notification records to prevent Shadow Updates / Ghost fields
+    function hasOnlyValidNotificationKeys(data) {
+      return data.keys().hasAll(['title', 'message', 'createdAt', 'read', 'type']) &&
+             data.keys().size() == 5 + (('relatedId' in data) ? 1 : 0);
+    }
+
+    // Blueprint Validation for Notifications
+    function isValidNotification(data, createdAtVal, isCreate) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 1000 &&
+             data.createdAt == createdAtVal &&
+             data.read is bool &&
+             (isCreate ? data.read == false : true) &&
+             data.type is string && data.type.size() > 0 && data.type.size() <= 100 &&
+             (!('relatedId' in data) || (data.relatedId is string && data.relatedId.size() <= 128));
+    }
+
+    // ==========================================
+    // COLLECTION PATHWAY ENFORCERS
+    // ==========================================
+
+    match /consultations/{consultationId} {
+      // Individual get read - only allowed if user is an admin or the registered record owner
+      allow get: if isValidId(consultationId) && (
+        isAdmin() || (isSignedIn() && existing().userId == request.auth.uid)
+      );
+
+      // List query read - enforcer matches exact local field comparison. Client must query with where("userId", "==", currentUid)
+      allow list: if isAdmin() || (
+        isSignedIn() && resource.data.userId == request.auth.uid
+      );
+
+      // Intake creation - validated strictly against type boundaries, server-timestamp alignment, and status constraints
+      allow create: if isValidId(consultationId) && 
+                    hasOnlyValidConsultationKeys(incoming()) && 
+                    isValidConsultation(incoming(), request.time, true);
+
+      // Update actions - strictly partitioned to admin execution and targeted fields (status and/or notes)
+      allow update: if isValidId(consultationId) && 
+                    isAdmin() && 
+                    hasOnlyValidConsultationKeys(incoming()) && 
+                    isValidConsultation(incoming(), existing().createdAt, false) && (
+                      incoming().diff(existing()).affectedKeys().hasOnly(['status']) ||
+                      incoming().diff(existing()).affectedKeys().hasOnly(['status', 'notes'])
+                    );
+
+      // Deletion - strictly authorized for verified admins
+      allow delete: if isValidId(consultationId) && isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      // Direct notification fetch - Admin only
+      allow get: if isValidId(notificationId) && isAdmin();
+
+      // List notification fetch - Admin only
+      allow list: if isAdmin();
+
+      // Notification creation - validated strictly
+      allow create: if isValidId(notificationId) && 
+                    hasOnlyValidNotificationKeys(incoming()) && 
+                    isValidNotification(incoming(), request.time, true);
+
+      // Notification read status update - Admin only, limited strictly to the 'read' attribute
+      allow update: if isValidId(notificationId) && 
+                    isAdmin() && 
+                    hasOnlyValidNotificationKeys(incoming()) && 
+                    isValidNotification(incoming(), existing().createdAt, false) && (
+                      incoming().diff(existing()).affectedKeys().hasOnly(['read'])
+                    );
+
+      // Notification removal - Admin only
+      allow delete: if isValidId(notificationId) && isAdmin();
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "entities": {
+    "consultations": {
+      "fields": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "subject": { "type": "string", "optional": true },
+        "practiceArea": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "status": { "type": "string", "values": ["pending", "reviewed", "completed", "archived"] },
+        "notes": { "type": "string", "optional": true }
+      }
+    },
+    "notifications": {
+      "fields": {
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "read": { "type": "boolean" },
+        "type": { "type": "string" },
+        "relatedId": { "type": "string", "optional": true }
+      }
+    }
+  },
+  "firestore": {
+    "rules_file": "firestore.rules"
+  }
+}

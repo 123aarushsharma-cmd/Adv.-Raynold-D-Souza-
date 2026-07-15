@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-nav: 992px;
+  --font-serif: "Cormorant Garamond", "Playfair Display", "Georgia", serif;
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-display: "Cinzel", "Cormorant Garamond", serif;
+  
+  --color-forest: #1B3A2F;
+  --color-forest-dark: #0f211b;
+  --color-gold: #C9A227;
+  --color-gold-hover: #B08E22;
+  --color-ivory: #FAF9F6;
+  --color-charcoal: #222222;
+  --color-sage: #E8EDE6;
+  --color-sage-light: #FAF9F6;
+}
+
+@layer base {
+  html, body {
+    scroll-behavior: smooth;
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6, .serif {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Premium Typography Helper Classes */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.legal-heading-1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.legal-heading-2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.editorial-quote {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* Custom classes matching the Clean Minimalism theme guidelines */
+.stat-card {
+  background: var(--color-sage);
+  border-left: 4px solid var(--color-gold);
+}
+
+.btn-gold {
+  background: var(--color-gold);
+  color: var(--color-forest);
+  transition: all 0.2s ease;
+}
+
+.btn-gold:hover {
+  background: var(--color-gold-hover);
+  transform: translateY(-1px);
+}
+
+.practice-card {
+  border: 1px solid rgba(27, 58, 47, 0.1);
+  transition: all 0.2s ease;
+}
+
+.practice-card:hover {
+  border-color: var(--color-gold);
+  background: white;
+}
+
+/* Custom styles for animations and specific components */
+.motif-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(27, 58, 47, 0.05) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ivory);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-forest);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold);
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.04) translateZ(0);
+    opacity: 1;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
