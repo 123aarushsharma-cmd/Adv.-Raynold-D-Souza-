@@ -13,6 +13,21 @@
         "notes": { "type": "string", "optional": true }
       }
     },
+    "internships": {
+      "fields": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "college": { "type": "string" },
+        "yearOfStudy": { "type": "string" },
+        "areaOfInterest": { "type": "string" },
+        "resumeUrl": { "type": "string" },
+        "coverLetter": { "type": "string" },
+        "createdAt": { "type": "timestamp" },
+        "status": { "type": "string", "values": ["pending", "reviewed", "accepted", "rejected"] },
+        "notes": { "type": "string", "optional": true }
+      }
+    },
     "notifications": {
       "fields": {
         "title": { "type": "string" },
@@ -21,6 +36,33 @@
         "read": { "type": "boolean" },
         "type": { "type": "string" },
         "relatedId": { "type": "string", "optional": true }
+      }
+    },
+    "founder_profile": {
+      "fields": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "title": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "bio": { "type": "string" },
+        "quote": { "type": "string" },
+        "quoteAuthor": { "type": "string" },
+        "updatedAt": { "type": "timestamp" }
+      }
+    },
+    "advocates": {
+      "fields": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "photoUrl": { "type": "string", "optional": true },
+        "admissionNo": { "type": "string" },
+        "location": { "type": "string" },
+        "education": { "type": "string" },
+        "experience": { "type": "string" },
+        "specialization": { "type": "string" },
+        "bio": { "type": "string" },
+        "displayOrder": { "type": "number", "optional": true },
+        "updatedAt": { "type": "timestamp" }
       }
     }
   },

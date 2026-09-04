@@ -541,79 +541,90 @@ export default function Contact() {
             </div>
 
             {/* Direct Contact Details Grid */}
-            <div className="bg-forest text-ivory p-8 rounded-sm shadow-md flex-grow flex flex-col justify-between border border-gold/15 relative overflow-hidden">
+            <div className="bg-forest text-ivory p-6 sm:p-8 rounded-sm shadow-md flex-grow flex flex-col justify-between border border-gold/15 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 rounded-full blur-2xl pointer-events-none" />
               
               <div className="space-y-6">
                 <h3 className="font-serif text-2xl text-gold font-bold border-b border-gold/25 pb-3">
-                  Law Firm
+                  Firm Presence &amp; Offices
                 </h3>
 
+                {/* Head Office Segment */}
                 <div className="space-y-4">
-                  {/* Address */}
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-4 border-b border-gold/10 pb-4">
                     <MapPin className="text-gold shrink-0 mt-1" size={18} />
                     <div>
-                      <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold">
-                        Main Office
+                      <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold block mb-1">
+                        Chambers Head Office
                       </span>
-                      <p className="font-serif text-base text-ivory mt-0.5">
+                      <p className="font-serif text-base text-ivory font-semibold text-gold">
+                        Bengaluru Head Office
+                      </p>
+                      <p className="font-serif text-sm text-ivory/90 mt-1">
                         2nd Floor, #520, 10th Cross,
                       </p>
-                      <p className="font-serif text-base text-ivory">
+                      <p className="font-serif text-sm text-ivory/90">
                         12th Main, Padmanabhanagar,
                       </p>
-                      <p className="font-serif text-base text-ivory">
+                      <p className="font-serif text-sm text-ivory/90">
                         Bengaluru 560070, Karnataka, India
                       </p>
                     </div>
                   </div>
 
-                  {/* Phone */}
-                  <div className="flex items-start gap-4">
-                    <Phone className="text-gold shrink-0 mt-1" size={18} />
-                    <div>
-                      <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold">
-                        Direct Lines
-                      </span>
-                      <p className="font-sans text-sm font-medium mt-0.5">
-                        Mobile:{" "}
-                        <a href="tel:+919740577775" className="text-ivory hover:text-gold transition-colors">
+                  {/* Branch Offices Segment */}
+                  <div>
+                    <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold block mb-3">
+                      Distinct Satellite Locations
+                    </span>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="bg-ivory/5 border border-gold/10 rounded-sm p-3 hover:bg-ivory/10 transition-colors">
+                        <p className="font-serif text-sm font-semibold text-gold">Hubballi Satellite Location</p>
+                        <p className="font-sans text-xs text-ivory/80 mt-1">Chamber #14, Ground Floor, District Court Complex, Hubballi - 580020</p>
+                      </div>
+                      <div className="bg-ivory/5 border border-gold/10 rounded-sm p-3 hover:bg-ivory/10 transition-colors">
+                        <p className="font-serif text-sm font-semibold text-gold">Dharwad Satellite Location</p>
+                        <p className="font-sans text-xs text-ivory/80 mt-1">Court Road, Near High Court Bench of Karnataka, Dharwad - 580011</p>
+                      </div>
+                      <div className="bg-ivory/5 border border-gold/10 rounded-sm p-3 hover:bg-ivory/10 transition-colors">
+                        <p className="font-serif text-sm font-semibold text-gold">Belagavi Satellite Location</p>
+                        <p className="font-sans text-xs text-ivory/80 mt-1">Chamber Complex, Opp. Civil Court, Club Road, Belagavi - 590001</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Phone & Email Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gold/15">
+                    <div className="flex items-start gap-3">
+                      <Phone className="text-gold shrink-0 mt-0.5" size={16} />
+                      <div>
+                        <span className="font-sans text-[9px] tracking-wider text-gold uppercase font-bold block">
+                          Admissions Desk
+                        </span>
+                        <a href="tel:+919740577775" className="font-sans text-xs text-ivory hover:text-gold transition-colors block mt-0.5">
                           +91 97405 77775
                         </a>
-                      </p>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Email */}
-                  <div className="flex items-start gap-4">
-                    <Mail className="text-gold shrink-0 mt-1" size={18} />
-                    <div>
-                      <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold">
-                        Digital Inquiries
-                      </span>
-                      <p className="font-sans text-sm font-medium mt-0.5">
-                        <a href="mailto:advrdsouza181@gmail.com" className="text-ivory hover:text-gold transition-colors">
+                    <div className="flex items-start gap-3">
+                      <Mail className="text-gold shrink-0 mt-0.5" size={16} />
+                      <div>
+                        <span className="font-sans text-[9px] tracking-wider text-gold uppercase font-bold block">
+                          Electronic Mail
+                        </span>
+                        <a href="mailto:advrdsouza181@gmail.com" className="font-sans text-xs text-ivory hover:text-gold transition-colors block mt-0.5 truncate">
                           advrdsouza181@gmail.com
                         </a>
-                      </p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Business Hours */}
-                  <div className="flex items-start gap-4">
-                    <Clock className="text-gold shrink-0 mt-1" size={18} />
-                    <div>
-                      <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold">
-                        Consultation Availability
-                      </span>
-                      <p className="font-sans text-sm text-ivory/90 mt-0.5 font-medium">
-                        Appointment Only (Open Now)
-                      </p>
-                      <p className="font-sans text-xs text-ivory/70 font-light">
-                        Call or WhatsApp to schedule a consultation
-                      </p>
-                    </div>
+                  {/* Booking Indicator */}
+                  <div className="flex items-center gap-2.5 bg-gold/10 border border-gold/20 p-2.5 rounded-sm text-xs mt-2">
+                    <Clock className="text-gold shrink-0" size={14} />
+                    <span className="font-sans text-[11px] text-ivory/90">
+                      Office Timings: 9:00 AM – 7:30 PM • Mon – Sat
+                    </span>
                   </div>
                 </div>
               </div>

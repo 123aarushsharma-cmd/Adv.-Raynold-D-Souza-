@@ -46,7 +46,7 @@ const testimonials: Testimonial[] = [
   },
   {
     id: 4,
-    quote: "Facing a completely frivolous criminal complaint designed to harass our executives, we approached Olive Law Chambers. Advocate Reynold D'Souza represented us before the High Court of Karnataka under Section 482 of CrPC. The Hon'ble Court was fully convinced by his brilliant legal arguments and quashed the entire proceedings. Professionalism at its finest.",
+    quote: "Facing a completely frivolous criminal complaint designed to harass our executives, we approached Olive Law Chambers®. Advocate Reynold D'Souza represented us before the High Court of Karnataka under Section 482 of CrPC. The Hon'ble Court was fully convinced by his brilliant legal arguments and quashed the entire proceedings. Professionalism at its finest.",
     author: "Sanjay Deshpande",
     title: "Director of Operations",
     organization: "Kalyani Tech Ventures",

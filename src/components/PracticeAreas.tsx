@@ -34,16 +34,16 @@ const practiceData: PracticeArea[] = [
   {
     id: "constitutional",
     title: "Constitutional & Human Rights Law",
-    shortDesc: "Aggressive and scholarly representation for fundamental rights and violations before KSHRC and NHRC.",
-    longDesc: "We provide high-stakes advocacy in cases involving fundamental constitutional liberties. Our firm regularly represents individuals and organizations before the High Court and administrative commissions, ensuring that executive actions and statutory applications strictly align with constitutional mandates.",
+    shortDesc: "Scholarly representation before the Supreme Court of India, High Court of Karnataka, and National/State Human Rights Commissions.",
+    longDesc: "We provide high-stakes advocacy in cases involving fundamental constitutional liberties, judicial reviews, and human rights violations. Our firm regularly represents individuals, associations, and corporate entities in writ petitions, special leave petitions, and constitutional appeals before the Hon'ble Supreme Court of India, the High Court of Karnataka (Bengaluru, Dharwad, and Kalaburagi Benches), and other High Courts across India.",
     icon: <Landmark size={24} />,
     iconName: "Landmark",
     mattersCovered: [
-      "Constitutional Law matters",
-      "Human Rights NHRC/KSHRC disputes",
-      "Fundamental Rights (Writ Petitions)",
-      "Administrative law challenges",
-      "Karnataka Administrative Tribunal matters"
+      "Writ Petitions & Constitutional challenges under Article 226 & 32",
+      "Special Leave Petitions (SLPs) before the Supreme Court of India",
+      "Appellate practice before the High Court of Karnataka",
+      "Human Rights litigation before NHRC and KSHRC",
+      "Administrative Law and Service matters before state tribunals"
     ],
     successCase: {
       title: "Constitutional Writ Petition",
@@ -54,16 +54,16 @@ const practiceData: PracticeArea[] = [
   {
     id: "criminal",
     title: "Criminal Defense & Trial Advocacy",
-    shortDesc: "Unyielding defense litigation representing clients before Sessions Courts, District Courts, and the High Court.",
-    longDesc: "When your freedom, livelihood, and reputation are on the line, we provide rigorous and uncompromised criminal defense. We handle complex trial advocacy, bail applications, and statutory appeals, ensuring that procedural standards and constitutional defenses are fully mobilized.",
+    shortDesc: "Rigorous trial defense and appellate representation before Sessions Courts, High Court, and the Supreme Court.",
+    longDesc: "When liberty, reputation, and livelihood are on the line, we deploy relentless and masterfully researched defense strategies. We handle complex trials, criminal appeals, revision petitions, and bail applications before Sessions Courts and District Courts in Bengaluru, Hubballi, Dharwad, Belagavi, the High Court of Karnataka, and the Supreme Court of India.",
     icon: <ShieldAlert size={24} />,
     iconName: "ShieldAlert",
     mattersCovered: [
-      "Criminal Law trials and appeals",
-      "Sessions Court defense litigations",
-      "High Court of Karnataka criminal revision petitions",
-      "Bail and Anticipatory Bail matters",
-      "IPC / CrPC statutory compliance defense"
+      "Rigorous criminal trials and district-level defense representation",
+      "Criminal appeals and revision petitions before High Courts",
+      "Appeals and special petitions before the Supreme Court of India",
+      "Bail and Anticipatory Bail applications (Section 438 CrPC / 482 BNSS)",
+      "White-collar defense, compliance audits, and commercial trials"
     ],
     successCase: {
       title: "Sessions Trial Defense Appeal",
@@ -74,16 +74,16 @@ const practiceData: PracticeArea[] = [
   {
     id: "property",
     title: "Property, Apartment & RERA Law",
-    shortDesc: "Full-scale property advocacy including K-RERA compliance, Apartment Association Laws, and land-use registration.",
-    longDesc: "Serving property developers, owners, apartment associations, and individual buyers across Karnataka. We handle RERA registrations and disputes, apartment society formations, complex land title clearances, and real estate litigation across tribunals.",
+    shortDesc: "Comprehensive property clearances, K-RERA litigation, and apartment association disputes.",
+    longDesc: "We advise developers, landowners, apartment associations, and individual buyers across Karnataka. We handle RERA registrations and disputes, title verification clearances, property acquisitions, and property litigation before Civil Courts, Revenue Courts, and the K-RERA Appellate Tribunal in our Bengaluru Head Office and distinct satellite locations.",
     icon: <Building2 size={24} />,
     iconName: "Building2",
     mattersCovered: [
-      "RERA (Regulatory Authority) K-RERA disputes",
-      "Apartment Association Laws & bylaws",
-      "Property acquisition & registration title clearances",
-      "Co-Operative Society Law matters",
-      "Quiet Title and Land-use litigation"
+      "K-RERA regulatory filing and compliance representation",
+      "Apartment Association bylaws, registrations, and dispute resolutions",
+      "Title investigation reports and due diligence checks",
+      "Partition suits, declarations, and property title litigation",
+      "Revenue court disputes, land conversion, and tenancy matters"
     ],
     successCase: {
       title: "K-RERA Regulatory Settlement",
@@ -94,7 +94,7 @@ const practiceData: PracticeArea[] = [
   {
     id: "consumer",
     title: "Consumer Rights Protection",
-    shortDesc: "Aggressive consumer advocacy before NCDRC/KSDRC and company disputes under NCLT.",
+    shortDesc: "Consumer disputes advocacy before District Commissions, KSDRC, NCDRC, and NCLT company trials.",
     longDesc: "Protecting consumer and business interests under national and state consumer acts. We prosecute fraudulent trade practices, service deficiencies, and corporate negligence, representing clients before District and State commissions with exceptional success.",
     icon: <ShieldCheck size={24} />,
     iconName: "ShieldCheck",
@@ -114,16 +114,16 @@ const practiceData: PracticeArea[] = [
   {
     id: "labour",
     title: "Labour & Administrative Tribunals",
-    shortDesc: "Dedicated dispute resolution and litigation before Karnataka Appellate and Administrative Tribunals.",
-    longDesc: "Representing public employees, workers, and organizations before specialised tribunals. We master the intricacies of public employment rules, service conditions, and industrial labor disputes to deliver strategic administrative victories.",
+    shortDesc: "Dedicated service law and administrative litigation before KAT, CGIT, and Labour Courts.",
+    longDesc: "Representing public employees, industrial workers, and employers before specialized tribunals. We regularly practice before the Karnataka Administrative Tribunal (KAT), Central Administrative Tribunal (CAT), Central Government Industrial Tribunal (CGIT), and various Central and State Labour Courts in our Bengaluru Head Office and distinct satellite locations.",
     icon: <Briefcase size={24} />,
     iconName: "Briefcase",
     mattersCovered: [
-      "Labour laws and Industrial Disputes",
-      "Karnataka Appellate Tribunal representation",
-      "Karnataka Administrative Tribunal (KAT) petitions",
-      "Service conditions & wrongful termination claims",
-      "Collective bargaining & settlements"
+      "KAT (Karnataka Administrative Tribunal) service law petitions",
+      "Central Administrative Tribunal (CAT) central government service cases",
+      "Labour court industrial disputes, wages, and terminations",
+      "Central Government Industrial Tribunal (CGIT) representations",
+      "Public employment rules, promotion challenges, and reinstatements"
     ],
     successCase: {
       title: "KAT Service Reinstatement",
@@ -133,17 +133,17 @@ const practiceData: PracticeArea[] = [
   },
   {
     id: "arbitration",
-    title: "Arbitration, Mediation & Family Law",
-    shortDesc: "Expert conciliation, family dispute settlements, and professional dispute resolution.",
-    longDesc: "We approach family, inheritance, and business restructuring with extreme discretion and high emotional intelligence. When dispute resolution demands absolute confidentiality, we orchestrate legally-binding arbitration and mediation to secure optimal settlements.",
+    title: "Arbitration, Mediation & Conciliation",
+    shortDesc: "Alternative Dispute Resolution (ADR) services covering international/domestic arbitration, mediation, and conciliation.",
+    longDesc: "When dispute resolution demands confidentiality, velocity, and specialized commercial expertise, our chambers orchestrate state-of-the-art Alternative Dispute Resolution (ADR). We offer comprehensive advocacy and neutral services in Domestic and International Arbitrations, judicial mediations, and family conciliation across Bengaluru, Hubballi, Dharwad, and Belagavi.",
     icon: <HeartHandshake size={24} />,
     iconName: "HeartHandshake",
     mattersCovered: [
-      "Arbitration, Mediation, Conciliation & Settlements",
-      "Family and Matrimonial disputes",
-      "Equitable partition & inheritance planning",
-      "Child custody & matrimonial mediation",
-      "Socio-economic amicable settlements"
+      "Commercial Arbitrations (Domestic and International)",
+      "Court-referred and private Meditations",
+      "Conciliation and settlement drafting of corporate/family disputes",
+      "Amicable partition, family dispute settlements, and family counselling",
+      "Section 11, 9, 34, and 37 applications under the Arbitration Act"
     ],
     successCase: {
       title: "Amicable Partition Dispute Settlement",
@@ -273,7 +273,7 @@ export default function PracticeAreas() {
               "@context": "https://schema.org",
               "@type": "LegalService",
               "@id": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/#practice-areas`,
-              "name": "Olive Law Chambers",
+              "name": "Olive Law Chambers®",
               "description": "Expert and scholarly legal services and trial advocacy led by Advocate Reynold D'Souza, covering Constitutional Law, Criminal Defense, Property Law, RERA, and Administrative Tribunals in Bengaluru.",
               "url": typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com",
               "telephone": "+91-80-XXXX-XXXX",
@@ -361,10 +361,16 @@ export default function PracticeAreas() {
             {filteredAreas.map((area) => (
               <motion.article
                 layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-40px" }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                transition={{
+                  opacity: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+                  y: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+                  scale: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+                  layout: { type: "spring", stiffness: 350, damping: 28 }
+                }}
                 key={area.id}
                 className="practice-card bg-sage-light/50 border border-forest/5 p-8 rounded-sm flex flex-col justify-between group relative overflow-hidden shadow-sm hover:shadow-md"
                 whileHover={{ 

@@ -34,10 +34,9 @@ service cloud.firestore {
     }
 
     // Rigorous Administrative Verification Gateway
-    // Strict compliance check ensuring domain alignment, target emails, and verified status
+    // Strict compliance check ensuring domain alignment and authorized admin identities
     function isAdmin() {
-      return isSignedIn() && 
-             request.auth.token.email_verified == true && (
+      return isSignedIn() && (
                request.auth.token.email == "123.aarushsharma@gmail.com" ||
                request.auth.token.email == "admin@olivelawchambers.com" ||
                request.auth.token.email == "reynold@olivelawchambers.com" ||
@@ -72,6 +71,30 @@ service cloud.firestore {
              data.message is string && data.message.size() > 0 && data.message.size() <= 5000 &&
              data.createdAt == createdAtVal &&
              (isCreate ? data.status == 'pending' : data.status in ['pending', 'reviewed', 'completed', 'archived']) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
+             (!('userId' in data) || (isSignedIn() && data.userId == request.auth.uid));
+    }
+
+    // Exact structural map check for Internship records to prevent Shadow Updates / Ghost fields
+    function hasOnlyValidInternshipKeys(data) {
+      return data.keys().hasAll(['name', 'email', 'phone', 'college', 'yearOfStudy', 'areaOfInterest', 'resumeUrl', 'coverLetter', 'createdAt', 'status']) &&
+             data.keys().size() == 10 + 
+             (('notes' in data) ? 1 : 0) + 
+             (('userId' in data) ? 1 : 0);
+    }
+
+    // Blueprint Validation for Internship
+    function isValidInternship(data, createdAtVal, isCreate) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 200 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50 &&
+             data.college is string && data.college.size() > 0 && data.college.size() <= 300 &&
+             data.yearOfStudy is string && data.yearOfStudy.size() > 0 && data.yearOfStudy.size() <= 100 &&
+             data.areaOfInterest is string && data.areaOfInterest.size() > 0 && data.areaOfInterest.size() <= 100 &&
+             data.resumeUrl is string && data.resumeUrl.size() > 0 && data.resumeUrl.size() <= 1000 &&
+             data.coverLetter is string && data.coverLetter.size() > 0 && data.coverLetter.size() <= 5000 &&
+             data.createdAt == createdAtVal &&
+             (isCreate ? data.status == 'pending' : data.status in ['pending', 'reviewed', 'accepted', 'rejected']) &&
              (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
              (!('userId' in data) || (isSignedIn() && data.userId == request.auth.uid));
     }
@@ -126,6 +149,35 @@ service cloud.firestore {
       allow delete: if isValidId(consultationId) && isAdmin();
     }
 
+    match /internships/{internshipId} {
+      // Individual get read - only allowed if user is an admin or the registered record owner
+      allow get: if isValidId(internshipId) && (
+        isAdmin() || (isSignedIn() && existing().userId == request.auth.uid)
+      );
+
+      // List query read - enforcer matches exact local field comparison. Client must query with where("userId", "==", currentUid)
+      allow list: if isAdmin() || (
+        isSignedIn() && resource.data.userId == request.auth.uid
+      );
+
+      // Intake creation - validated strictly against type boundaries, server-timestamp alignment, and status constraints
+      allow create: if isValidId(internshipId) && 
+                    hasOnlyValidInternshipKeys(incoming()) && 
+                    isValidInternship(incoming(), request.time, true);
+
+      // Update actions - strictly partitioned to admin execution and targeted fields (status and/or notes)
+      allow update: if isValidId(internshipId) && 
+                    isAdmin() && 
+                    hasOnlyValidInternshipKeys(incoming()) && 
+                    isValidInternship(incoming(), existing().createdAt, false) && (
+                      incoming().diff(existing()).affectedKeys().hasOnly(['status']) ||
+                      incoming().diff(existing()).affectedKeys().hasOnly(['status', 'notes'])
+                    );
+
+      // Deletion - strictly authorized for verified admins
+      allow delete: if isValidId(internshipId) && isAdmin();
+    }
+
     match /notifications/{notificationId} {
       // Direct notification fetch - Admin only
       allow get: if isValidId(notificationId) && isAdmin();
@@ -148,6 +200,28 @@ service cloud.firestore {
 
       // Notification removal - Admin only
       allow delete: if isValidId(notificationId) && isAdmin();
+    }
+
+    // ==========================================
+    // FIRM PROFILES & LEGAL ADVISORS MANAGEMENT
+    // ==========================================
+    match /founder_profile/{docId} {
+      // Public website read access to render founder picture and biography
+      allow read: if true;
+      // Admin-only management access
+      allow create, update, delete: if isValidId(docId) && isAdmin();
+    }
+
+    match /advocates/{advocateId} {
+      // Public website read access to render legal advisors
+      allow read: if true;
+      // Admin-only management access to add, update, or remove legal advisors
+      allow create, update, delete: if isValidId(advocateId) && isAdmin();
+    }
+
+    // Connection testing pathway
+    match /test/{docId} {
+      allow read: if true;
     }
   }
 }

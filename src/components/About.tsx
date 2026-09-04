@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Scale, Shield, Check, BookOpen, Clock } from "lucide-react";
+import { useTeamProfiles } from "../hooks/useTeamProfiles";
 
 const pillars = [
   {
@@ -26,6 +27,7 @@ const pillars = [
 ];
 
 export default function About() {
+  const { founder } = useTeamProfiles();
 
   return (
     <section className="py-14 md:py-16 bg-sage-light overflow-hidden">
@@ -36,21 +38,21 @@ export default function About() {
             <div className="relative group bg-white border border-forest/10 p-5 rounded-sm shadow-sm transition-all duration-300 hover:shadow-lg">
               {/* Double border aesthetic frame */}
               <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-gold/20 p-1 bg-ivory">
-                <div className="w-full h-full relative overflow-hidden rounded-sm">
+                <div className="w-full h-full relative overflow-hidden rounded-sm bg-forest/5 flex items-center justify-center">
                   <img
-                    src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600"
-                    alt="Advocate Reynold D'Souza"
+                    src={founder.photoUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600"}
+                    alt={founder.name}
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   {/* Elegant decorative gold overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                   
                   {/* Gold Corner accents */}
-                  <span className="absolute top-2 left-2 w-3 h-3 border-t border-l border-gold" />
-                  <span className="absolute top-2 right-2 w-3 h-3 border-t border-r border-gold" />
-                  <span className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-gold" />
-                  <span className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-gold" />
+                  <span className="absolute top-2 left-2 w-3 h-3 border-t border-l border-gold pointer-events-none" />
+                  <span className="absolute top-2 right-2 w-3 h-3 border-t border-r border-gold pointer-events-none" />
+                  <span className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-gold pointer-events-none" />
+                  <span className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-gold pointer-events-none" />
                 </div>
               </div>
 
@@ -59,29 +61,33 @@ export default function About() {
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-gold rounded-full" />
                   <span className="font-sans text-[10px] tracking-[0.2em] text-gold font-bold uppercase">
-                    Founder &amp; Principal
+                    {founder.role}
                   </span>
                 </div>
                 <h3 className="font-serif text-2xl font-bold text-forest leading-tight">
-                  Reynold D'Souza
+                  {founder.name}
                 </h3>
                 <p className="font-sans text-xs font-semibold text-gold uppercase tracking-wider">
-                  Advocate, High Court of Karnataka
+                  {founder.title}
                 </p>
                 
                 <p className="font-sans text-xs text-charcoal/80 leading-relaxed pt-1">
-                  Enrolled under the Bar Council, representing clients in Civil, Criminal, Constitutional, and Commercial litigation across Karnataka.
+                  {founder.bio}
                 </p>
                 
                 {/* Note / Quote inside portrait card */}
-                <div className="mt-4 bg-sage-light/50 p-4 rounded-sm border border-dashed border-forest/15">
-                  <p className="text-[11px] italic text-forest font-light leading-relaxed">
-                    "Justice is not just a destination, but the path we walk with every client we serve. Our commitment to your rights is absolute."
-                  </p>
-                  <p className="text-[9px] text-gold font-bold mt-2 uppercase tracking-widest text-right">
-                    — Founder's Note
-                  </p>
-                </div>
+                {founder.quote && (
+                  <div className="mt-4 bg-sage-light/50 p-4 rounded-sm border border-dashed border-forest/15">
+                    <p className="text-[11px] italic text-forest font-light leading-relaxed">
+                      "{founder.quote}"
+                    </p>
+                    {founder.quoteAuthor && (
+                      <p className="text-[9px] text-gold font-bold mt-2 uppercase tracking-widest text-right">
+                        {founder.quoteAuthor}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -8,6 +8,7 @@ interface ScrollAnimateProps {
   variant?: "fade-up" | "fade-in" | "fade-right" | "fade-left" | "zoom-in";
   duration?: number;
   id?: string;
+  key?: React.Key;
 }
 
 export default function ScrollAnimate({

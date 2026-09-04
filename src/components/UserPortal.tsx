@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import firmLogo from "../assets/logo.png";
 import { 
   X, 
   ShieldCheck, 
@@ -179,8 +180,8 @@ export default function UserPortal({ isOpen, onClose, onOpenConsultation }: User
               ) : !currentUser ? (
                 /* GUEST / LOG IN STATE */
                 <div className="flex flex-col items-center justify-center py-16 px-6 max-w-md mx-auto text-center h-full">
-                  <div className="w-16 h-16 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-6">
-                    <Scale size={28} />
+                  <div className="w-20 h-20 rounded-full bg-forest/5 border border-gold/40 flex items-center justify-center p-2.5 mb-6 shadow-md">
+                    <img src={firmLogo} alt="Olive Law Chambers® Logo" className="w-full h-full object-contain drop-shadow-sm" />
                   </div>
                   <h4 className="font-serif text-2xl text-forest font-semibold leading-snug">
                     Enter Secure Consultation Desk

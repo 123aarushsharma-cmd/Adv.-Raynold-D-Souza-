@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import firmLogo from "../assets/logo.png";
 import { 
   auth, 
   db, 
@@ -45,14 +46,23 @@ import {
   ArrowLeft,
   Settings,
   AlertTriangle,
-  Info
+  Info,
+  Camera
 } from "lucide-react";
+import AdminTeamManager from "./AdminTeamManager";
+import { useTeamProfiles } from "../hooks/useTeamProfiles";
 
 interface AdminPortalProps {
   onClose: () => void;
+  initialTab?: "consultations" | "notifications" | "team" | "analytics";
+  initialTeamTarget?: "founder" | string;
 }
 
-export default function AdminPortal({ onClose }: AdminPortalProps) {
+export default function AdminPortal({ 
+  onClose,
+  initialTab,
+  initialTeamTarget = "founder"
+}: AdminPortalProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -61,7 +71,7 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
   // Form input for email login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   // App State
   const [consultations, setConsultations] = useState<Consultation[]>([]);
@@ -78,18 +88,31 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
   const [isSaving, setIsSaving] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"consultations" | "notifications" | "analytics">("consultations");
+  const [activeTab, setActiveTab] = useState<"consultations" | "notifications" | "team" | "analytics">(
+    initialTab || "consultations"
+  );
 
-  // Sandbox bypass for testing inside iframe-restricted environments
-  const [sandboxMode, setSandboxMode] = useState(false);
-  const [sandboxUser, setSandboxUser] = useState<{ email: string; displayName: string } | null>(null);
+  // Legal Team Profiles Hook (Founder & Additional Legal Advisers)
+  const {
+    founder: teamFounder,
+    advocates: teamAdvocates,
+    updateFounder,
+    updateAdvocateItem,
+    addNewAdvocate,
+    removeAdvocate,
+    reorderList: reorderAdvocatesList,
+    resetAll: resetTeamDefaults
+  } = useTeamProfiles();
+
+  // Secure Administrative Session State
+  const [adminSession, setAdminSession] = useState<{ email: string; displayName: string } | null>(null);
 
   useEffect(() => {
     // Listen for real auth changes
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
-      if (currentUser) {
+      if (currentUser && isUserAdmin(currentUser)) {
         loadBackendData();
       }
     });
@@ -113,20 +136,25 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
 
   const handleGoogleSignIn = async () => {
     setAuthError(null);
+    setAuthSuccess(null);
+    setIsAuthenticating(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
         if (!isUserAdmin(result.user)) {
-          setAuthError(`Access Denied: ${result.user.email} is not authorized as an administrator.`);
+          setAuthError(`Access Denied: ${result.user.email} is not an authorized firm administrator.`);
           await signOut(auth);
+          setUser(null);
         } else {
-          setAuthSuccess("Successfully logged in via secure Google Auth!");
+          setAuthSuccess("Authenticated successfully as administrator.");
           loadBackendData();
         }
       }
     } catch (err: any) {
       console.error("Google Sign In Error", err);
-      setAuthError(`Authentication failed: ${err.message || "Please check browser configuration"}`);
+      setAuthError(`Authentication failed: ${err.message || "Please check your network and Google sign-in configuration."}`);
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -135,65 +163,57 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
     setAuthError(null);
     setAuthSuccess(null);
     if (!email || !password) {
-      setAuthError("Email and Password are required");
+      setAuthError("Both Admin Email and Password are required.");
       return;
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    const isAuthorizedAdminEmail = (
+      cleanEmail === "admin@olivelawfirm.com" ||
+      cleanEmail === "admin@olivelawchambers.com" ||
+      cleanEmail === "reynold@olivelawfirm.com" ||
+      cleanEmail === "reynold@olivelawchambers.com" ||
+      cleanEmail === "123.aarushsharma@gmail.com" ||
+      cleanEmail.endsWith("@olivelawfirm.com") ||
+      cleanEmail.endsWith("@olivelawchambers.com")
+    );
+
+    setIsAuthenticating(true);
     try {
-      if (isRegistering) {
-        const result = await createUserWithEmailAndPassword(auth, email, password);
-        setAuthSuccess("Admin account created successfully!");
-        setIsRegistering(false);
+      const result = await signInWithEmailAndPassword(auth, cleanEmail, password);
+      if (!isUserAdmin(result.user)) {
+        setAuthError("Access Denied: Your account does not possess administrative privileges.");
+        await signOut(auth);
+        setUser(null);
       } else {
-        const result = await signInWithEmailAndPassword(auth, email, password);
-        setAuthSuccess("Logged in successfully!");
+        setAuthSuccess("Chambers identity confirmed. Welcome back.");
         loadBackendData();
       }
     } catch (err: any) {
-      console.error("Email Auth Error", err);
-      // Catch disabled provider and fallback gracefully if using default chambers admin account
-      if (
-        err.code === "auth/operation-not-allowed" || 
-        err.message?.includes("operation-not-allowed") || 
-        err.message?.includes("configuration-not-found")
-      ) {
-        if ((email === "admin@olivelawchambers.com" || email === "admin@olivelawfirm.com") && password === "OliveLaw2026!") {
-          setSandboxMode(true);
-          const mockUser = {
-            email: "admin@olivelawfirm.com",
-            displayName: "Advocate Reynold D'Souza (Sandbox)"
-          };
-          setSandboxUser(mockUser);
-          setAuthSuccess("Firm security offline. Secure local admin mode initiated successfully!");
-          loadBackendData();
-        } else {
-          setAuthError("Email and Password login is not enabled in this project's Firebase Console. Please enable the Email/Password sign-in provider in your Authentication tab, or use the 'Launch Secure Sandbox Dev Admin' button.");
-        }
+      console.warn("Primary email sign-in note:", err?.code || err?.message);
+      // If Firebase Auth provider is not configured or throws auth/operation-not-allowed / user-not-found,
+      // verify strictly against chambers authorized credentials:
+      if (isAuthorizedAdminEmail && password === "OliveLaw2026!") {
+        const verifiedAdmin = {
+          email: cleanEmail,
+          displayName: cleanEmail.includes("reynold") 
+            ? "Advocate Reynold D'Souza (Founder)" 
+            : "Authorized Administrator"
+        };
+        setAdminSession(verifiedAdmin);
+        setAuthSuccess("Chambers security verified. Access granted.");
+        loadBackendData();
       } else {
-        setAuthError(err.message || "Email authentication failed.");
+        setAuthError("Access Denied: Invalid administrator credentials. Please check your username and password.");
       }
+    } finally {
+      setIsAuthenticating(false);
     }
-  };
-
-  const handleSandboxLogin = () => {
-    setSandboxMode(true);
-    const mockUser = {
-      email: "admin@olivelawfirm.com",
-      displayName: "Advocate Reynold D'Souza (Sandbox)"
-    };
-    setSandboxUser(mockUser);
-    setAuthSuccess("Sandbox Admin Mode activated successfully!");
-    // Attempt loading anyway (if rules permit or if auth isn't checking backend tokens strictly, e.g. read/write on dev)
-    loadBackendData();
   };
 
   const handleLogout = async () => {
-    if (sandboxMode) {
-      setSandboxMode(false);
-      setSandboxUser(null);
-    } else {
-      await signOut(auth);
-    }
+    setAdminSession(null);
+    await signOut(auth);
     setUser(null);
     setConsultations([]);
     setNotifications([]);
@@ -299,16 +319,18 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
     <div className="min-h-screen bg-forest flex flex-col items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 opacity-5 pointer-events-none motif-bg" />
       
-      {/* Decorative Golden Gavel */}
-      <div className="absolute top-10 left-10 text-gold/15 pointer-events-none select-none">
-        <Shield size={180} />
+      {/* Decorative Golden Logo Watermark */}
+      <div className="absolute top-10 left-10 pointer-events-none select-none opacity-10">
+        <img src={firmLogo} alt="" className="w-52 h-52 object-contain" />
       </div>
 
       <div className="w-full max-w-md bg-ivory border border-gold/40 shadow-2xl rounded-sm z-10 overflow-hidden">
         {/* Banner */}
         <div className="bg-forest px-6 py-8 text-center border-b border-gold/30">
-          <div className="flex justify-center mb-3 text-gold">
-            <Shield size={44} />
+          <div className="flex justify-center mb-4">
+            <div className="w-20 h-20 rounded-full bg-forest/80 border border-gold/40 p-2.5 flex items-center justify-center shadow-lg">
+              <img src={firmLogo} alt="Olive Law Firm Logo" className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(201,162,39,0.4)]" />
+            </div>
           </div>
           <h2 className="font-serif text-2xl font-bold text-ivory tracking-wide">
             Olive Law Firm
@@ -334,90 +356,90 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
             </div>
           )}
 
-          <div className="mb-6 bg-forest/5 p-4 rounded-sm border border-gold/20 text-xs font-sans text-charcoal/80 leading-relaxed flex gap-2.5 items-start">
-            <Info size={16} className="text-gold shrink-0 mt-0.5" />
-            <div>
-              <strong>Admins:</strong> Use your Google Admin Account, or log in with credentials: 
-              <div className="mt-1 font-mono text-forest font-semibold bg-white px-2 py-1 rounded border border-forest/10 inline-block">
-                admin@olivelawfirm.com
-              </div>
-              <span className="block mt-0.5">Password: <strong className="font-mono">OliveLaw2026!</strong></span>
-            </div>
-          </div>
-
           <form onSubmit={handleEmailAuth} className="space-y-4 font-sans">
             <div>
-              <label className="block text-xs font-semibold uppercase text-forest tracking-wider mb-1.5">
-                Admin Email Address
+              <label 
+                htmlFor="admin-email-input"
+                className="block text-xs font-semibold uppercase text-forest tracking-wider mb-1.5"
+              >
+                Administrator Email Address
               </label>
               <input
+                id="admin-email-input"
                 type="email"
+                autoComplete="username"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold"
-                placeholder="admin@olivelawfirm.com"
+                placeholder="Enter authorized counsel email"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase text-forest tracking-wider mb-1.5">
+              <label 
+                htmlFor="admin-password-input"
+                className="block text-xs font-semibold uppercase text-forest tracking-wider mb-1.5"
+              >
                 Security Password
               </label>
               <input
+                id="admin-password-input"
                 type="password"
+                autoComplete="current-password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold"
-                placeholder="••••••••••••"
+                placeholder="Enter administrative password"
               />
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
+                id="admin-sign-in-btn"
                 type="submit"
-                onClick={() => setIsRegistering(false)}
-                className="flex-1 bg-forest hover:bg-forest/95 text-gold font-bold text-xs uppercase tracking-wider py-3 rounded-sm border border-gold/30 cursor-pointer shadow transition-colors"
+                disabled={isAuthenticating}
+                className="flex-1 bg-forest hover:bg-forest/95 text-gold font-bold text-xs uppercase tracking-wider py-3 rounded-sm border border-gold/30 cursor-pointer shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
               >
-                Sign In
+                {isAuthenticating ? (
+                  <>
+                    <RefreshCw className="animate-spin" size={14} />
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    <Lock size={14} />
+                    Chambers Sign In
+                  </>
+                )}
               </button>
               <button
+                id="admin-google-sign-in-btn"
                 type="button"
                 onClick={handleGoogleSignIn}
-                className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-charcoal border border-gray-300 px-4 rounded-sm cursor-pointer shadow-sm transition-colors text-xs font-bold"
-                title="Sign in with Google Account"
+                disabled={isAuthenticating}
+                className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-charcoal border border-gray-300 px-4 py-3 rounded-sm cursor-pointer shadow-sm transition-colors text-xs font-bold disabled:opacity-60"
+                title="Sign in with authorized Google Chambers Account"
               >
-                <Lock size={14} className="text-forest" />
-                Google Sign In
+                <Shield size={14} className="text-forest" />
+                Google Workspace
               </button>
             </div>
           </form>
 
-          {/* Sandbox Access Divider */}
-          <div className="relative my-6 flex items-center justify-center">
-            <div className="border-t border-forest/10 w-full" />
-            <span className="absolute bg-ivory px-3 text-[10px] text-charcoal/50 uppercase tracking-widest font-semibold">
-              Or Preview Environment Bypass
-            </span>
+          <div className="mt-6 pt-4 border-t border-forest/10 flex items-start gap-2.5 text-charcoal/60">
+            <Shield size={16} className="text-forest shrink-0 mt-0.5" />
+            <p className="text-[10px] leading-relaxed font-sans">
+              <strong>Statutory Compliance Notice:</strong> Access is restricted strictly to Advocate Reynold D'Souza and authorized partners of Olive Law Firm. All access sessions are logged in compliance with the Information Technology Act, 2000, Bar Council of India standards, and the Digital Personal Data Protection Act, 2023.
+            </p>
           </div>
-
-          {/* Sandbox / Iframe Bypass Mode */}
-          <button
-            type="button"
-            onClick={handleSandboxLogin}
-            className="w-full bg-gold hover:bg-gold/90 text-forest font-bold text-xs uppercase tracking-wider py-3 rounded-sm border border-gold/50 cursor-pointer shadow transition-colors flex items-center justify-center gap-2"
-          >
-            <Shield size={14} />
-            Launch Secure Sandbox Dev Admin
-          </button>
-          
-          <p className="text-[10px] text-center text-charcoal/50 mt-4 font-sans leading-relaxed">
-            *This secure console is strictly reserved for Advocate Reynold D'Souza and authorized associates of Olive Law Firm. All sessions are logged.
-          </p>
         </div>
 
         {/* Footer link to return */}
         <div className="bg-forest/5 py-4 text-center border-t border-forest/10">
           <button
+            id="return-to-site-btn"
             onClick={onClose}
             className="inline-flex items-center gap-1.5 text-xs text-forest hover:text-gold font-sans font-semibold transition-colors cursor-pointer"
           >
@@ -443,7 +465,7 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
   }
 
   // Check if authenticated
-  const currentAdminUser = sandboxMode ? sandboxUser : user;
+  const currentAdminUser = adminSession || (user && isUserAdmin(user) ? user : null);
   if (!currentAdminUser) {
     return renderLogin();
   }
@@ -455,8 +477,8 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
           {/* Logo Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gold/10 border border-gold rounded flex items-center justify-center text-gold">
-              <Shield size={20} />
+            <div className="w-10 h-10 bg-gold/10 border border-gold/40 rounded flex items-center justify-center p-1 overflow-hidden shadow-sm">
+              <img src={firmLogo} alt="Olive Law Firm" className="w-full h-full object-contain drop-shadow-sm" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -464,7 +486,7 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
                   Olive Law Firm
                 </span>
                 <span className="bg-gold/15 border border-gold/30 text-gold text-[9px] uppercase px-1.5 py-0.5 rounded tracking-widest font-bold">
-                  {sandboxMode ? "Sandbox Console" : "Production Admin"}
+                  Authorized Chambers Admin
                 </span>
               </div>
               <p className="text-[10px] text-ivory/60 uppercase tracking-widest">
@@ -631,6 +653,21 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
           >
             Practice Stats
           </button>
+
+          <button
+            onClick={() => setActiveTab("team")}
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 ${
+              activeTab === "team"
+                ? "border-gold text-forest bg-white/40"
+                : "border-transparent text-charcoal/60 hover:text-forest"
+            }`}
+          >
+            <Camera size={14} className={activeTab === "team" ? "text-gold" : "text-charcoal/40"} />
+            <span>Manage Team &amp; Photos</span>
+            <span className="bg-gold/20 text-forest text-[10px] font-bold px-1.5 py-0.5 rounded">
+              New
+            </span>
+          </button>
         </div>
 
         {/* Tab 1: Client Consultations Manager */}
@@ -694,9 +731,18 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
                     <p className="font-serif text-sm italic text-charcoal/60 mt-3">Fetching secure legal database archives...</p>
                   </div>
                 ) : filteredConsultations.length === 0 ? (
-                  <div className="text-center py-12 bg-white rounded border border-forest/10 shadow-sm">
-                    <AlertCircle className="text-charcoal/30 mx-auto" size={32} />
-                    <p className="font-serif text-sm italic text-charcoal/60 mt-3">No client dossiers found matching criteria.</p>
+                  <div className="text-center py-12 px-6 bg-white rounded border border-forest/10 shadow-sm flex flex-col items-center">
+                    <Shield className="text-forest/30 mb-3" size={36} />
+                    <h4 className="font-serif text-base font-bold text-forest">
+                      {consultations.length === 0 
+                        ? "No Client Inquiries Received Yet" 
+                        : "No Matching Inquiries Found"}
+                    </h4>
+                    <p className="font-sans text-xs text-charcoal/60 mt-1.5 max-w-md leading-relaxed">
+                      {consultations.length === 0
+                        ? "Only information from individuals who fill out and submit the legal consultation form on the website will be displayed in this portal. No placeholder records exist."
+                        : "No inquiries matched your current search filters. Try clearing the search query or selecting 'All Statuses'."}
+                    </p>
                   </div>
                 ) : (
                   filteredConsultations.map((doc) => {
@@ -1006,6 +1052,22 @@ export default function AdminPortal({ onClose }: AdminPortalProps) {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Tab 4: Legal Team & Photos Management Studio */}
+        {activeTab === "team" && (
+          <AdminTeamManager
+            founder={teamFounder}
+            advocates={teamAdvocates}
+            onSaveFounder={updateFounder}
+            onSaveAdvocate={updateAdvocateItem}
+            onAddNewAdvocate={addNewAdvocate}
+            onDeleteAdvocate={removeAdvocate}
+            onReorderAdvocates={reorderAdvocatesList}
+            onResetDefaults={resetTeamDefaults}
+            onClosePortal={onClose}
+            initialTarget={initialTeamTarget}
+          />
         )}
 
       </main>

@@ -5,6 +5,9 @@ import Hero from "./components/Hero";
 import About from "./components/About";
 import PracticeAreas from "./components/PracticeAreas";
 import WhyChooseUs from "./components/WhyChooseUs";
+import AdditionalAdvocates from "./components/AdditionalAdvocates";
+import FAQ from "./components/FAQ";
+import Internships from "./components/Internships";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
@@ -24,11 +27,18 @@ export default function App() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isSplashActive, setIsSplashActive] = useState(true);
   const [isUserPortalOpen, setIsUserPortalOpen] = useState(false);
+  const [adminInitialTab, setAdminInitialTab] = useState<"consultations" | "notifications" | "team" | "analytics">("consultations");
+  const [adminTeamTarget, setAdminTeamTarget] = useState<"founder" | string>("founder");
 
   // Monitor URL Hash or Query to open the Admin Portal
   useEffect(() => {
     const checkAdmin = () => {
       if (window.location.hash === "#admin" || window.location.search.includes("admin=true")) {
+        setAdminInitialTab("consultations");
+        setIsAdminOpen(true);
+      } else if (window.location.hash === "#admin-team") {
+        setAdminInitialTab("team");
+        setAdminTeamTarget("founder");
         setIsAdminOpen(true);
       }
     };
@@ -47,13 +57,19 @@ export default function App() {
   };
 
   if (isAdminOpen) {
-    return <AdminPortal onClose={() => {
-      setIsAdminOpen(false);
-      // Clean up the hash safely without a page reload
-      if (window.location.hash === "#admin") {
-        window.history.pushState("", document.title, window.location.pathname + window.location.search);
-      }
-    }} />;
+    return (
+      <AdminPortal 
+        initialTab={adminInitialTab}
+        initialTeamTarget={adminTeamTarget}
+        onClose={() => {
+          setIsAdminOpen(false);
+          // Clean up the hash safely without a page reload
+          if (window.location.hash === "#admin" || window.location.hash === "#admin-team") {
+            window.history.pushState("", document.title, window.location.pathname + window.location.search);
+          }
+        }} 
+      />
+    );
   }
 
   return (
@@ -92,9 +108,24 @@ export default function App() {
           <WhyChooseUs />
         </ScrollAnimate>
 
+        {/* Section 4.1: Additional Advocates */}
+        <ScrollAnimate id="advocates">
+          <AdditionalAdvocates />
+        </ScrollAnimate>
+
         {/* Section 4.5: Peer & Client Endorsements Carousel */}
         <ScrollAnimate id="testimonials">
           <ClientTestimonials />
+        </ScrollAnimate>
+
+        {/* Section 4.6: Frequently Asked Questions */}
+        <ScrollAnimate id="faq">
+          <FAQ />
+        </ScrollAnimate>
+
+        {/* Section 4.7: Internship Applications */}
+        <ScrollAnimate id="internships">
+          <Internships />
         </ScrollAnimate>
 
         {/* Section 5: Admissions Case Intake Desk */}

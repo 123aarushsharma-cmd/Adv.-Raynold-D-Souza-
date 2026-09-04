@@ -57,7 +57,7 @@ export default function Footer({ onOpenAdmin, onOpenPrivacy, onOpenTerms }: Foot
               <Logo inverse={true} size={46} />
             </a>
             <p className="font-sans text-sm text-ivory/80 leading-relaxed font-light max-w-xl">
-              Olive Law Firm is a premier multi-disciplinary advocate chamber in Bengaluru led by Advocate Reynold D'Souza. 
+              Olive Law Chambers® is a premier multi-disciplinary advocacy chamber in Bengaluru led by Advocate Reynold D'Souza. 
               We offer uncompromising legal strategy paired with meticulous scholarly research, 
               delivering equitable results that stand the test of time.
             </p>
@@ -103,7 +103,7 @@ export default function Footer({ onOpenAdmin, onOpenPrivacy, onOpenTerms }: Foot
         {/* Bottom Compliance & Copyright Row */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ivory/60 font-light">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 justify-center sm:justify-start">
-            <span>&copy; {currentYear} Olive Law Firm. All rights reserved.</span>
+            <span>© {currentYear} Olive Law Chambers®. All rights reserved.</span>
             <span className="hidden sm:inline w-1 h-1 rounded-full bg-gold" />
             <button 
               onClick={(e) => {
