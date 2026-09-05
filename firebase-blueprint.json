@@ -10,7 +10,9 @@
         "message": { "type": "string" },
         "createdAt": { "type": "timestamp" },
         "status": { "type": "string", "values": ["pending", "reviewed", "completed", "archived"] },
-        "notes": { "type": "string", "optional": true }
+        "notes": { "type": "string", "optional": true },
+        "assignedEmail": { "type": "string", "optional": true },
+        "userId": { "type": "string", "optional": true }
       }
     },
     "internships": {
@@ -25,7 +27,9 @@
         "coverLetter": { "type": "string" },
         "createdAt": { "type": "timestamp" },
         "status": { "type": "string", "values": ["pending", "reviewed", "accepted", "rejected"] },
-        "notes": { "type": "string", "optional": true }
+        "notes": { "type": "string", "optional": true },
+        "assignedEmail": { "type": "string", "optional": true },
+        "userId": { "type": "string", "optional": true }
       }
     },
     "notifications": {

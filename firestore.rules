@@ -60,15 +60,15 @@ service cloud.firestore {
     }
 
     // Blueprint Validation for Consultation
-    function isValidConsultation(data, createdAtVal, isCreate) {
+    function isValidConsultation(data, isCreate) {
       return data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
              data.email is string && data.email.size() > 0 && data.email.size() <= 200 &&
              data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50 &&
              (!('subject' in data) || (data.subject is string && data.subject.size() <= 200)) &&
              data.practiceArea is string && data.practiceArea.size() > 0 && data.practiceArea.size() <= 100 &&
              data.message is string && data.message.size() > 0 && data.message.size() <= 5000 &&
-             data.createdAt == createdAtVal &&
-             (isCreate ? data.status == 'pending' : data.status in ['pending', 'reviewed', 'completed', 'archived']) &&
+             data.createdAt is timestamp &&
+             (isCreate ? data.status == 'pending' : (data.createdAt == existing().createdAt && data.status in ['pending', 'reviewed', 'completed', 'archived'])) &&
              (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
              (!('assignedEmail' in data) || (data.assignedEmail is string && data.assignedEmail.size() <= 200)) &&
              (!('userId' in data) || (isSignedIn() && data.userId == request.auth.uid));
@@ -84,7 +84,7 @@ service cloud.firestore {
     }
 
     // Blueprint Validation for Internship
-    function isValidInternship(data, createdAtVal, isCreate) {
+    function isValidInternship(data, isCreate) {
       return data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
              data.email is string && data.email.size() > 0 && data.email.size() <= 200 &&
              data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50 &&
@@ -93,8 +93,8 @@ service cloud.firestore {
              data.areaOfInterest is string && data.areaOfInterest.size() > 0 && data.areaOfInterest.size() <= 100 &&
              data.resumeUrl is string && data.resumeUrl.size() > 0 && data.resumeUrl.size() <= 1000 &&
              data.coverLetter is string && data.coverLetter.size() > 0 && data.coverLetter.size() <= 5000 &&
-             data.createdAt == createdAtVal &&
-             (isCreate ? data.status == 'pending' : data.status in ['pending', 'reviewed', 'accepted', 'rejected']) &&
+             data.createdAt is timestamp &&
+             (isCreate ? data.status == 'pending' : (data.createdAt == existing().createdAt && data.status in ['pending', 'reviewed', 'accepted', 'rejected'])) &&
              (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
              (!('assignedEmail' in data) || (data.assignedEmail is string && data.assignedEmail.size() <= 200)) &&
              (!('userId' in data) || (isSignedIn() && data.userId == request.auth.uid));
@@ -107,12 +107,12 @@ service cloud.firestore {
     }
 
     // Blueprint Validation for Notifications
-    function isValidNotification(data, createdAtVal, isCreate) {
+    function isValidNotification(data, isCreate) {
       return data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
              data.message is string && data.message.size() > 0 && data.message.size() <= 1000 &&
-             data.createdAt == createdAtVal &&
+             data.createdAt is timestamp &&
              data.read is bool &&
-             (isCreate ? data.read == false : true) &&
+             (isCreate ? data.read == false : data.createdAt == existing().createdAt) &&
              data.type is string && data.type.size() > 0 && data.type.size() <= 100 &&
              (!('relatedId' in data) || (data.relatedId is string && data.relatedId.size() <= 128));
     }
@@ -135,13 +135,13 @@ service cloud.firestore {
       // Intake creation - validated strictly against type boundaries, server-timestamp alignment, and status constraints
       allow create: if isValidId(consultationId) && 
                     hasOnlyValidConsultationKeys(incoming()) && 
-                    isValidConsultation(incoming(), request.time, true);
+                    isValidConsultation(incoming(), true);
 
       // Update actions - strictly partitioned to admin execution and targeted fields (status and/or notes)
       allow update: if isValidId(consultationId) && 
                     isAdmin() && 
                     hasOnlyValidConsultationKeys(incoming()) && 
-                    isValidConsultation(incoming(), existing().createdAt, false) && (
+                    isValidConsultation(incoming(), false) && (
                       incoming().diff(existing()).affectedKeys().hasOnly(['status']) ||
                       incoming().diff(existing()).affectedKeys().hasOnly(['status', 'notes'])
                     );
@@ -164,13 +164,13 @@ service cloud.firestore {
       // Intake creation - validated strictly against type boundaries, server-timestamp alignment, and status constraints
       allow create: if isValidId(internshipId) && 
                     hasOnlyValidInternshipKeys(incoming()) && 
-                    isValidInternship(incoming(), request.time, true);
+                    isValidInternship(incoming(), true);
 
       // Update actions - strictly partitioned to admin execution and targeted fields (status and/or notes)
       allow update: if isValidId(internshipId) && 
                     isAdmin() && 
                     hasOnlyValidInternshipKeys(incoming()) && 
-                    isValidInternship(incoming(), existing().createdAt, false) && (
+                    isValidInternship(incoming(), false) && (
                       incoming().diff(existing()).affectedKeys().hasOnly(['status']) ||
                       incoming().diff(existing()).affectedKeys().hasOnly(['status', 'notes'])
                     );
@@ -189,13 +189,13 @@ service cloud.firestore {
       // Notification creation - validated strictly
       allow create: if isValidId(notificationId) && 
                     hasOnlyValidNotificationKeys(incoming()) && 
-                    isValidNotification(incoming(), request.time, true);
+                    isValidNotification(incoming(), true);
 
       // Notification read status update - Admin only, limited strictly to the 'read' attribute
       allow update: if isValidId(notificationId) && 
                     isAdmin() && 
                     hasOnlyValidNotificationKeys(incoming()) && 
-                    isValidNotification(incoming(), existing().createdAt, false) && (
+                    isValidNotification(incoming(), false) && (
                       incoming().diff(existing()).affectedKeys().hasOnly(['read'])
                     );
 

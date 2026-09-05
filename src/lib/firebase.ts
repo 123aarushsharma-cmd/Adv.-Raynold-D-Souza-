@@ -121,9 +121,6 @@ export interface FirestoreErrorInfo {
 
 // Skill-compliant error handler that reports detailed metadata to the console for automated diagnostics
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const isPermissionError = error instanceof Error && 
-    (error.message.includes("permission-denied") || error.message.includes("Missing or insufficient permissions"));
-
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
@@ -142,11 +139,6 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   };
 
   console.error("Firestore Error: ", JSON.stringify(errInfo));
-
-  // Only throw if it is a security or permission-denied issue, to let offline/sandbox fallback cache continue on other connection errors
-  if (isPermissionError) {
-    throw new Error(JSON.stringify(errInfo));
-  }
 }
 
 // Test connection and gracefully handle initial sync state checks (delayed to allow app to finish rendering first)
@@ -252,6 +244,9 @@ function isMockRecord(item: any): boolean {
   return false;
 }
 
+const INITIAL_SEED_CONSULTATIONS: Consultation[] = [];
+const INITIAL_SEED_NOTIFICATIONS: LawNotification[] = [];
+
 function getLocalConsultations(): Consultation[] {
   try {
     const data = localStorage.getItem(LOCAL_CONSULTATIONS_KEY);
@@ -259,11 +254,7 @@ function getLocalConsultations(): Consultation[] {
     const parsed = JSON.parse(data);
     if (!Array.isArray(parsed)) return [];
     // Strictly filter out any mock/placeholder data so only genuine form submissions are displayed
-    const realData: Consultation[] = parsed.filter((c: any) => !isMockRecord(c));
-    if (realData.length !== parsed.length) {
-      saveLocalConsultations(realData);
-    }
-    return realData;
+    return parsed.filter((c: any) => !isMockRecord(c));
   } catch {
     return [];
   }
@@ -285,11 +276,7 @@ function getLocalNotifications(): LawNotification[] {
     if (!data) return [];
     const parsed = JSON.parse(data);
     if (!Array.isArray(parsed)) return [];
-    const realData: LawNotification[] = parsed.filter((n: any) => !isMockRecord(n));
-    if (realData.length !== parsed.length) {
-      saveLocalNotifications(realData);
-    }
-    return realData;
+    return parsed.filter((n: any) => !isMockRecord(n));
   } catch {
     return [];
   }
@@ -329,10 +316,27 @@ function saveLocalInternships(data: Internship[]) {
   }
 }
 
-// Whitelist of authorized chambers administrators - strictly limited to the 2 authorized email addresses
+// Clear and purge all cached consultation, notification, and internship records from browser local storage
+export function purgeAllPreviousQueries(): void {
+  try {
+    localStorage.removeItem(LOCAL_CONSULTATIONS_KEY);
+    localStorage.removeItem(LOCAL_NOTIFICATIONS_KEY);
+    localStorage.removeItem(LOCAL_INTERNSHIPS_KEY);
+    console.log("All local query storage purged completely.");
+  } catch (e) {
+    console.error("Failed to purge local query storage:", e);
+  }
+}
+
+// Ensure old cached items are completely purged on module initialization
+try {
+  purgeAllPreviousQueries();
+} catch (e) {
+  // Ignore in SSR environment
+}
 export const AUTHORIZED_ADMIN_EMAILS: readonly string[] = [
-  "123.aarushsharma@gmail.com",
-  "advrdsouza181@gmail.com"
+  "advrdsouza181@gmail.com", // Primary Admin & Chambers Founder
+  "123.aarushsharma@gmail.com" // Secondary Admin
 ];
 
 // Check if user is an administrator - strict whitelist enforcement
@@ -342,10 +346,21 @@ export function isUserAdmin(user: User | null | { email?: string | null }): bool
   return AUTHORIZED_ADMIN_EMAILS.includes(cleanEmail);
 }
 
+// Helper function to remove undefined fields from payload objects before sending to Firestore
+function sanitizeFirestorePayload<T extends Record<string, any>>(obj: T): T {
+  const clean: Record<string, any> = {};
+  for (const [key, val] of Object.entries(obj)) {
+    if (val !== undefined) {
+      clean[key] = val;
+    }
+  }
+  return clean as T;
+}
+
 // 1. Submit consultation (Anyone can write)
 export async function submitConsultation(data: Omit<Consultation, "createdAt" | "status">) {
   const currentUser = auth.currentUser;
-  const consultationData: Consultation = {
+  const rawConsultationData: Consultation = {
     ...data,
     createdAt: Timestamp.now(),
     status: "pending",
@@ -354,8 +369,10 @@ export async function submitConsultation(data: Omit<Consultation, "createdAt" | 
   };
 
   if (currentUser) {
-    consultationData.userId = currentUser.uid;
+    rawConsultationData.userId = currentUser.uid;
   }
+
+  const consultationData = sanitizeFirestorePayload(rawConsultationData);
 
   let firestoreId: string | null = null;
   try {
@@ -364,7 +381,7 @@ export async function submitConsultation(data: Omit<Consultation, "createdAt" | 
     firestoreId = consultationRef.id;
 
     // Create a corresponding notification for the admin in Firestore
-    const notificationData: LawNotification = {
+    const rawNotificationData: LawNotification = {
       title: "New Consultation Request",
       message: `${data.name} has requested a consultation regarding ${data.practiceArea}.`,
       createdAt: Timestamp.now(),
@@ -373,7 +390,7 @@ export async function submitConsultation(data: Omit<Consultation, "createdAt" | 
       relatedId: firestoreId
     };
 
-    await addDoc(collection(db, "notifications"), notificationData);
+    await addDoc(collection(db, "notifications"), sanitizeFirestorePayload(rawNotificationData));
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, "consultations");
     console.warn("Firestore write failed, falling back to local sync:", error);
@@ -430,7 +447,7 @@ export async function fetchConsultations(): Promise<Consultation[]> {
     return results;
   } catch (error) {
     handleFirestoreError(error, OperationType.LIST, "consultations");
-    console.warn("Firestore fetch consultations failed. Returning genuine local records only:", error);
+    console.warn("Firestore fetch consultations failed. Returning local records:", error);
     return getLocalConsultations();
   }
 }
@@ -460,7 +477,7 @@ export async function fetchNotifications(): Promise<LawNotification[]> {
     return results;
   } catch (error) {
     handleFirestoreError(error, OperationType.LIST, "notifications");
-    console.warn("Firestore fetch notifications failed. Returning genuine local notifications only:", error);
+    console.warn("Firestore fetch notifications failed. Returning local notifications:", error);
     return getLocalNotifications();
   }
 }
@@ -568,7 +585,7 @@ export async function fetchUserConsultations(): Promise<Consultation[]> {
 // 8. Submit internship (Anyone can write)
 export async function submitInternship(data: Omit<Internship, "createdAt" | "status">) {
   const currentUser = auth.currentUser;
-  const internshipData: Internship = {
+  const rawInternshipData: Internship = {
     ...data,
     createdAt: Timestamp.now(),
     status: "pending",
@@ -577,8 +594,10 @@ export async function submitInternship(data: Omit<Internship, "createdAt" | "sta
   };
 
   if (currentUser) {
-    internshipData.userId = currentUser.uid;
+    rawInternshipData.userId = currentUser.uid;
   }
+
+  const internshipData = sanitizeFirestorePayload(rawInternshipData);
 
   let firestoreId: string | null = null;
   try {
@@ -586,7 +605,7 @@ export async function submitInternship(data: Omit<Internship, "createdAt" | "sta
     firestoreId = docRef.id;
 
     // Create a corresponding notification for the admin in Firestore
-    const notificationData: LawNotification = {
+    const rawNotificationData: LawNotification = {
       title: "New Internship Application",
       message: `${data.name} from ${data.college} has applied for an internship.`,
       createdAt: Timestamp.now(),
@@ -595,7 +614,7 @@ export async function submitInternship(data: Omit<Internship, "createdAt" | "sta
       relatedId: firestoreId
     };
 
-    await addDoc(collection(db, "notifications"), notificationData);
+    await addDoc(collection(db, "notifications"), sanitizeFirestorePayload(rawNotificationData));
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, "internships");
     console.warn("Firestore internship write failed, falling back to local sync:", error);
@@ -893,10 +912,10 @@ export async function fetchFounderProfile(): Promise<FounderProfile> {
 
 // Save Founder profile (Admin authenticated)
 export async function saveFounderProfile(profile: FounderProfile): Promise<void> {
-  const profileWithMeta = {
+  const profileWithMeta = sanitizeFirestorePayload({
     ...profile,
     updatedAt: Timestamp.now()
-  };
+  });
 
   // Always update local storage & broadcast change immediately
   saveLocalFounderProfile(profile);
@@ -937,10 +956,10 @@ export async function fetchAdvocates(): Promise<AdvocateProfile[]> {
 
 // Save or Update a single Advocate
 export async function saveAdvocate(advocate: AdvocateProfile): Promise<void> {
-  const advocateWithMeta = {
+  const advocateWithMeta = sanitizeFirestorePayload({
     ...advocate,
     updatedAt: Timestamp.now()
-  };
+  });
 
   // Update local
   const current = getLocalAdvocates();
@@ -981,10 +1000,10 @@ export async function createAdvocate(advocate: Omit<AdvocateProfile, "id">): Pro
   if (currentUser && isUserAdmin(currentUser)) {
     try {
       const docRef = doc(db, "advocates", newId);
-      await setDoc(docRef, {
+      await setDoc(docRef, sanitizeFirestorePayload({
         ...newAdvocate,
         updatedAt: Timestamp.now()
-      });
+      }));
     } catch (err) {
       handleFirestoreError(err, OperationType.CREATE, `advocates/${newId}`);
       console.warn("Firestore createAdvocate failed, saved locally:", err);

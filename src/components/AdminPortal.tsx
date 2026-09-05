@@ -11,6 +11,7 @@ import {
   updateConsultationStatus, 
   markNotificationAsRead, 
   deleteConsultation,
+  purgeAllPreviousQueries,
   Consultation,
   LawNotification
 } from "../lib/firebase";
@@ -203,6 +204,25 @@ export default function AdminPortal({
       }
     } catch (err: any) {
       console.warn("Primary email sign-in fallback:", err?.code || err?.message);
+
+      // Attempt to auto-create user in Firebase Auth if account doesn't exist yet
+      if (
+        err?.code === "auth/user-not-found" || 
+        err?.code === "auth/invalid-credential" ||
+        err?.code === "auth/invalid-email"
+      ) {
+        try {
+          const createResult = await createUserWithEmailAndPassword(auth, cleanEmail, password);
+          if (createResult.user && isUserAdmin(createResult.user)) {
+            setAuthSuccess("Chambers administrator identity created and authenticated.");
+            loadBackendData();
+            return;
+          }
+        } catch (createErr: any) {
+          console.warn("Could not auto-create Firebase Auth user:", createErr?.code || createErr?.message);
+        }
+      }
+
       // Fallback verification for custom password authentication:
       const verifiedAdmin = {
         email: cleanEmail,
@@ -225,6 +245,16 @@ export default function AdminPortal({
     setConsultations([]);
     setNotifications([]);
     setSelectedDoc(null);
+  };
+
+  const handlePurgeAll = async () => {
+    if (window.confirm("Are you sure you want to purge all local query cache and reset the portal? Genuine live database queries will reload when submitted.")) {
+      purgeAllPreviousQueries();
+      setConsultations([]);
+      setNotifications([]);
+      setSelectedDoc(null);
+      await loadBackendData();
+    }
   };
 
   const handleSelectDoc = (doc: Consultation) => {
@@ -377,18 +407,6 @@ export default function AdminPortal({
               <div className="flex flex-col gap-1.5 mb-2">
                 <button
                   type="button"
-                  onClick={() => setEmail("123.aarushsharma@gmail.com")}
-                  className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer ${
-                    email === "123.aarushsharma@gmail.com" 
-                      ? "bg-forest/10 border-forest font-semibold text-forest" 
-                      : "bg-sage-light/50 border-forest/15 text-charcoal/80 hover:bg-sage-light"
-                  }`}
-                >
-                  <span className="truncate">123.aarushsharma@gmail.com</span>
-                  <span className="text-[10px] text-forest/70 font-mono">Primary Admin</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => setEmail("advrdsouza181@gmail.com")}
                   className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer ${
                     email === "advrdsouza181@gmail.com" 
@@ -397,7 +415,19 @@ export default function AdminPortal({
                   }`}
                 >
                   <span className="truncate">advrdsouza181@gmail.com</span>
-                  <span className="text-[10px] text-forest/70 font-mono">Chambers Founder</span>
+                  <span className="text-[10px] text-forest/70 font-mono">Primary Admin</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEmail("123.aarushsharma@gmail.com")}
+                  className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer ${
+                    email === "123.aarushsharma@gmail.com" 
+                      ? "bg-forest/10 border-forest font-semibold text-forest" 
+                      : "bg-sage-light/50 border-forest/15 text-charcoal/80 hover:bg-sage-light"
+                  }`}
+                >
+                  <span className="truncate">123.aarushsharma@gmail.com</span>
+                  <span className="text-[10px] text-forest/70 font-mono">Secondary Admin</span>
                 </button>
               </div>
 
@@ -409,7 +439,7 @@ export default function AdminPortal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold font-sans"
-                placeholder="Enter 123.aarushsharma@gmail.com or advrdsouza181@gmail.com"
+                placeholder="Enter authorized administrator email"
               />
             </div>
 
@@ -421,13 +451,6 @@ export default function AdminPortal({
                 >
                   Security Password
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setPassword("Olive#law23")}
-                  className="text-[10px] text-gold-dark hover:underline font-medium cursor-pointer"
-                >
-                  Fill Master Password
-                </button>
               </div>
               <input
                 id="admin-password-input"
@@ -437,7 +460,7 @@ export default function AdminPortal({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold font-sans"
-                placeholder="Enter password (e.g. Olive#law23)"
+                placeholder="Enter security password"
               />
             </div>
 
@@ -574,6 +597,15 @@ export default function AdminPortal({
               title="Refresh database collections"
             >
               <RefreshCw size={16} className={dataLoading ? "animate-spin" : ""} />
+            </button>
+
+            {/* Clear Local Cache Button */}
+            <button
+              onClick={handlePurgeAll}
+              className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-full transition-all text-red-300 border border-red-500/20 cursor-pointer"
+              title="Purge cached history and start completely fresh"
+            >
+              <Trash2 size={16} />
             </button>
 
             {/* Logout button */}
