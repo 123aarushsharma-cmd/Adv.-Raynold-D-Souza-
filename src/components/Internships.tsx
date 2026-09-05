@@ -286,23 +286,33 @@ export default function Internships() {
                   </div>
 
                   <span className="font-sans text-[10px] text-gold uppercase tracking-[0.25em] font-bold mb-2 block animate-pulse">
-                    Transmission Registered &amp; Encrypted
+                    Logged &amp; Transmitted to advrdsouza181@gmail.com
                   </span>
 
                   <h3 className="font-serif text-2xl sm:text-3xl font-bold text-forest mb-4">
-                    Application Docket Open
+                    Application Docket Registered
                   </h3>
 
-                  <p className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-md mb-8 font-light">
-                    Thank you for applying to Olive Law Chambers®. Your internship registration has been successfully logged on our chambers database. Our academic review board will analyze your dossier and resume link, and respond within 14 working days.
+                  <p className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-md mb-6 font-light">
+                    Thank you for applying to Olive Law Chambers®. Your internship dossier has been logged in our chambers database and routed directly to Advocate Reynold D'Souza (<strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>).
                   </p>
 
-                  <button
-                    onClick={() => setIsSuccess(false)}
-                    className="bg-gold hover:bg-gold-hover text-forest font-sans font-semibold text-xs tracking-wider uppercase px-6 py-3 rounded-sm transition-all shadow-sm hover:shadow-md active:scale-95 cursor-pointer"
-                  >
-                    Apply for another Term
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8 w-full max-w-md">
+                    <a
+                      href="mailto:advrdsouza181@gmail.com?subject=Chambers%20Internship%20Application%20Submission&body=Dear%20Advocate%20Reynold%20D'Souza,%0A%0AI%20have%20submitted%20my%20internship%20application%20dossier%20via%20the%20Olive%20Law%20Chambers%20portal.%0A%0AThank%20you."
+                      className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest/90 text-gold border border-gold/30 font-sans font-semibold text-xs tracking-wider uppercase px-5 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
+                    >
+                      <Send size={14} />
+                      Email Copy to advrdsouza181@gmail.com
+                    </a>
+
+                    <button
+                      onClick={() => setIsSuccess(false)}
+                      className="bg-gold hover:bg-gold-hover text-forest font-sans font-semibold text-xs tracking-wider uppercase px-5 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
+                    >
+                      Submit Another Term
+                    </button>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.form

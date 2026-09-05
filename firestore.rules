@@ -36,15 +36,12 @@ service cloud.firestore {
     // Rigorous Administrative Verification Gateway
     // Strict compliance check ensuring domain alignment and authorized admin identities
     function isAdmin() {
-      return isSignedIn() && (
+      return isSignedIn() && 
+             ('email' in request.auth.token) && (
                request.auth.token.email == "123.aarushsharma@gmail.com" ||
-               request.auth.token.email == "admin@olivelawchambers.com" ||
-               request.auth.token.email == "reynold@olivelawchambers.com" ||
-               request.auth.token.email == "admin@olivelawfirm.com" ||
-               request.auth.token.email == "reynold@olivelawfirm.com" ||
-               request.auth.token.email.endsWith("@olivelawchambers.com") ||
-               request.auth.token.email.endsWith("@olivelawfirm.com") ||
-               request.auth.token.email.toLowerCase().matches(".*admin.*")
+               request.auth.token.email == "advrdsouza181@gmail.com" ||
+               request.auth.token.email.lower() == "123.aarushsharma@gmail.com" ||
+               request.auth.token.email.lower() == "advrdsouza181@gmail.com"
              );
     }
 
@@ -58,6 +55,7 @@ service cloud.firestore {
              data.keys().size() == 7 + 
              (('subject' in data) ? 1 : 0) + 
              (('notes' in data) ? 1 : 0) + 
+             (('assignedEmail' in data) ? 1 : 0) + 
              (('userId' in data) ? 1 : 0);
     }
 
@@ -72,6 +70,7 @@ service cloud.firestore {
              data.createdAt == createdAtVal &&
              (isCreate ? data.status == 'pending' : data.status in ['pending', 'reviewed', 'completed', 'archived']) &&
              (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
+             (!('assignedEmail' in data) || (data.assignedEmail is string && data.assignedEmail.size() <= 200)) &&
              (!('userId' in data) || (isSignedIn() && data.userId == request.auth.uid));
     }
 
@@ -80,6 +79,7 @@ service cloud.firestore {
       return data.keys().hasAll(['name', 'email', 'phone', 'college', 'yearOfStudy', 'areaOfInterest', 'resumeUrl', 'coverLetter', 'createdAt', 'status']) &&
              data.keys().size() == 10 + 
              (('notes' in data) ? 1 : 0) + 
+             (('assignedEmail' in data) ? 1 : 0) + 
              (('userId' in data) ? 1 : 0);
     }
 
@@ -96,6 +96,7 @@ service cloud.firestore {
              data.createdAt == createdAtVal &&
              (isCreate ? data.status == 'pending' : data.status in ['pending', 'reviewed', 'accepted', 'rejected']) &&
              (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
+             (!('assignedEmail' in data) || (data.assignedEmail is string && data.assignedEmail.size() <= 200)) &&
              (!('userId' in data) || (isSignedIn() && data.userId == request.auth.uid));
     }
 

@@ -227,57 +227,30 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                       Intake File Secured
                     </h4>
 
-                    <p className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-sm mb-8 font-light">
-                      Your details are protected under attorney-client privilege. An advisor from Olive Law Firm will contact you within one business day.
+                    <p className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-sm mb-6 font-light">
+                      Your details are protected under attorney-client privilege, logged in our chambers database, and routed directly to Advocate Reynold D'Souza (<strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>).
                     </p>
 
-                    {/* High-end Legal Audit Checklist */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.85, duration: 0.6, ease: "easeOut" }}
-                      className="w-full max-w-sm bg-sage/10 border border-forest/10 rounded p-4 mb-8 text-left space-y-2.5 shadow-inner"
-                    >
-                      {[
-                        { text: "Attorney-client privilege active", label: "Protected" },
-                        { text: "Transmission logged to chambers database", label: "Completed" },
-                        { text: "Case advisor assigned for next steps", label: "Scheduled" }
-                      ].map((step, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 1.05 + idx * 0.15 }}
-                          className="flex items-center justify-between text-xs font-sans"
-                        >
-                          <div className="flex items-center gap-2 text-charcoal/80">
-                            <span className="w-1.5 h-1.5 rounded-full bg-gold" />
-                            <span>{step.text}</span>
-                          </div>
-                          <span className={`text-[8px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ${
-                            idx === 2 
-                              ? "bg-gold/15 text-gold border border-gold/25" 
-                              : "bg-forest/15 text-forest"
-                          }`}>
-                            {step.label}
-                          </span>
-                        </motion.div>
-                      ))}
-                    </motion.div>
+                    <div className="flex flex-col gap-2 w-full max-w-sm mb-8">
+                      <a
+                        href="mailto:advrdsouza181@gmail.com?subject=Privilege-Secured%20Consultation%20Inquiry&body=Dear%20Advocate%20Reynold%20D'Souza,%0A%0AI%20have%20submitted%20a%20consultation%20inquiry%20dossier%20via%20the%20Olive%20Law%20Chambers%20portal.%0A%0AThank%20you."
+                        className="w-full inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest/95 text-gold border border-gold/30 font-sans font-semibold text-xs tracking-wider uppercase px-4 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
+                      >
+                        <Send size={14} />
+                        Email Copy to advrdsouza181@gmail.com
+                      </a>
 
-                    <motion.button
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1.6, duration: 0.4 }}
-                      id="modal-success-close-btn"
-                      onClick={() => {
-                        setIsSuccess(false);
-                        onClose();
-                      }}
-                      className="bg-forest hover:bg-forest/95 text-gold border border-gold/30 font-sans font-semibold text-xs tracking-wider uppercase px-6 py-3 rounded-sm transition-all shadow-sm hover:shadow-md active:scale-95 cursor-pointer hover:scale-[1.02]"
-                    >
-                      Close Intake Form
-                    </motion.button>
+                      <button
+                        id="modal-success-close-btn"
+                        onClick={() => {
+                          setIsSuccess(false);
+                          onClose();
+                        }}
+                        className="w-full bg-gold hover:bg-gold-hover text-forest font-sans font-semibold text-xs tracking-wider uppercase px-4 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
+                      >
+                        Close Intake Form
+                      </button>
+                    </div>
                   </motion.div>
                 ) : (
                   <motion.form

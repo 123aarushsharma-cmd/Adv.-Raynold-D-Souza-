@@ -19,6 +19,7 @@ import { PrivacyPolicyModal, TermsOfServiceModal } from "./components/LegalModal
 import SplashPreloader from "./components/SplashPreloader";
 import UserPortal from "./components/UserPortal";
 import ClientTestimonials from "./components/ClientTestimonials";
+import CyberSecurityShield from "./components/CyberSecurityShield";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,25 +28,43 @@ export default function App() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isSplashActive, setIsSplashActive] = useState(true);
   const [isUserPortalOpen, setIsUserPortalOpen] = useState(false);
-  const [adminInitialTab, setAdminInitialTab] = useState<"consultations" | "notifications" | "team" | "analytics">("consultations");
+  const [adminInitialTab, setAdminInitialTab] = useState<"consultations" | "notifications" | "team" | "analytics" | "branding">("consultations");
   const [adminTeamTarget, setAdminTeamTarget] = useState<"founder" | string>("founder");
 
-  // Monitor URL Hash or Query to open the Admin Portal
+  // Monitor URL Path, Hash or Query to open the Admin Portal securely
   useEffect(() => {
     const checkAdmin = () => {
-      if (window.location.hash === "#admin" || window.location.search.includes("admin=true")) {
-        setAdminInitialTab("consultations");
-        setIsAdminOpen(true);
-      } else if (window.location.hash === "#admin-team") {
-        setAdminInitialTab("team");
-        setAdminTeamTarget("founder");
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      const search = window.location.search.toLowerCase();
+
+      // Support /admin, /admin/branding, /admin/team, olivelawfirm.in/admin, and hash variations
+      if (
+        path === "/admin" || 
+        path.startsWith("/admin/") || 
+        hash === "#admin" || 
+        search.includes("admin=true") || 
+        search.includes("admin=1")
+      ) {
+        if (hash === "#admin-team" || path.includes("/team")) {
+          setAdminInitialTab("team");
+          setAdminTeamTarget("founder");
+        } else if (hash === "#admin-logo" || hash === "#admin-branding" || path.includes("/branding") || path.includes("/logo")) {
+          setAdminInitialTab("branding");
+        } else {
+          setAdminInitialTab("consultations");
+        }
         setIsAdminOpen(true);
       }
     };
 
     checkAdmin();
     window.addEventListener("hashchange", checkAdmin);
-    return () => window.removeEventListener("hashchange", checkAdmin);
+    window.addEventListener("popstate", checkAdmin);
+    return () => {
+      window.removeEventListener("hashchange", checkAdmin);
+      window.removeEventListener("popstate", checkAdmin);
+    };
   }, []);
 
   const openModal = () => {
@@ -63,10 +82,9 @@ export default function App() {
         initialTeamTarget={adminTeamTarget}
         onClose={() => {
           setIsAdminOpen(false);
-          // Clean up the hash safely without a page reload
-          if (window.location.hash === "#admin" || window.location.hash === "#admin-team") {
-            window.history.pushState("", document.title, window.location.pathname + window.location.search);
-          }
+          // Clean up the URL/hash safely without a page reload
+          const cleanPath = window.location.pathname.startsWith("/admin") ? "/" : window.location.pathname;
+          window.history.pushState("", document.title, cleanPath);
         }} 
       />
     );
@@ -74,6 +92,7 @@ export default function App() {
 
   return (
     <>
+      <CyberSecurityShield />
       <AnimatePresence mode="wait">
         {isSplashActive && (
           <SplashPreloader key="splash" onComplete={() => setIsSplashActive(false)} />
@@ -136,7 +155,6 @@ export default function App() {
 
       {/* Footer Navigation & Advertising compliance */}
       <Footer 
-        onOpenAdmin={() => setIsAdminOpen(true)} 
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenTerms={() => setIsTermsOpen(true)}
       />

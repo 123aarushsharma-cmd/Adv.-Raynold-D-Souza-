@@ -275,7 +275,7 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin, onOpenUse
       {/* 2. Premium Floating Navigation Dock (Bottom centered, luxury glassmorphic design) */}
       <motion.div 
         id="mobile-floating-dock"
-        className="fixed bottom-6 left-1/2 z-50 w-[90%] sm:w-[355px] bg-forest/90 backdrop-blur-md border border-gold/25 rounded-full px-4 py-1.5 shadow-[0_15px_40px_rgba(11,29,15,0.7),_inset_0_1px_1px_rgba(250,249,246,0.15)] flex items-center justify-between"
+        className="fixed bottom-5 left-1/2 z-50 w-[88%] max-w-[340px] bg-forest/40 hover:bg-forest/75 backdrop-blur-xl border border-gold/25 hover:border-gold/45 rounded-full px-3 py-1 shadow-[0_12px_32px_rgba(0,0,0,0.35),_inset_0_1px_1px_rgba(255,255,255,0.12)] flex items-center justify-between transition-all duration-300"
         initial={{ y: 20, opacity: 0, x: "-50%" }}
         animate={{ y: 0, opacity: 1, x: "-50%" }}
         transition={{ delay: 0.5, duration: 0.5 }}
@@ -290,29 +290,29 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin, onOpenUse
               key={link.name}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="flex items-center justify-center relative w-11 h-11 group"
+              className="flex items-center justify-center relative w-10 h-10 group"
               id={`dock-link-${id}`}
               aria-label={link.name}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeDockHighlight"
-                  className="absolute inset-0 bg-gold/10 rounded-full border border-gold/15"
+                  className="absolute inset-0 bg-gold/15 rounded-full border border-gold/20"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
               <Icon 
-                size={18} 
+                size={17} 
                 className={`relative z-10 transition-all duration-300 ${
                   isActive 
-                    ? "text-gold scale-110" 
-                    : "text-ivory/60 group-hover:text-gold"
+                    ? "text-gold scale-110 drop-shadow-[0_0_6px_rgba(201,162,39,0.5)]" 
+                    : "text-ivory/70 group-hover:text-gold"
                 }`} 
               />
               {isActive && (
                 <motion.span 
                   layoutId="activeDockDot"
-                  className="absolute bottom-1 w-1 h-1 bg-gold rounded-full shadow-[0_0_8px_#C9A227]"
+                  className="absolute bottom-1 w-1 h-1 bg-gold rounded-full shadow-[0_0_6px_#C9A227]"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}

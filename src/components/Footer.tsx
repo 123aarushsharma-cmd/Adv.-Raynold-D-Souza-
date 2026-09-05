@@ -3,12 +3,11 @@ import Logo from "./Logo";
 import { Facebook, Instagram, Linkedin, Twitter, ArrowRight } from "lucide-react";
 
 interface FooterProps {
-  onOpenAdmin: () => void;
   onOpenPrivacy: () => void;
   onOpenTerms: () => void;
 }
 
-export default function Footer({ onOpenAdmin, onOpenPrivacy, onOpenTerms }: FooterProps) {
+export default function Footer({ onOpenPrivacy, onOpenTerms }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -48,7 +47,7 @@ export default function Footer({ onOpenAdmin, onOpenPrivacy, onOpenTerms }: Foot
       <div className="absolute inset-0 opacity-5 pointer-events-none motif-bg" />
 
       {/* Primary footer layout links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-28 sm:pb-32 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 border-b border-gold/15 pb-12">
           
           {/* Column 1: Brand & Blurb */}
@@ -123,17 +122,6 @@ export default function Footer({ onOpenAdmin, onOpenPrivacy, onOpenTerms }: Foot
               className="hover:text-gold transition-colors cursor-pointer bg-transparent border-0 p-0 text-xs text-ivory/60 font-light"
             >
               Terms of Service
-            </button>
-            <span className="hidden sm:inline w-1 h-1 rounded-full bg-gold" />
-            <button 
-              onClick={(e) => {
-                e.preventDefault();
-                onOpenAdmin();
-              }} 
-              className="hover:text-gold transition-colors cursor-pointer bg-transparent border-0 p-0 text-xs text-ivory/60 font-light flex items-center gap-1"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-gold/50 animate-pulse" />
-              Admin Portal
             </button>
           </div>
           

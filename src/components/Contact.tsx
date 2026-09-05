@@ -1,7 +1,95 @@
 import React, { useState } from "react";
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, ExternalLink, Navigation, Landmark, Copy, Layers, Compass, Check } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { submitConsultation } from "../lib/firebase";
+
+interface OfficeLocation {
+  id: "bengaluru" | "hubballi" | "dharwad" | "belagavi";
+  category: "Chambers Head Office" | "Distinct Satellite Location";
+  name: string;
+  shortName: string;
+  badge: string;
+  coordinates: string;
+  addressLines: string[];
+  fullAddressText: string;
+  embedMapUrlRoadmap: string;
+  embedMapUrlSatellite: string;
+  directMapsUrl: string;
+  landmarkInfo: string;
+}
+
+const FIRM_LOCATIONS: OfficeLocation[] = [
+  {
+    id: "bengaluru",
+    category: "Chambers Head Office",
+    name: "Bengaluru Head Office",
+    shortName: "Bengaluru (HQ)",
+    badge: "Head Office",
+    coordinates: "12.9237° N, 77.5513° E",
+    addressLines: [
+      "2nd Floor, #520, 10th Cross,",
+      "12th Main, Padmanabhanagar,",
+      "Bengaluru 560070, Karnataka, India"
+    ],
+    fullAddressText: "2nd Floor, #520, 10th Cross, 12th Main, Padmanabhanagar, Bengaluru 560070, Karnataka, India",
+    embedMapUrlRoadmap: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=m&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=k&z=17&output=embed",
+    directMapsUrl: "https://www.google.com/maps/search/?api=1&query=12.923708,77.551322",
+    landmarkInfo: "Padmanabhanagar • 10th Cross / 12th Main Rd"
+  },
+  {
+    id: "hubballi",
+    category: "Distinct Satellite Location",
+    name: "Hubballi Satellite Location",
+    shortName: "Hubballi",
+    badge: "Satellite Location",
+    coordinates: "15.3524° N, 75.1384° E",
+    addressLines: [
+      "Chamber #14, Ground Floor,",
+      "District Court Complex,",
+      "Hubballi - 580020, Karnataka, India"
+    ],
+    fullAddressText: "Chamber #14, Ground Floor, District Court Complex, Hubballi - 580020, Karnataka, India",
+    embedMapUrlRoadmap: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=m&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=k&z=17&output=embed",
+    directMapsUrl: "https://www.google.com/maps/search/?api=1&query=15.352400,75.138400",
+    landmarkInfo: "District Court Complex • Chamber #14"
+  },
+  {
+    id: "dharwad",
+    category: "Distinct Satellite Location",
+    name: "Dharwad Satellite Location",
+    shortName: "Dharwad",
+    badge: "Satellite Location",
+    coordinates: "15.4589° N, 75.0078° E",
+    addressLines: [
+      "Court Road, Near High Court Bench of Karnataka,",
+      "Dharwad - 580011, Karnataka, India"
+    ],
+    fullAddressText: "Court Road, Near High Court Bench of Karnataka, Dharwad - 580011, Karnataka, India",
+    embedMapUrlRoadmap: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=m&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=k&z=17&output=embed",
+    directMapsUrl: "https://www.google.com/maps/search/?api=1&query=15.458900,75.007800",
+    landmarkInfo: "Court Road • Near High Court Bench of Karnataka"
+  },
+  {
+    id: "belagavi",
+    category: "Distinct Satellite Location",
+    name: "Belagavi Satellite Location",
+    shortName: "Belagavi",
+    badge: "Satellite Location",
+    coordinates: "15.8582° N, 74.5098° E",
+    addressLines: [
+      "Chamber Complex, Opp. Civil Court,",
+      "Club Road, Belagavi - 590001, Karnataka, India"
+    ],
+    fullAddressText: "Chamber Complex, Opp. Civil Court, Club Road, Belagavi - 590001, Karnataka, India",
+    embedMapUrlRoadmap: "https://maps.google.com/maps?q=15.858220,74.509810+(Chamber+Complex+Civil+Court+Belagavi)&t=m&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.858220,74.509810+(Chamber+Complex+Civil+Court+Belagavi)&t=k&z=17&output=embed",
+    directMapsUrl: "https://www.google.com/maps/search/?api=1&query=15.858220,74.509810",
+    landmarkInfo: "Club Road • Opp. Civil Court Complex"
+  }
+];
 
 interface FormFields {
   name: string;
@@ -20,6 +108,9 @@ interface FormErrors {
 }
 
 export default function Contact() {
+  const [activeLocationId, setActiveLocationId] = useState<"bengaluru" | "hubballi" | "dharwad" | "belagavi">("bengaluru");
+  const [mapMode, setMapMode] = useState<"roadmap" | "satellite">("roadmap");
+  const [copiedLocationId, setCopiedLocationId] = useState<string | null>(null);
   const [fields, setFields] = useState<FormFields>({
     name: "",
     email: "",
@@ -27,6 +118,16 @@ export default function Contact() {
     subject: "",
     message: "",
   });
+
+  const handleCopyAddress = (locId: string, text: string) => {
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedLocationId(locId);
+      setTimeout(() => {
+        setCopiedLocationId(null);
+      }, 2500);
+    }
+  };
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -270,55 +371,28 @@ export default function Contact() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8, duration: 0.5 }}
-                    className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-md mb-8 font-light"
+                    className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-md mb-6 font-light"
                   >
-                    Thank you for contacting Advocate Reynold D'Souza. Your submission is protected under attorney-client privilege. Our chambers will review your case file and contact you directly within 24 hours.
+                    Thank you for contacting Advocate Reynold D'Souza. Your submission is protected under attorney-client privilege, logged in our chambers database, and routed directly to <strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>.
                   </motion.p>
 
-                  {/* High-end Legal Audit Checklist */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.95, duration: 0.6, ease: "easeOut" }}
-                    className="w-full max-w-sm bg-sage/10 border border-forest/10 rounded p-5 mb-8 text-left space-y-3 shadow-inner"
-                  >
-                    {[
-                      { text: "Attorney-client privilege active", label: "Protected" },
-                      { text: "Transmission logged to chambers database", label: "Completed" },
-                      { text: "Case advisor assigned for next steps", label: "Scheduled" }
-                    ].map((step, idx) => (
-                      <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1.15 + idx * 0.18 }}
-                        className="flex items-center justify-between text-xs font-sans"
-                      >
-                        <div className="flex items-center gap-2 text-charcoal/80">
-                          <span className="w-1.5 h-1.5 rounded-full bg-gold" />
-                          <span>{step.text}</span>
-                        </div>
-                        <span className={`text-[8px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ${
-                          idx === 2 
-                            ? "bg-gold/15 text-gold border border-gold/25" 
-                            : "bg-forest/15 text-forest"
-                        }`}>
-                          {step.label}
-                        </span>
-                      </motion.div>
-                    ))}
-                  </motion.div>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8 w-full max-w-md">
+                    <a
+                      href="mailto:advrdsouza181@gmail.com?subject=Chambers%20Legal%20Inquiry%20Submission&body=Dear%20Advocate%20Reynold%20D'Souza,%0A%0AI%20have%20submitted%20a%20legal%20query%20via%20the%20Olive%20Law%20Chambers%20portal.%0A%0AThank%20you."
+                      className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest/90 text-gold border border-gold/30 font-sans font-semibold text-xs tracking-wider uppercase px-5 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
+                    >
+                      <Send size={14} />
+                      Email Copy to advrdsouza181@gmail.com
+                    </a>
 
-                  <motion.button
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.75, duration: 0.4 }}
-                    id="reset-form-btn"
-                    onClick={() => setIsSuccess(false)}
-                    className="bg-gold hover:bg-gold-hover text-forest font-sans font-semibold text-xs tracking-wider uppercase px-6 py-3 rounded-sm transition-all shadow-sm hover:shadow-md active:scale-95 cursor-pointer hover:scale-[1.02]"
-                  >
-                    Submit Another Inquiry
-                  </motion.button>
+                    <button
+                      id="reset-form-btn"
+                      onClick={() => setIsSuccess(false)}
+                      className="bg-gold hover:bg-gold-hover text-forest font-sans font-semibold text-xs tracking-wider uppercase px-5 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
+                    >
+                      Another Inquiry
+                    </button>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.form
@@ -525,19 +599,142 @@ export default function Contact() {
           </div>
 
           {/* Right Side: Map & Address Details */}
-          <div className="lg:col-span-5 flex flex-col justify-between gap-8">
-            {/* Map Frame */}
-            <div className="relative border border-forest/10 rounded-sm overflow-hidden h-[260px] shadow-sm bg-sage">
-              <iframe
-                title="Advocate Reynold D'Souza - Bengaluru Location Map"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.751239857976!2d77.551322!3d12.9237078!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15894178a9c3%3A0xe54e2f89ca956488!2s12th%20Main%20Rd%2C%20Padmanabhanagar%2C%20Bengaluru%2C%20Karnataka%20560070!5e0!3m2!1sen!2sin!4v1689000000000!5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen={true}
-                loading="lazy"
-                referrerPolicy="no-referrer"
-              />
+          <div className="lg:col-span-5 flex flex-col justify-between gap-6">
+            {/* Interactive Location Switcher & Map Frame */}
+            <div className="flex flex-col border border-gold/30 rounded-sm overflow-hidden shadow-lg bg-sage/20">
+              {/* Location Tabs */}
+              <div className="bg-forest p-2.5 border-b border-gold/20 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <MapPin size={14} className="text-gold animate-pulse" />
+                  <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-gold">
+                    Office Locator:
+                  </span>
+                </div>
+                
+                {/* Roadmap vs Satellite Toggle */}
+                <div className="flex items-center bg-forest-light/90 border border-gold/30 rounded p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setMapMode("roadmap")}
+                    className={`px-2 py-0.5 text-[10px] font-sans font-medium rounded transition-all cursor-pointer ${
+                      mapMode === "roadmap"
+                        ? "bg-gold text-forest font-bold"
+                        : "text-ivory/70 hover:text-ivory"
+                    }`}
+                  >
+                    Roadmap
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapMode("satellite")}
+                    className={`px-2 py-0.5 text-[10px] font-sans font-medium rounded transition-all cursor-pointer flex items-center gap-1 ${
+                      mapMode === "satellite"
+                        ? "bg-gold text-forest font-bold"
+                        : "text-ivory/70 hover:text-ivory"
+                    }`}
+                  >
+                    <Layers size={10} />
+                    Satellite
+                  </button>
+                </div>
+              </div>
+
+              {/* City Selection Buttons */}
+              <div className="bg-forest/95 px-2.5 py-2 border-b border-gold/15 flex flex-wrap gap-1.5">
+                {FIRM_LOCATIONS.map((loc) => {
+                  const isSelected = activeLocationId === loc.id;
+                  return (
+                    <button
+                      key={loc.id}
+                      type="button"
+                      onClick={() => setActiveLocationId(loc.id)}
+                      className={`px-3 py-1.5 text-xs rounded-sm font-sans transition-all cursor-pointer flex items-center gap-1.5 border ${
+                        isSelected
+                          ? "bg-gold text-forest font-bold border-gold shadow-sm scale-[1.02]"
+                          : "bg-forest-light/60 text-ivory/80 border-gold/10 hover:border-gold/30 hover:text-ivory hover:bg-forest-light"
+                      }`}
+                    >
+                      <span>{loc.id === "bengaluru" ? "🏛️" : "⚖️"}</span>
+                      <span>{loc.shortName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Active Map Info Banner */}
+              {(() => {
+                const currentLoc = FIRM_LOCATIONS.find((l) => l.id === activeLocationId) || FIRM_LOCATIONS[0];
+                return (
+                  <div className="bg-ivory px-3.5 py-2.5 border-b border-forest/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                    <div className="space-y-0.5 truncate">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-gold shrink-0" />
+                        <span className="font-bold text-forest truncate">{currentLoc.name}</span>
+                        <span className="text-[10px] bg-gold/15 text-forest font-bold px-1.5 py-0.2 rounded border border-gold/30 shrink-0">
+                          {currentLoc.badge}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-charcoal/70 truncate">
+                        GPS: {currentLoc.coordinates} • {currentLoc.landmarkInfo}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleCopyAddress(currentLoc.id, currentLoc.fullAddressText)}
+                        className="text-forest hover:text-gold text-[11px] font-medium flex items-center gap-1 px-2 py-1 bg-sage/30 hover:bg-sage/50 border border-forest/10 rounded transition-colors cursor-pointer"
+                        title="Copy complete address"
+                      >
+                        {copiedLocationId === currentLoc.id ? (
+                          <>
+                            <Check size={12} className="text-forest font-bold" />
+                            <span className="text-forest font-bold">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={12} className="text-charcoal/70" />
+                            <span>Copy Address</span>
+                          </>
+                        )}
+                      </button>
+
+                      <a
+                        href={currentLoc.directMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-forest text-gold hover:bg-forest-light text-[11px] font-bold flex items-center gap-1 px-2.5 py-1 rounded transition-colors"
+                        title="Open exact pin in Google Maps app or browser"
+                      >
+                        <Navigation size={12} className="text-gold" />
+                        <span>Get Directions</span>
+                        <ExternalLink size={10} className="text-gold/70" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Map Frame */}
+              <div className="relative h-[290px] w-full bg-sage">
+                {(() => {
+                  const currentLoc = FIRM_LOCATIONS.find((l) => l.id === activeLocationId) || FIRM_LOCATIONS[0];
+                  const mapEmbedSrc = mapMode === "satellite" ? currentLoc.embedMapUrlSatellite : currentLoc.embedMapUrlRoadmap;
+                  return (
+                    <iframe
+                      key={`${currentLoc.id}-${mapMode}`}
+                      title={`Olive Law Chambers - ${currentLoc.name}`}
+                      src={mapEmbedSrc}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen={true}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  );
+                })()}
+              </div>
             </div>
 
             {/* Direct Contact Details Grid */}
@@ -545,50 +742,138 @@ export default function Contact() {
               <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 rounded-full blur-2xl pointer-events-none" />
               
               <div className="space-y-6">
-                <h3 className="font-serif text-2xl text-gold font-bold border-b border-gold/25 pb-3">
-                  Firm Presence &amp; Offices
-                </h3>
+                <div className="flex items-center justify-between border-b border-gold/25 pb-3">
+                  <h3 className="font-serif text-2xl text-gold font-bold">
+                    Firm Presence &amp; Offices
+                  </h3>
+                  <span className="text-[10px] uppercase font-sans tracking-widest text-gold/70 font-semibold bg-gold/10 px-2 py-0.5 rounded border border-gold/20">
+                    4 Strategic Locations
+                  </span>
+                </div>
 
                 {/* Head Office Segment */}
                 <div className="space-y-4">
-                  <div className="flex items-start gap-4 border-b border-gold/10 pb-4">
-                    <MapPin className="text-gold shrink-0 mt-1" size={18} />
-                    <div>
-                      <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold block mb-1">
-                        Chambers Head Office
+                  <div 
+                    onClick={() => setActiveLocationId("bengaluru")}
+                    className={`cursor-pointer transition-all rounded-sm p-3.5 border ${
+                      activeLocationId === "bengaluru"
+                        ? "bg-gold/15 border-gold shadow-md ring-1 ring-gold/40"
+                        : "bg-ivory/5 border-gold/15 hover:bg-ivory/10 hover:border-gold/30"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <MapPin className="text-gold shrink-0 mt-1" size={18} />
+                        <div>
+                          <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold block mb-1">
+                            Chambers Head Office
+                          </span>
+                          <p className="font-serif text-base text-ivory font-bold">
+                            Bengaluru Head Office
+                          </p>
+                          <p className="font-sans text-xs text-ivory/90 mt-1">
+                            2nd Floor, #520, 10th Cross,
+                          </p>
+                          <p className="font-sans text-xs text-ivory/90">
+                            12th Main, Padmanabhanagar,
+                          </p>
+                          <p className="font-sans text-xs text-ivory/90">
+                            Bengaluru 560070, Karnataka, India
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] uppercase font-sans font-semibold tracking-wider px-2 py-1 rounded shrink-0 ${
+                        activeLocationId === "bengaluru"
+                          ? "bg-gold text-forest font-bold shadow-sm"
+                          : "bg-forest-light text-gold border border-gold/30"
+                      }`}>
+                        {activeLocationId === "bengaluru" ? "Active on Map" : "Show on Map"}
                       </span>
-                      <p className="font-serif text-base text-ivory font-semibold text-gold">
-                        Bengaluru Head Office
-                      </p>
-                      <p className="font-serif text-sm text-ivory/90 mt-1">
-                        2nd Floor, #520, 10th Cross,
-                      </p>
-                      <p className="font-serif text-sm text-ivory/90">
-                        12th Main, Padmanabhanagar,
-                      </p>
-                      <p className="font-serif text-sm text-ivory/90">
-                        Bengaluru 560070, Karnataka, India
-                      </p>
                     </div>
                   </div>
 
-                  {/* Branch Offices Segment */}
+                  {/* Satellite Offices Segment */}
                   <div>
-                    <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold block mb-3">
+                    <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold block mb-2.5">
                       Distinct Satellite Locations
                     </span>
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="bg-ivory/5 border border-gold/10 rounded-sm p-3 hover:bg-ivory/10 transition-colors">
-                        <p className="font-serif text-sm font-semibold text-gold">Hubballi Satellite Location</p>
-                        <p className="font-sans text-xs text-ivory/80 mt-1">Chamber #14, Ground Floor, District Court Complex, Hubballi - 580020</p>
+                    <div className="grid grid-cols-1 gap-2.5">
+                      {/* Hubballi */}
+                      <div 
+                        onClick={() => setActiveLocationId("hubballi")}
+                        className={`cursor-pointer transition-all rounded-sm p-3 border ${
+                          activeLocationId === "hubballi"
+                            ? "bg-gold/15 border-gold shadow-md ring-1 ring-gold/40"
+                            : "bg-ivory/5 border-gold/15 hover:bg-ivory/10 hover:border-gold/30"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-serif text-sm font-semibold text-gold">Hubballi Satellite Location</p>
+                            <p className="font-sans text-xs text-ivory/80 mt-1">
+                              Chamber #14, Ground Floor, District Court Complex, Hubballi - 580020
+                            </p>
+                          </div>
+                          <span className={`text-[9px] uppercase font-sans font-semibold px-2 py-0.5 rounded shrink-0 ${
+                            activeLocationId === "hubballi"
+                              ? "bg-gold text-forest font-bold"
+                              : "text-gold/70 bg-forest-light/60"
+                          }`}>
+                            {activeLocationId === "hubballi" ? "Active" : "View"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="bg-ivory/5 border border-gold/10 rounded-sm p-3 hover:bg-ivory/10 transition-colors">
-                        <p className="font-serif text-sm font-semibold text-gold">Dharwad Satellite Location</p>
-                        <p className="font-sans text-xs text-ivory/80 mt-1">Court Road, Near High Court Bench of Karnataka, Dharwad - 580011</p>
+
+                      {/* Dharwad */}
+                      <div 
+                        onClick={() => setActiveLocationId("dharwad")}
+                        className={`cursor-pointer transition-all rounded-sm p-3 border ${
+                          activeLocationId === "dharwad"
+                            ? "bg-gold/15 border-gold shadow-md ring-1 ring-gold/40"
+                            : "bg-ivory/5 border-gold/15 hover:bg-ivory/10 hover:border-gold/30"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-serif text-sm font-semibold text-gold">Dharwad Satellite Location</p>
+                            <p className="font-sans text-xs text-ivory/80 mt-1">
+                              Court Road, Near High Court Bench of Karnataka, Dharwad - 580011
+                            </p>
+                          </div>
+                          <span className={`text-[9px] uppercase font-sans font-semibold px-2 py-0.5 rounded shrink-0 ${
+                            activeLocationId === "dharwad"
+                              ? "bg-gold text-forest font-bold"
+                              : "text-gold/70 bg-forest-light/60"
+                          }`}>
+                            {activeLocationId === "dharwad" ? "Active" : "View"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="bg-ivory/5 border border-gold/10 rounded-sm p-3 hover:bg-ivory/10 transition-colors">
-                        <p className="font-serif text-sm font-semibold text-gold">Belagavi Satellite Location</p>
-                        <p className="font-sans text-xs text-ivory/80 mt-1">Chamber Complex, Opp. Civil Court, Club Road, Belagavi - 590001</p>
+
+                      {/* Belagavi */}
+                      <div 
+                        onClick={() => setActiveLocationId("belagavi")}
+                        className={`cursor-pointer transition-all rounded-sm p-3 border ${
+                          activeLocationId === "belagavi"
+                            ? "bg-gold/15 border-gold shadow-md ring-1 ring-gold/40"
+                            : "bg-ivory/5 border-gold/15 hover:bg-ivory/10 hover:border-gold/30"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-serif text-sm font-semibold text-gold">Belagavi Satellite Location</p>
+                            <p className="font-sans text-xs text-ivory/80 mt-1">
+                              Chamber Complex, Opp. Civil Court, Club Road, Belagavi - 590001
+                            </p>
+                          </div>
+                          <span className={`text-[9px] uppercase font-sans font-semibold px-2 py-0.5 rounded shrink-0 ${
+                            activeLocationId === "belagavi"
+                              ? "bg-gold text-forest font-bold"
+                              : "text-gold/70 bg-forest-light/60"
+                          }`}>
+                            {activeLocationId === "belagavi" ? "Active" : "View"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

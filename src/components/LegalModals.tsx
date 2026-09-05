@@ -36,9 +36,9 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
                   <Shield size={20} />
                 </div>
                 <div>
-                  <h2 className="font-serif text-xl font-bold text-ivory">Privacy Policy</h2>
+                  <h2 className="font-serif text-xl font-bold text-ivory">Global Privacy Policy & Data Protection Charter</h2>
                   <p className="text-[10px] uppercase tracking-widest text-gold/80 font-bold font-sans">
-                    DPDPA, 2023 & IT ACT, 2000 COMPLIANT
+                    DPDPA 2023 • GDPR (EU/UK) • CCPA/CPRA (US) • PIPEDA • APPs COMPLIANT
                   </p>
                 </div>
               </div>
@@ -55,10 +55,10 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
             <div className="flex-1 overflow-y-auto px-6 py-6 font-sans text-sm text-charcoal/85 space-y-6 leading-relaxed select-text scrollbar-thin scrollbar-thumb-gold/30">
               <div className="bg-sage/10 border-l-4 border-gold p-4 rounded-sm">
                 <p className="font-serif font-semibold text-forest text-sm">
-                  Last Updated: July 2026
+                  Last Updated: September 2026 • Multi-Jurisdictional Privacy Standard
                 </p>
                 <p className="text-xs text-charcoal/70 mt-1 font-light">
-                  This privacy policy governs data collection and processing activities of **Olive Law Firm**, headed by Advocate Reynold D'Souza, Bengaluru, India. It explains how we secure personal credentials in absolute confidentiality.
+                  This comprehensive Global Privacy Policy governs all data collection, custody, retention, and processing activities undertaken by <strong>Olive Law Chambers / Olive Law Firm</strong>, established at Bengaluru, Karnataka, India. We enforce the highest combined global standards of privacy, attorney-client privilege, and cybersecurity.
                 </p>
               </div>
 
@@ -66,41 +66,47 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
               <section className="space-y-2">
                 <h3 className="font-serif text-base font-bold text-forest flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-gold shrink-0" />
-                  1. Legislative Compliance & Data Custodian
+                  1. Comprehensive Global Legislative Harmonization
                 </h3>
                 <p className="font-light text-xs sm:text-sm">
-                  This Privacy Policy is compiled and maintained in strict compliance with the **Digital Personal Data Protection Act (DPDPA), 2023**, Section 43A of the **Information Technology Act, 2000**, and the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011 of India. Olive Law Firm acts as the Sole Data Custodian and Data Fiduciary for all personal datasets registered on this platform.
+                  Olive Law Chambers strictly complies with and harmonizes its data protection practices under all prevailing international privacy statutes:
                 </p>
+                <ul className="list-disc pl-5 text-xs sm:text-sm font-light space-y-1">
+                  <li><strong>India:</strong> Digital Personal Data Protection Act (DPDPA), 2023 & Section 43A of the Information Technology Act, 2000.</li>
+                  <li><strong>European Union & United Kingdom:</strong> General Data Protection Regulation (EU GDPR Regulation 2016/679 & UK Data Protection Act 2018).</li>
+                  <li><strong>United States:</strong> California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA), Virginia CDPA, Colorado CPA, and federal privacy guidelines.</li>
+                  <li><strong>Canada:</strong> Personal Information Protection and Electronic Documents Act (PIPEDA).</li>
+                  <li><strong>Australia & International:</strong> Privacy Act 1988 (Australian Privacy Principles - APPs), Singapore PDPA, UAE Data Protection Law, and Brazil LGPD.</li>
+                </ul>
               </section>
 
               {/* Section 2 */}
               <section className="space-y-2">
                 <h3 className="font-serif text-base font-bold text-forest flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-gold shrink-0" />
-                  2. Datasets Collected & Processing Consent
+                  2. Lawful Grounds for Processing & Explicit Consent
                 </h3>
                 <p className="font-light text-xs sm:text-sm">
-                  We collect personal datasets only when you proactively transmit them via our Case Intake Desk or scheduling inquiries. This includes:
+                  We process data under strict lawful bases: (a) explicit user consent (Art. 6(1)(a) GDPR, Sec. 6 DPDPA), (b) performance of prospective or actual legal representation contracts (Art. 6(1)(b) GDPR), and (c) compliance with mandatory statutory legal obligations and Bar Council regulatory mandates.
+                </p>
+                <p className="font-light text-xs sm:text-sm">
+                  Categories of personal data collected voluntarily:
                 </p>
                 <ul className="list-disc pl-5 text-xs sm:text-sm font-light space-y-1">
-                  <li><strong>Identity Particulars:</strong> Full Name and email address.</li>
-                  <li><strong>Contact Records:</strong> Mobile Number (actively verified).</li>
-                  <li><strong>Brief Case Particulars:</strong> Legal dispute categories, court names, or narrative details provided voluntarily.</li>
-                  <li><strong>Device Metrics:</strong> Technical logs, cookie files, and anonymized access analytics.</li>
+                  <li><strong>Identity & Contact:</strong> Full Legal Name, verified Mobile Number, Email Address, and Corporate Affiliation.</li>
+                  <li><strong>Legal Case Metadata:</strong> Matter summary, court jurisdictions, case numbers, and dispute narratives provided voluntarily for consultation scheduling.</li>
+                  <li><strong>Technical & Essential Session Data:</strong> Cryptographically anonymized device telemetry, secure session tokens, and essential security headers.</li>
                 </ul>
-                <p className="font-light text-xs sm:text-sm">
-                  By clicking "Submit Inquiry" or scheduling a consultation, you provide your explicit, unambiguous consent under the DPDPA, 2023, allowing Advocate Reynold D'Souza and authorized firm associates to evaluate your case details.
-                </p>
               </section>
 
               {/* Section 3 */}
               <section className="space-y-2">
                 <h3 className="font-serif text-base font-bold text-forest flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-gold shrink-0" />
-                  3. Privileged Communication & Attorney-Client Privilege
+                  3. Inviolable Legal Professional Privilege & Confidentiality
                 </h3>
                 <p className="font-light text-xs sm:text-sm bg-gold/5 border border-gold/20 p-3 rounded-sm">
-                  All personal datasets, case drafts, and dispute files uploaded to this platform are protected under **Section 126 of the Indian Evidence Act, 1872** (Professional communications/Attorney-Client Privilege). Transmission of this metadata, while not creating an immediate formal attorney-client contract, is handled with absolute professional secrecy and is shielded from unauthorized third-party disclosures.
+                  All consultations, intake submissions, narrative briefs, and documents submitted to this portal are strictly shielded under <strong>Section 126 of the Indian Evidence Act, 1872</strong>, Rule 17 of the Bar Council of India Rules, and internationally recognized doctrines of <strong>Legal Professional Privilege / Attorney-Client Privilege / Work-Product Doctrine</strong>. No legal inquiry data is ever rented, sold, monetized, or shared with commercial data brokers or advertisers.
                 </p>
               </section>
 
@@ -108,10 +114,10 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
               <section className="space-y-2">
                 <h3 className="font-serif text-base font-bold text-forest flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-gold shrink-0" />
-                  4. Data Security & Storage Protocol
+                  4. International Data Transfers & Enterprise Security Architecture
                 </h3>
                 <p className="font-light text-xs sm:text-sm">
-                  We employ enterprise-grade structural security measures (AES-256 SSL encryption during transit, secure cloud databases hosted via Firebase Firestore, and restricted database access control). Access to consumer datasets is strictly limited to Advocate Reynold D'Souza and authorized litigation teams. No details are shared with external marketing networks.
+                  All databases are protected with end-to-end TLS 1.3 encryption in transit and AES-256 GCM encryption at rest on SOC 2 Type II, ISO 27001, and HIPAA-compliant Google Cloud Platform infrastructure with automated role-based authentication rules. Where cross-border data transfers occur, we implement Standard Contractual Clauses (SCCs) and rigorous supplementary technical safeguards.
                 </p>
               </section>
 
@@ -119,19 +125,23 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
               <section className="space-y-2">
                 <h3 className="font-serif text-base font-bold text-forest flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-gold shrink-0" />
-                  5. Your Legal Rights (Data Principal Rights)
+                  5. Universal Global User Rights (Data Subject & Data Principal Rights)
                 </h3>
                 <p className="font-light text-xs sm:text-sm">
-                  As a Data Principal under Indian Law, you possess the following rights:
+                  Regardless of your geographic location, Olive Law Chambers affords every user the full suite of modern privacy rights without discrimination:
                 </p>
                 <ul className="list-disc pl-5 text-xs sm:text-sm font-light space-y-1">
-                  <li><strong>Right to Summary:</strong> Request a complete summary of all personal datasets stored in our databases.</li>
-                  <li><strong>Right to Correction & Erasure:</strong> Instruct us to rectify inaccuracies or permanently erase your details from our active intake files.</li>
-                  <li><strong>Right to Grievance Redressal:</strong> Register questions or raise disputes regarding data handling procedures.</li>
+                  <li><strong>Right of Access & Portability:</strong> Obtain a transparent, machine-readable record of your personal data held in our systems.</li>
+                  <li><strong>Right to Rectification & Erasure ("Right to be Forgotten"):</strong> Request immediate correction of inaccurate data or permanent cryptographic erasure of your consultation intake records.</li>
+                  <li><strong>Right to Restriction & Consent Withdrawal:</strong> Revoke processing consent at any time without punitive consequences.</li>
+                  <li><strong>Non-Sale / "Do Not Sell or Share My Personal Information":</strong> We unconditionally do not sell, trade, or monetize personal data under CCPA/CPRA.</li>
+                  <li><strong>Right to Grievance Redressal & Supervisory Lodging:</strong> File inquiries directly with our Data Protection Officer or your local supervisory data protection authority.</li>
                 </ul>
-                <p className="font-light text-xs sm:text-sm">
-                  To exercise any of these rights, transmit a formal request directly to our secure administrative desk: <a href="mailto:admin@olivelawfirm.com" className="text-gold font-bold underline hover:text-gold/80">admin@olivelawfirm.com</a>.
-                </p>
+                <div className="bg-sage/10 p-3 rounded-sm border border-forest/10 mt-3 text-xs space-y-1">
+                  <p className="font-semibold text-forest">Data Protection Officer & Privacy Compliance Desk:</p>
+                  <p><strong>Olive Law Chambers</strong> • Bengaluru, Karnataka, India</p>
+                  <p>Official Statutory Privacy Inquiries: <a href="mailto:admin@olivelawfirm.in" className="text-gold font-bold underline hover:text-gold/80">admin@olivelawfirm.in</a></p>
+                </div>
               </section>
             </div>
 

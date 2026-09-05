@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import firmLogo from "../assets/logo.png";
+import { useBrandLogo } from "../hooks/useBrandLogo";
 import { 
   X, 
   ShieldCheck, 
@@ -39,6 +39,7 @@ interface UserPortalProps {
 }
 
 export default function UserPortal({ isOpen, onClose, onOpenConsultation }: UserPortalProps) {
+  const { logoSrc } = useBrandLogo();
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [cases, setCases] = useState<Consultation[]>([]);
@@ -181,7 +182,7 @@ export default function UserPortal({ isOpen, onClose, onOpenConsultation }: User
                 /* GUEST / LOG IN STATE */
                 <div className="flex flex-col items-center justify-center py-16 px-6 max-w-md mx-auto text-center h-full">
                   <div className="w-20 h-20 rounded-full bg-forest/5 border border-gold/40 flex items-center justify-center p-2.5 mb-6 shadow-md">
-                    <img src={firmLogo} alt="Olive Law Chambers® Logo" className="w-full h-full object-contain drop-shadow-sm" />
+                    <img src={logoSrc} alt="Olive Law Chambers® Logo" className="w-full h-full object-contain drop-shadow-sm" />
                   </div>
                   <h4 className="font-serif text-2xl text-forest font-semibold leading-snug">
                     Enter Secure Consultation Desk

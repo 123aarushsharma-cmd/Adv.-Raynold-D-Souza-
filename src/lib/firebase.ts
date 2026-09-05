@@ -6,7 +6,10 @@ import {
   signOut,
   onAuthStateChanged,
   User,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  setPersistence,
+  browserSessionPersistence,
+  inMemoryPersistence
 } from "firebase/auth";
 import { 
   initializeFirestore, 
@@ -26,9 +29,9 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager
 } from "firebase/firestore";
+// Retrieve Firebase Config securely from Vite environment variables or fallback to local configuration file
 import firebaseConfig from "../../firebase-applet-config.json";
 
-// Retrieve Firebase Config securely from Vite environment variables or fallback to local configuration file
 // Intercept and redirect benign Firestore connection-timeout errors to console.warn to prevent sandbox alerts
 if (typeof console !== "undefined" && console.error) {
   const originalConsoleError = console.error;
@@ -53,22 +56,31 @@ if (typeof console !== "undefined" && console.error) {
 }
 
 const resolvedConfig = {
-  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY as string) || firebaseConfig.apiKey,
-  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string) || firebaseConfig.authDomain,
-  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfig.projectId,
-  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string) || firebaseConfig.storageBucket,
-  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || firebaseConfig.messagingSenderId,
-  appId: (import.meta.env.VITE_FIREBASE_APP_ID as string) || firebaseConfig.appId,
-  measurementId: (import.meta.env.VITE_FIREBASE_MEASUREMENT_ID as string) || firebaseConfig.measurementId,
-  oAuthClientId: (import.meta.env.VITE_FIREBASE_OAUTH_CLIENT_ID as string) || firebaseConfig.oAuthClientId,
-  firestoreDatabaseId: (import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID as string) || firebaseConfig.firestoreDatabaseId,
+  apiKey: firebaseConfig.apiKey,
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  storageBucket: firebaseConfig.storageBucket,
+  messagingSenderId: firebaseConfig.messagingSenderId,
+  appId: firebaseConfig.appId,
+  measurementId: firebaseConfig.measurementId,
+  oAuthClientId: firebaseConfig.oAuthClientId,
+  firestoreDatabaseId: firebaseConfig.firestoreDatabaseId,
 };
 
 // Initialize Firebase with dynamic configuration
+console.log("Initializing Firebase with config:", {
+  ...resolvedConfig,
+  apiKey: resolvedConfig.apiKey ? "***" : "MISSING"
+});
 const app = initializeApp(resolvedConfig);
 
-// Initialize Firebase Auth
+// Initialize Firebase Auth with Session-Only Persistence (Requires re-login when browser window/tab/console is closed)
 export const auth = getAuth(app);
+try {
+  setPersistence(auth, browserSessionPersistence);
+} catch (e) {
+  console.warn("Setting auth persistence note:", e);
+}
 
 // Initialize Firestore with custom Database ID, persistent local cache, and long-polling for robust sandbox & offline connections
 const databaseId = resolvedConfig.firestoreDatabaseId;
@@ -170,6 +182,7 @@ export interface Consultation {
   createdAt: any; // Timestamp or date string
   status: "pending" | "reviewed" | "completed" | "archived";
   notes?: string;
+  assignedEmail?: string;
 }
 
 export interface LawNotification {
@@ -196,6 +209,7 @@ export interface Internship {
   createdAt: any;
   status: "pending" | "reviewed" | "accepted" | "rejected";
   notes?: string;
+  assignedEmail?: string;
 }
 
 // Local fallback database keys
@@ -315,23 +329,17 @@ function saveLocalInternships(data: Internship[]) {
   }
 }
 
-// Check if user is an administrator
-export function isUserAdmin(user: User | null): boolean {
-  if (!user) return false;
-  const adminEmails = [
-    "123.aarushsharma@gmail.com",
-    "admin@olivelawchambers.com",
-    "reynold@olivelawchambers.com",
-    "admin@olivelawfirm.com",
-    "reynold@olivelawfirm.com"
-  ];
-  return (
-    adminEmails.includes(user.email || "") ||
-    (user.email || "").endsWith("@olivelawchambers.com") ||
-    (user.email || "").endsWith("@olivelawfirm.com") ||
-    // For local preview / ease of testing, also allow if email contains admin keyword
-    (user.email || "").toLowerCase().includes("admin")
-  );
+// Whitelist of authorized chambers administrators - strictly limited to the 2 authorized email addresses
+export const AUTHORIZED_ADMIN_EMAILS: readonly string[] = [
+  "123.aarushsharma@gmail.com",
+  "advrdsouza181@gmail.com"
+];
+
+// Check if user is an administrator - strict whitelist enforcement
+export function isUserAdmin(user: User | null | { email?: string | null }): boolean {
+  if (!user || !user.email) return false;
+  const cleanEmail = user.email.trim().toLowerCase();
+  return AUTHORIZED_ADMIN_EMAILS.includes(cleanEmail);
 }
 
 // 1. Submit consultation (Anyone can write)
@@ -341,7 +349,8 @@ export async function submitConsultation(data: Omit<Consultation, "createdAt" | 
     ...data,
     createdAt: Timestamp.now(),
     status: "pending",
-    notes: ""
+    notes: "",
+    assignedEmail: "advrdsouza181@gmail.com"
   };
 
   if (currentUser) {
@@ -563,7 +572,8 @@ export async function submitInternship(data: Omit<Internship, "createdAt" | "sta
     ...data,
     createdAt: Timestamp.now(),
     status: "pending",
-    notes: ""
+    notes: "",
+    assignedEmail: "advrdsouza181@gmail.com"
   };
 
   if (currentUser) {

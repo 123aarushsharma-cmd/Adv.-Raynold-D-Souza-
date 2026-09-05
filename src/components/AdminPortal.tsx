@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import firmLogo from "../assets/logo.png";
+import { useBrandLogo } from "../hooks/useBrandLogo";
+import AdminLogoManager from "./AdminLogoManager";
 import { 
   auth, 
   db, 
@@ -47,14 +48,17 @@ import {
   Settings,
   AlertTriangle,
   Info,
-  Camera
+  Camera,
+  Image as ImageIcon,
+  Sparkles
 } from "lucide-react";
 import AdminTeamManager from "./AdminTeamManager";
 import { useTeamProfiles } from "../hooks/useTeamProfiles";
+import CyberSecurityShield from "./CyberSecurityShield";
 
 interface AdminPortalProps {
   onClose: () => void;
-  initialTab?: "consultations" | "notifications" | "team" | "analytics";
+  initialTab?: "consultations" | "notifications" | "team" | "analytics" | "branding";
   initialTeamTarget?: "founder" | string;
 }
 
@@ -63,6 +67,7 @@ export default function AdminPortal({
   initialTab,
   initialTeamTarget = "founder"
 }: AdminPortalProps) {
+  const { logoSrc } = useBrandLogo();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -88,7 +93,7 @@ export default function AdminPortal({
   const [isSaving, setIsSaving] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"consultations" | "notifications" | "team" | "analytics">(
+  const [activeTab, setActiveTab] = useState<"consultations" | "notifications" | "team" | "analytics" | "branding">(
     initialTab || "consultations"
   );
 
@@ -142,11 +147,11 @@ export default function AdminPortal({
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
         if (!isUserAdmin(result.user)) {
-          setAuthError(`Access Denied: ${result.user.email} is not an authorized firm administrator.`);
+          setAuthError(`Access Denied: ${result.user.email} is not authorized. Access is strictly restricted to 123.aarushsharma@gmail.com and advrdsouza181@gmail.com.`);
           await signOut(auth);
           setUser(null);
         } else {
-          setAuthSuccess("Authenticated successfully as administrator.");
+          setAuthSuccess("Authenticated successfully via Google Workspace as authorized administrator.");
           loadBackendData();
         }
       }
@@ -163,20 +168,27 @@ export default function AdminPortal({
     setAuthError(null);
     setAuthSuccess(null);
     if (!email || !password) {
-      setAuthError("Both Admin Email and Password are required.");
+      setAuthError("Both Administrator Email and Security Password are required.");
       return;
     }
 
     const cleanEmail = email.trim().toLowerCase();
     const isAuthorizedAdminEmail = (
-      cleanEmail === "admin@olivelawfirm.com" ||
-      cleanEmail === "admin@olivelawchambers.com" ||
-      cleanEmail === "reynold@olivelawfirm.com" ||
-      cleanEmail === "reynold@olivelawchambers.com" ||
       cleanEmail === "123.aarushsharma@gmail.com" ||
-      cleanEmail.endsWith("@olivelawfirm.com") ||
-      cleanEmail.endsWith("@olivelawchambers.com")
+      cleanEmail === "advrdsouza181@gmail.com"
     );
+
+    if (!isAuthorizedAdminEmail) {
+      setAuthError(`Access Denied: ${cleanEmail} is not authorized. Only 123.aarushsharma@gmail.com and advrdsouza181@gmail.com possess administrative access.`);
+      return;
+    }
+
+    const isCorrectPassword = (password === "Olive#law23" || password === "OliveLaw2026!");
+
+    if (!isCorrectPassword) {
+      setAuthError("Access Denied: Invalid security password provided for administrator account.");
+      return;
+    }
 
     setIsAuthenticating(true);
     try {
@@ -190,22 +202,17 @@ export default function AdminPortal({
         loadBackendData();
       }
     } catch (err: any) {
-      console.warn("Primary email sign-in note:", err?.code || err?.message);
-      // If Firebase Auth provider is not configured or throws auth/operation-not-allowed / user-not-found,
-      // verify strictly against chambers authorized credentials:
-      if (isAuthorizedAdminEmail && password === "OliveLaw2026!") {
-        const verifiedAdmin = {
-          email: cleanEmail,
-          displayName: cleanEmail.includes("reynold") 
-            ? "Advocate Reynold D'Souza (Founder)" 
-            : "Authorized Administrator"
-        };
-        setAdminSession(verifiedAdmin);
-        setAuthSuccess("Chambers security verified. Access granted.");
-        loadBackendData();
-      } else {
-        setAuthError("Access Denied: Invalid administrator credentials. Please check your username and password.");
-      }
+      console.warn("Primary email sign-in fallback:", err?.code || err?.message);
+      // Fallback verification for custom password authentication:
+      const verifiedAdmin = {
+        email: cleanEmail,
+        displayName: cleanEmail.includes("advrdsouza") 
+          ? "Advocate Reynold D'Souza (Founder)" 
+          : "Senior Counsel (123.aarushsharma@gmail.com)"
+      };
+      setAdminSession(verifiedAdmin);
+      setAuthSuccess("Chambers security verified. Access granted.");
+      loadBackendData();
     } finally {
       setIsAuthenticating(false);
     }
@@ -317,11 +324,12 @@ export default function AdminPortal({
   // Render Authentication Portal Screen
   const renderLogin = () => (
     <div className="min-h-screen bg-forest flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <CyberSecurityShield />
       <div className="absolute inset-0 opacity-5 pointer-events-none motif-bg" />
       
       {/* Decorative Golden Logo Watermark */}
       <div className="absolute top-10 left-10 pointer-events-none select-none opacity-10">
-        <img src={firmLogo} alt="" className="w-52 h-52 object-contain" />
+        <img src={logoSrc} alt="" className="w-52 h-52 object-contain" />
       </div>
 
       <div className="w-full max-w-md bg-ivory border border-gold/40 shadow-2xl rounded-sm z-10 overflow-hidden">
@@ -329,7 +337,7 @@ export default function AdminPortal({
         <div className="bg-forest px-6 py-8 text-center border-b border-gold/30">
           <div className="flex justify-center mb-4">
             <div className="w-20 h-20 rounded-full bg-forest/80 border border-gold/40 p-2.5 flex items-center justify-center shadow-lg">
-              <img src={firmLogo} alt="Olive Law Firm Logo" className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(201,162,39,0.4)]" />
+              <img src={logoSrc} alt="Olive Law Firm Logo" className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(201,162,39,0.4)]" />
             </div>
           </div>
           <h2 className="font-serif text-2xl font-bold text-ivory tracking-wide">
@@ -362,8 +370,37 @@ export default function AdminPortal({
                 htmlFor="admin-email-input"
                 className="block text-xs font-semibold uppercase text-forest tracking-wider mb-1.5"
               >
-                Administrator Email Address
+                Authorized Administrator Email
               </label>
+              
+              {/* Quick Authorized Email Selection Pills */}
+              <div className="flex flex-col gap-1.5 mb-2">
+                <button
+                  type="button"
+                  onClick={() => setEmail("123.aarushsharma@gmail.com")}
+                  className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer ${
+                    email === "123.aarushsharma@gmail.com" 
+                      ? "bg-forest/10 border-forest font-semibold text-forest" 
+                      : "bg-sage-light/50 border-forest/15 text-charcoal/80 hover:bg-sage-light"
+                  }`}
+                >
+                  <span className="truncate">123.aarushsharma@gmail.com</span>
+                  <span className="text-[10px] text-forest/70 font-mono">Primary Admin</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEmail("advrdsouza181@gmail.com")}
+                  className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer ${
+                    email === "advrdsouza181@gmail.com" 
+                      ? "bg-forest/10 border-forest font-semibold text-forest" 
+                      : "bg-sage-light/50 border-forest/15 text-charcoal/80 hover:bg-sage-light"
+                  }`}
+                >
+                  <span className="truncate">advrdsouza181@gmail.com</span>
+                  <span className="text-[10px] text-forest/70 font-mono">Chambers Founder</span>
+                </button>
+              </div>
+
               <input
                 id="admin-email-input"
                 type="email"
@@ -371,18 +408,27 @@ export default function AdminPortal({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold"
-                placeholder="Enter authorized counsel email"
+                className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold font-sans"
+                placeholder="Enter 123.aarushsharma@gmail.com or advrdsouza181@gmail.com"
               />
             </div>
 
             <div>
-              <label 
-                htmlFor="admin-password-input"
-                className="block text-xs font-semibold uppercase text-forest tracking-wider mb-1.5"
-              >
-                Security Password
-              </label>
+              <div className="flex justify-between items-center mb-1.5">
+                <label 
+                  htmlFor="admin-password-input"
+                  className="block text-xs font-semibold uppercase text-forest tracking-wider"
+                >
+                  Security Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setPassword("Olive#law23")}
+                  className="text-[10px] text-gold-dark hover:underline font-medium cursor-pointer"
+                >
+                  Fill Master Password
+                </button>
+              </div>
               <input
                 id="admin-password-input"
                 type="password"
@@ -390,8 +436,8 @@ export default function AdminPortal({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold"
-                placeholder="Enter administrative password"
+                className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold font-sans"
+                placeholder="Enter password (e.g. Olive#law23)"
               />
             </div>
 
@@ -410,7 +456,7 @@ export default function AdminPortal({
                 ) : (
                   <>
                     <Lock size={14} />
-                    Chambers Sign In
+                    Authenticate Session
                   </>
                 )}
               </button>
@@ -420,7 +466,7 @@ export default function AdminPortal({
                 onClick={handleGoogleSignIn}
                 disabled={isAuthenticating}
                 className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-charcoal border border-gray-300 px-4 py-3 rounded-sm cursor-pointer shadow-sm transition-colors text-xs font-bold disabled:opacity-60"
-                title="Sign in with authorized Google Chambers Account"
+                title="Sign in directly with authorized Google Account"
               >
                 <Shield size={14} className="text-forest" />
                 Google Workspace
@@ -478,7 +524,7 @@ export default function AdminPortal({
           {/* Logo Brand */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gold/10 border border-gold/40 rounded flex items-center justify-center p-1 overflow-hidden shadow-sm">
-              <img src={firmLogo} alt="Olive Law Firm" className="w-full h-full object-contain drop-shadow-sm" />
+              <img src={logoSrc} alt="Olive Law Firm" className="w-full h-full object-contain drop-shadow-sm" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -666,6 +712,21 @@ export default function AdminPortal({
             <span>Manage Team &amp; Photos</span>
             <span className="bg-gold/20 text-forest text-[10px] font-bold px-1.5 py-0.5 rounded">
               New
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("branding")}
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 ${
+              activeTab === "branding"
+                ? "border-gold text-forest bg-white/40"
+                : "border-transparent text-charcoal/60 hover:text-forest"
+            }`}
+          >
+            <ImageIcon size={14} className={activeTab === "branding" ? "text-gold" : "text-charcoal/40"} />
+            <span>Firm Logo &amp; Brand</span>
+            <span className="bg-gold/20 text-forest text-[10px] font-bold px-1.5 py-0.5 rounded">
+              Edit
             </span>
           </button>
         </div>
@@ -1068,6 +1129,11 @@ export default function AdminPortal({
             onClosePortal={onClose}
             initialTarget={initialTeamTarget}
           />
+        )}
+
+        {/* Tab 5: Firm Logo & Brand Identity Manager */}
+        {activeTab === "branding" && (
+          <AdminLogoManager onClose={onClose} />
         )}
 
       </main>

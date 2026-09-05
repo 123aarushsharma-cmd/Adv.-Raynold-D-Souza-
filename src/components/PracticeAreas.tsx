@@ -28,6 +28,11 @@ interface PracticeArea {
     result: string;
   };
   keyAttorney: string;
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string;
+  serviceType: string;
+  schemaCategory: string;
 }
 
 const practiceData: PracticeArea[] = [
@@ -50,6 +55,11 @@ const practiceData: PracticeArea[] = [
       result: "Successfully challenged and overturned an unlawful executive decree infringing upon public service rights before the High Court of Karnataka.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
+    seoTitle: "Constitutional & Writ Petition Advocate | High Court Dharwad & Bengaluru | Olive Law Chambers®",
+    seoDescription: "Specialized Writ Petitions under Article 226 & 32, Special Leave Petitions (SLPs) before Supreme Court of India, and High Court litigation across Bengaluru, Hubballi, Dharwad, and Belagavi by Advocate Reynold D'Souza.",
+    seoKeywords: "Writ petition advocate Dharwad High Court, Constitutional lawyer Bengaluru, Supreme Court SLP advocate Karnataka, Article 226 advocate Hubballi, Human rights lawyer Belagavi, High Court litigation Karnataka",
+    serviceType: "Constitutional & Writ Petition Litigation",
+    schemaCategory: "Constitutional & Human Rights Law"
   },
   {
     id: "criminal",
@@ -70,6 +80,11 @@ const practiceData: PracticeArea[] = [
       result: "Obtained clean acquittal in a complex, multi-party criminal charge before the Sessions Court through intensive cross-examination.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
+    seoTitle: "Criminal Defense & Trial Advocate | Sessions & High Court Karnataka | Olive Law Chambers®",
+    seoDescription: "Relentless criminal trial defense, Sessions Court litigation, anticipatory bail applications (BNSS / CrPC), and appellate defense before High Court of Karnataka and Supreme Court across Bengaluru, Hubballi, Dharwad, and Belagavi.",
+    seoKeywords: "Criminal defense lawyer Hubballi, Anticipatory bail advocate Belagavi, Sessions Court trial advocate Dharwad, Criminal appeal lawyer High Court Bengaluru, White collar defense lawyer Karnataka, Section 482 BNSS bail lawyer",
+    serviceType: "Criminal Defense & Appellate Advocacy",
+    schemaCategory: "Criminal Law"
   },
   {
     id: "property",
@@ -90,6 +105,11 @@ const practiceData: PracticeArea[] = [
       result: "Resolved a major builder delay dispute, securing full interest and refund compensation for 15 apartment buyers.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
+    seoTitle: "Property Dispute & K-RERA Lawyer | Title Clearance Karnataka | Olive Law Chambers®",
+    seoDescription: "Comprehensive property title verification, partition suits, K-RERA developer dispute settlement, and apartment association litigation in Bengaluru, Hubballi, Dharwad, and Belagavi.",
+    seoKeywords: "Property dispute advocate Hubballi, K-RERA lawyer Bengaluru, Title verification lawyer Dharwad, Apartment association legal counsel Belagavi, Land partition suit advocate Karnataka, Revenue court lawyer",
+    serviceType: "Property & Real Estate Legal Services",
+    schemaCategory: "Property & RERA Law"
   },
   {
     id: "consumer",
@@ -110,6 +130,11 @@ const practiceData: PracticeArea[] = [
       result: "Secured complete punitive damage compensation and interest against a multi-national financial vendor for severe service neglect.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
+    seoTitle: "Consumer Protection & NCLT Advocate | KSDRC Appeals | Olive Law Chambers®",
+    seoDescription: "Strategic prosecution of corporate negligence, service deficiency claims before District Forums, KSDRC State Commission, NCDRC, and NCLT corporate dispute advocacy in Karnataka.",
+    seoKeywords: "Consumer court lawyer Bengaluru, KSDRC advocate Karnataka, Service deficiency advocate Hubballi, NCLT corporate litigation Dharwad, Product liability lawyer Belagavi, NCDRC consumer rights lawyer",
+    serviceType: "Consumer Rights & NCLT Litigation",
+    schemaCategory: "Consumer & Corporate Law"
   },
   {
     id: "labour",
@@ -130,6 +155,11 @@ const practiceData: PracticeArea[] = [
       result: "Reversed a wrongful administrative suspension, restoring full seniority and back wages for a long-serving state official.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
+    seoTitle: "Service Law & KAT Advocate | Labour Court & Tribunal Lawyer | Olive Law Chambers®",
+    seoDescription: "Dedicated service petitions before Karnataka Administrative Tribunal (KAT), CAT, CGIT, and industrial disputes before Labour Courts in Bengaluru, Hubballi, Dharwad, and Belagavi.",
+    seoKeywords: "KAT advocate Bengaluru, Karnataka Administrative Tribunal lawyer, Service law petition advocate Dharwad, Labour court lawyer Belagavi, CGIT advocate Hubballi, CAT service petition lawyer",
+    serviceType: "Administrative & Service Law Services",
+    schemaCategory: "Labour & Administrative Law"
   },
   {
     id: "arbitration",
@@ -150,6 +180,11 @@ const practiceData: PracticeArea[] = [
       result: "Concluded a long-running family property division out-of-court, saving valuable time and protecting family relations.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
+    seoTitle: "Commercial Arbitration & Mediation Advocate | Domestic & International ADR | Olive Law Chambers®",
+    seoDescription: "Expert Alternative Dispute Resolution (ADR), Section 11/9/34/37 arbitration petitions, court-referred mediations, and family conciliation in Bengaluru, Hubballi, Dharwad, and Belagavi.",
+    seoKeywords: "Arbitration lawyer Bengaluru, Commercial dispute arbitrator Karnataka, Court mediation lawyer Hubballi, Family conciliation advocate Dharwad, ADR legal counsel Belagavi, Arbitration Act section 11 lawyer",
+    serviceType: "Alternative Dispute Resolution & Arbitration Services",
+    schemaCategory: "Arbitration & Dispute Resolution"
   },
 ];
 
@@ -240,6 +275,57 @@ export default function PracticeAreas() {
     };
   }, []);
 
+  // Dynamically update document title, OpenGraph tags, Twitter card, and canonical links for local legal service SEO
+  useEffect(() => {
+    const setMetaTag = (selector: string, attribute: string, value: string) => {
+      let el = document.querySelector(selector);
+      if (!el) {
+        el = document.createElement("meta");
+        const match = selector.match(/\[(name|property)=["']?([^"']+)["']?\]/);
+        if (match) {
+          el.setAttribute(match[1], match[2]);
+        }
+        document.head.appendChild(el);
+      }
+      el.setAttribute(attribute, value);
+    };
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com";
+
+    if (selectedArea) {
+      document.title = selectedArea.seoTitle;
+      const practiceUrl = `${origin}/#practice-${selectedArea.id}`;
+
+      setMetaTag('meta[property="og:title"]', "content", selectedArea.seoTitle);
+      setMetaTag('meta[property="og:description"]', "content", selectedArea.seoDescription);
+      setMetaTag('meta[property="og:url"]', "content", practiceUrl);
+      setMetaTag('meta[property="og:type"]', "content", "article");
+      setMetaTag('meta[name="twitter:title"]', "content", selectedArea.seoTitle);
+      setMetaTag('meta[name="twitter:description"]', "content", selectedArea.seoDescription);
+      setMetaTag('meta[name="keywords"]', "content", selectedArea.seoKeywords);
+
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical) {
+        canonical.setAttribute("href", practiceUrl);
+      }
+    } else {
+      document.title = "Olive Law Chambers® | Supreme Court & High Court Litigation | Hubballi, Dharwad, Belagavi & Bengaluru";
+
+      setMetaTag('meta[property="og:title"]', "content", "Olive Law Chambers® | Supreme Court & High Court Litigation | Hubballi, Dharwad, Belagavi & Bengaluru");
+      setMetaTag('meta[property="og:description"]', "content", "Olive Law Chambers®, led by Advocate Reynold D'Souza, specializes in Supreme Court and High Court litigation across Karnataka, with branch locations in Hubballi, Dharwad, Belagavi, and Bengaluru.");
+      setMetaTag('meta[property="og:url"]', "content", origin);
+      setMetaTag('meta[property="og:type"]', "content", "website");
+      setMetaTag('meta[name="twitter:title"]', "content", "Olive Law Chambers® | Supreme Court & High Court Litigation | Hubballi, Dharwad, Belagavi & Bengaluru");
+      setMetaTag('meta[name="twitter:description"]', "content", "Specializing in Supreme Court and High Court litigation with branch locations across Hubballi, Dharwad, Belagavi, and Bengaluru.");
+      setMetaTag('meta[name="keywords"]', "content", "Olive Law Chambers, Advocate Reynold D'Souza, Supreme Court litigation advocate, High Court litigation lawyer Karnataka, law firm Hubballi, top advocate Dharwad, High Court Dharwad bench lawyer, legal counsel Belagavi, best law firm Bengaluru");
+
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (canonical) {
+        canonical.setAttribute("href", origin);
+      }
+    }
+  }, [selectedArea]);
+
   return (
     <section className="py-14 md:py-16 bg-ivory relative">
       <div className="absolute inset-0 opacity-5 pointer-events-none motif-bg" />
@@ -265,43 +351,92 @@ export default function PracticeAreas() {
           </p>
         </div>
 
-        {/* Dynamic SEO JSON-LD Structured Data */}
+        {/* Dynamic SEO JSON-LD Structured Data for Local Legal Services */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "LegalService",
-              "@id": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/#practice-areas`,
-              "name": "Olive Law Chambers®",
-              "description": "Expert and scholarly legal services and trial advocacy led by Advocate Reynold D'Souza, covering Constitutional Law, Criminal Defense, Property Law, RERA, and Administrative Tribunals in Bengaluru.",
-              "url": typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com",
-              "telephone": "+91-80-XXXX-XXXX",
-              "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Bengaluru",
-                "addressRegion": "Karnataka",
-                "addressCountry": "IN"
-              },
-              "knowsAbout": practiceData.map(area => area.title),
-              "provider": {
-                "@type": "Person",
-                "name": "Advocate Reynold D'Souza",
-                "jobTitle": "Advocate"
-              },
-              "hasOfferCatalog": {
-                "@type": "OfferCatalog",
-                "name": "Legal Practice Fields",
-                "itemListElement": practiceData.map((area, idx) => ({
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": area.title,
-                    "description": area.shortDesc
+              "@graph": [
+                {
+                  "@type": "LegalService",
+                  "@id": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/#organization`,
+                  "name": "Olive Law Chambers®",
+                  "description": "Premier law firm specializing in Supreme Court of India and High Court of Karnataka litigation, with branch locations in Hubballi, Dharwad, Belagavi, and Head Office in Bengaluru.",
+                  "url": typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com",
+                  "logo": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/logo.png`,
+                  "founder": {
+                    "@type": "Person",
+                    "name": "Advocate Reynold D'Souza",
+                    "jobTitle": "Lead Advocate & Counsel"
                   },
-                  "position": idx + 1
-                }))
-              }
+                  "areaServed": [
+                    { "@type": "City", "name": "Hubballi" },
+                    { "@type": "City", "name": "Dharwad" },
+                    { "@type": "City", "name": "Belagavi" },
+                    { "@type": "City", "name": "Bengaluru" },
+                    { "@type": "State", "name": "Karnataka" }
+                  ],
+                  "knowsAbout": practiceData.map(area => area.title)
+                },
+                ...practiceData.map((area, idx) => ({
+                  "@type": "Service",
+                  "@id": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/#practice-${area.id}`,
+                  "position": idx + 1,
+                  "name": area.title,
+                  "serviceType": area.serviceType,
+                  "category": area.schemaCategory,
+                  "description": area.longDesc,
+                  "provider": {
+                    "@type": "LegalService",
+                    "name": "Olive Law Chambers®",
+                    "url": typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"
+                  },
+                  "areaServed": [
+                    { "@type": "City", "name": "Hubballi", "sameAs": "https://en.wikipedia.org/wiki/Hubli" },
+                    { "@type": "City", "name": "Dharwad", "sameAs": "https://en.wikipedia.org/wiki/Dharwad" },
+                    { "@type": "City", "name": "Belagavi", "sameAs": "https://en.wikipedia.org/wiki/Belgaum" },
+                    { "@type": "City", "name": "Bengaluru", "sameAs": "https://en.wikipedia.org/wiki/Bangalore" },
+                    { "@type": "State", "name": "Karnataka" }
+                  ],
+                  "hasOfferCatalog": {
+                    "@type": "OfferCatalog",
+                    "name": `${area.title} Competencies`,
+                    "itemListElement": area.mattersCovered.map((matter, mIdx) => ({
+                      "@type": "Offer",
+                      "position": mIdx + 1,
+                      "itemOffered": {
+                        "@type": "Service",
+                        "name": matter
+                      }
+                    }))
+                  }
+                })),
+                {
+                  "@type": "BreadcrumbList",
+                  "@id": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/#breadcrumbs`,
+                  "itemListElement": [
+                    {
+                      "@type": "ListItem",
+                      "position": 1,
+                      "name": "Home",
+                      "item": typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 2,
+                      "name": "Practice Areas",
+                      "item": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/#practice-areas`
+                    },
+                    ...(selectedArea ? [{
+                      "@type": "ListItem",
+                      "position": 3,
+                      "name": selectedArea.title,
+                      "item": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/#practice-${selectedArea.id}`
+                    }] : [])
+                  ]
+                }
+              ]
             })
           }}
         />

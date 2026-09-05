@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import firmLogo from "../assets/logo.png";
+import { useBrandLogo } from "../hooks/useBrandLogo";
 
 interface SplashPreloaderProps {
   onComplete: () => void;
@@ -9,6 +9,7 @@ interface SplashPreloaderProps {
 
 export default function SplashPreloader({ onComplete }: SplashPreloaderProps) {
   const [step, setStep] = useState(0);
+  const { logoSrc } = useBrandLogo();
 
   useEffect(() => {
     // Lock scroll on mount
@@ -69,7 +70,7 @@ export default function SplashPreloader({ onComplete }: SplashPreloaderProps) {
             className="relative z-10 w-32 h-32 flex items-center justify-center p-3 rounded-full border border-gold/40 bg-forest/80 backdrop-blur-md shadow-[0_8px_32px_rgba(201,162,39,0.3)]"
           >
             <img
-              src={firmLogo}
+              src={logoSrc}
               alt="Olive Law Chambers® Official Logo"
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain drop-shadow-[0_2px_14px_rgba(201,162,39,0.4)] brightness-105"

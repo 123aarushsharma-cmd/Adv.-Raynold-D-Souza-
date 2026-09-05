@@ -1,5 +1,5 @@
 import React from "react";
-import firmLogo from "../assets/logo.png";
+import { useBrandLogo } from "../hooks/useBrandLogo";
 
 interface LogoProps {
   className?: string;
@@ -16,6 +16,8 @@ export default function Logo({
   showText = true,
   inverse = false,
 }: LogoProps) {
+  const { logoSrc } = useBrandLogo();
+
   const logoImage = (
     <div
       className={`relative flex items-center justify-center shrink-0 transition-transform duration-300 hover:scale-105 ${
@@ -24,7 +26,7 @@ export default function Logo({
       style={{ width: size, height: size }}
     >
       <img
-        src={firmLogo}
+        src={logoSrc}
         alt="Olive Law Chambers® Logo"
         width={size}
         height={size}
