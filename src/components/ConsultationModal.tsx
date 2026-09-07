@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ShieldCheck, Mail, Phone, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { submitConsultation, auth } from "../lib/firebase";
+import { createConsultationMailtoUrl, sendDirectEmailCopy } from "../lib/email";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -98,11 +99,22 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
     }
   };
 
+  const [lastMailtoUrl, setLastMailtoUrl] = useState<string>("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
     if (validate()) {
       setIsSubmitting(true);
+      const mailUrl = createConsultationMailtoUrl({
+        name: fields.name,
+        email: fields.email,
+        phone: fields.phone,
+        subject: fields.subject,
+        message: fields.message
+      });
+      setLastMailtoUrl(mailUrl);
+
       try {
         await submitConsultation({
           name: fields.name,
@@ -113,6 +125,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
         });
         setIsSubmitting(false);
         setIsSuccess(true);
+        sendDirectEmailCopy(mailUrl);
         setFields({
           name: "",
           email: "",
@@ -233,11 +246,13 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
 
                     <div className="flex flex-col gap-2 w-full max-w-sm mb-8">
                       <a
-                        href="mailto:advrdsouza181@gmail.com?subject=Privilege-Secured%20Consultation%20Inquiry&body=Dear%20Advocate%20Reynold%20D'Souza,%0A%0AI%20have%20submitted%20a%20consultation%20inquiry%20dossier%20via%20the%20Olive%20Law%20Chambers%20portal.%0A%0AThank%20you."
+                        href={lastMailtoUrl || "mailto:advrdsouza181@gmail.com?subject=Privilege-Secured%20Consultation%20Inquiry"}
+                        target="_blank"
+                        rel="noreferrer"
                         className="w-full inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest/95 text-gold border border-gold/30 font-sans font-semibold text-xs tracking-wider uppercase px-4 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
                       >
                         <Send size={14} />
-                        Email Copy to advrdsouza181@gmail.com
+                        Send Copy Direct to advrdsouza181@gmail.com
                       </a>
 
                       <button

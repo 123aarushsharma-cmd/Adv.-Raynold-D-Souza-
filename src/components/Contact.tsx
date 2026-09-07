@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, ExternalLink, Navigation, Landmark, Copy, Layers, Compass, Check } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { submitConsultation } from "../lib/firebase";
+import { createConsultationMailtoUrl, sendDirectEmailCopy } from "../lib/email";
 
 interface OfficeLocation {
   id: "bengaluru" | "hubballi" | "dharwad" | "belagavi";
@@ -14,6 +15,7 @@ interface OfficeLocation {
   fullAddressText: string;
   embedMapUrlRoadmap: string;
   embedMapUrlSatellite: string;
+  embedMapUrlHybrid: string;
   directMapsUrl: string;
   landmarkInfo: string;
 }
@@ -33,7 +35,8 @@ const FIRM_LOCATIONS: OfficeLocation[] = [
     ],
     fullAddressText: "2nd Floor, #520, 10th Cross, 12th Main, Padmanabhanagar, Bengaluru 560070, Karnataka, India",
     embedMapUrlRoadmap: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=m&z=17&output=embed",
-    embedMapUrlSatellite: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=k&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=k&z=18&output=embed",
+    embedMapUrlHybrid: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=h&z=18&output=embed",
     directMapsUrl: "https://www.google.com/maps/search/?api=1&query=12.923708,77.551322",
     landmarkInfo: "Padmanabhanagar • 10th Cross / 12th Main Rd"
   },
@@ -51,7 +54,8 @@ const FIRM_LOCATIONS: OfficeLocation[] = [
     ],
     fullAddressText: "Chamber #14, Ground Floor, District Court Complex, Hubballi - 580020, Karnataka, India",
     embedMapUrlRoadmap: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=m&z=17&output=embed",
-    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=k&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=k&z=18&output=embed",
+    embedMapUrlHybrid: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=h&z=18&output=embed",
     directMapsUrl: "https://www.google.com/maps/search/?api=1&query=15.352400,75.138400",
     landmarkInfo: "District Court Complex • Chamber #14"
   },
@@ -68,7 +72,8 @@ const FIRM_LOCATIONS: OfficeLocation[] = [
     ],
     fullAddressText: "Court Road, Near High Court Bench of Karnataka, Dharwad - 580011, Karnataka, India",
     embedMapUrlRoadmap: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=m&z=17&output=embed",
-    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=k&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=k&z=18&output=embed",
+    embedMapUrlHybrid: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=h&z=18&output=embed",
     directMapsUrl: "https://www.google.com/maps/search/?api=1&query=15.458900,75.007800",
     landmarkInfo: "Court Road • Near High Court Bench of Karnataka"
   },
@@ -85,7 +90,8 @@ const FIRM_LOCATIONS: OfficeLocation[] = [
     ],
     fullAddressText: "Chamber Complex, Opp. Civil Court, Club Road, Belagavi - 590001, Karnataka, India",
     embedMapUrlRoadmap: "https://maps.google.com/maps?q=15.858220,74.509810+(Chamber+Complex+Civil+Court+Belagavi)&t=m&z=17&output=embed",
-    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.858220,74.509810+(Chamber+Complex+Civil+Court+Belagavi)&t=k&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.858220,74.509810+(Chamber+Complex+Civil+Court+Belagavi)&t=k&z=18&output=embed",
+    embedMapUrlHybrid: "https://maps.google.com/maps?q=15.858220,74.509810+(Chamber+Complex+Civil+Court+Belagavi)&t=h&z=18&output=embed",
     directMapsUrl: "https://www.google.com/maps/search/?api=1&query=15.858220,74.509810",
     landmarkInfo: "Club Road • Opp. Civil Court Complex"
   }
@@ -109,7 +115,7 @@ interface FormErrors {
 
 export default function Contact() {
   const [activeLocationId, setActiveLocationId] = useState<"bengaluru" | "hubballi" | "dharwad" | "belagavi">("bengaluru");
-  const [mapMode, setMapMode] = useState<"roadmap" | "satellite">("roadmap");
+  const [mapMode, setMapMode] = useState<"roadmap" | "satellite" | "hybrid">("roadmap");
   const [copiedLocationId, setCopiedLocationId] = useState<string | null>(null);
   const [fields, setFields] = useState<FormFields>({
     name: "",
@@ -239,6 +245,8 @@ export default function Contact() {
     return isValid;
   };
 
+  const [lastMailtoUrl, setLastMailtoUrl] = useState<string>("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitAttempted(true);
@@ -253,6 +261,15 @@ export default function Contact() {
 
     if (validateAll()) {
       setIsSubmitting(true);
+      const mailUrl = createConsultationMailtoUrl({
+        name: fields.name,
+        email: fields.email,
+        phone: fields.phone,
+        subject: fields.subject,
+        message: fields.message
+      });
+      setLastMailtoUrl(mailUrl);
+
       try {
         await submitConsultation({
           name: fields.name,
@@ -263,6 +280,7 @@ export default function Contact() {
         });
         setIsSubmitting(false);
         setIsSuccess(true);
+        sendDirectEmailCopy(mailUrl);
         setSubmitAttempted(false);
         setTouched({});
         setFields({
@@ -378,11 +396,13 @@ export default function Contact() {
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8 w-full max-w-md">
                     <a
-                      href="mailto:advrdsouza181@gmail.com?subject=Chambers%20Legal%20Inquiry%20Submission&body=Dear%20Advocate%20Reynold%20D'Souza,%0A%0AI%20have%20submitted%20a%20legal%20query%20via%20the%20Olive%20Law%20Chambers%20portal.%0A%0AThank%20you."
+                      href={lastMailtoUrl || "mailto:advrdsouza181@gmail.com?subject=Chambers%20Legal%20Inquiry%20Submission"}
+                      target="_blank"
+                      rel="noreferrer"
                       className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest/90 text-gold border border-gold/30 font-sans font-semibold text-xs tracking-wider uppercase px-5 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
                     >
                       <Send size={14} />
-                      Email Copy to advrdsouza181@gmail.com
+                      Send Copy Direct to advrdsouza181@gmail.com
                     </a>
 
                     <button
@@ -611,7 +631,7 @@ export default function Contact() {
                   </span>
                 </div>
                 
-                {/* Roadmap vs Satellite Toggle */}
+                {/* Roadmap vs Satellite vs Hybrid Toggle */}
                 <div className="flex items-center bg-forest-light/90 border border-gold/30 rounded p-0.5">
                   <button
                     type="button"
@@ -635,6 +655,18 @@ export default function Contact() {
                   >
                     <Layers size={10} />
                     Satellite
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapMode("hybrid")}
+                    className={`px-2 py-0.5 text-[10px] font-sans font-medium rounded transition-all cursor-pointer flex items-center gap-1 ${
+                      mapMode === "hybrid"
+                        ? "bg-gold text-forest font-bold"
+                        : "text-ivory/70 hover:text-ivory"
+                    }`}
+                  >
+                    <Compass size={10} />
+                    Hybrid
                   </button>
                 </div>
               </div>
@@ -719,7 +751,11 @@ export default function Contact() {
               <div className="relative h-[290px] w-full bg-sage">
                 {(() => {
                   const currentLoc = FIRM_LOCATIONS.find((l) => l.id === activeLocationId) || FIRM_LOCATIONS[0];
-                  const mapEmbedSrc = mapMode === "satellite" ? currentLoc.embedMapUrlSatellite : currentLoc.embedMapUrlRoadmap;
+                  const mapEmbedSrc = mapMode === "satellite" 
+                    ? currentLoc.embedMapUrlSatellite 
+                    : mapMode === "hybrid" 
+                    ? currentLoc.embedMapUrlHybrid 
+                    : currentLoc.embedMapUrlRoadmap;
                   return (
                     <iframe
                       key={`${currentLoc.id}-${mapMode}`}

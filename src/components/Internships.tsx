@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Send, FileText, CheckCircle2, AlertCircle, Award, GraduationCap, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { submitInternship } from "../lib/firebase";
+import { createInternshipMailtoUrl, sendDirectEmailCopy } from "../lib/email";
 
 interface InternshipFields {
   name: string;
@@ -128,6 +129,8 @@ export default function Internships() {
     return isValid;
   };
 
+  const [lastMailtoUrl, setLastMailtoUrl] = useState<string>("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitAttempted(true);
@@ -141,6 +144,18 @@ export default function Internships() {
 
     if (validateAll()) {
       setIsSubmitting(true);
+      const mailUrl = createInternshipMailtoUrl({
+        name: fields.name,
+        email: fields.email,
+        phone: fields.phone,
+        college: fields.college,
+        yearOfStudy: fields.yearOfStudy,
+        areaOfInterest: fields.areaOfInterest,
+        resumeUrl: fields.resumeUrl,
+        coverLetter: fields.coverLetter
+      });
+      setLastMailtoUrl(mailUrl);
+
       try {
         await submitInternship({
           name: fields.name,
@@ -154,6 +169,7 @@ export default function Internships() {
         });
         setIsSubmitting(false);
         setIsSuccess(true);
+        sendDirectEmailCopy(mailUrl);
         setSubmitAttempted(false);
         setTouched({});
         setFields({
@@ -299,11 +315,13 @@ export default function Internships() {
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8 w-full max-w-md">
                     <a
-                      href="mailto:advrdsouza181@gmail.com?subject=Chambers%20Internship%20Application%20Submission&body=Dear%20Advocate%20Reynold%20D'Souza,%0A%0AI%20have%20submitted%20my%20internship%20application%20dossier%20via%20the%20Olive%20Law%20Chambers%20portal.%0A%0AThank%20you."
+                      href={lastMailtoUrl || "mailto:advrdsouza181@gmail.com?subject=Chambers%20Internship%20Application%20Submission"}
+                      target="_blank"
+                      rel="noreferrer"
                       className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest/90 text-gold border border-gold/30 font-sans font-semibold text-xs tracking-wider uppercase px-5 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
                     >
                       <Send size={14} />
-                      Email Copy to advrdsouza181@gmail.com
+                      Send Copy Direct to advrdsouza181@gmail.com
                     </a>
 
                     <button

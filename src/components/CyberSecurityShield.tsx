@@ -20,24 +20,29 @@ export default function CyberSecurityShield() {
 
     // 2. Prevent Developer Tools / Inspect Element Hotkeys
     const handleKeyDown = (e: KeyboardEvent) => {
-      // F12 key
-      if (e.key === "F12" || e.keyCode === 123) {
+      // F12 key or Shift+F10
+      if (e.key === "F12" || e.keyCode === 123 || (e.shiftKey && e.key === "F10")) {
         e.preventDefault();
         e.stopPropagation();
-        triggerWarning("Developer Tools access blocked (F12 key restricted).");
+        triggerWarning("Developer Tools inspection locked under Chambers Privacy Protocol.");
         return false;
       }
 
-      // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K, Ctrl+U (Source Code view)
+      // Cmd/Ctrl + Shift + I/J/C/K/E or Cmd/Ctrl + Option + I/J/C/U
+      const keyUpper = e.key ? e.key.toUpperCase() : "";
+      const isCmdOrCtrl = e.ctrlKey || e.metaKey;
+      const isOptionOrAlt = e.altKey;
+
       if (
-        (e.ctrlKey || e.metaKey) &&
-        (e.shiftKey
-          ? ["I", "J", "C", "K", "i", "j", "c", "k"].includes(e.key)
-          : ["U", "u", "S", "s"].includes(e.key))
+        isCmdOrCtrl && (
+          (e.shiftKey && ["I", "J", "C", "K", "E", "M"].includes(keyUpper)) ||
+          (isOptionOrAlt && ["I", "J", "C", "U"].includes(keyUpper)) ||
+          ["U", "S", "P"].includes(keyUpper)
+        )
       ) {
         e.preventDefault();
         e.stopPropagation();
-        triggerWarning("Source code inspection shortcuts disabled for IP Protection.");
+        triggerWarning("Source code inspection and dev key combinations are locked for privacy.");
         return false;
       }
     };
