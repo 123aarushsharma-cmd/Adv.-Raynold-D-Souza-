@@ -1,7 +1,8 @@
 import React, { useState, useRef } from "react";
 import { 
   FounderProfile, 
-  AdvocateProfile 
+  AdvocateProfile,
+  DEFAULT_FOUNDER_PROFILE 
 } from "../lib/firebase";
 import { 
   LEGAL_PORTRAIT_PRESETS, 
@@ -157,6 +158,36 @@ export default function AdminTeamManager({
     }
     setFounderForm((prev) => ({ ...prev, photoUrl: founderUrlInput.trim() }));
     setFounderError(null);
+  };
+
+  // Delete Founder Photo Handlers
+  const handleDeleteFounderPhoto = () => {
+    setFounderForm((prev) => ({ ...prev, photoUrl: "" }));
+    setFounderUrlInput("");
+    setFounderError(null);
+  };
+
+  const handleRestoreDefaultFounderPhoto = () => {
+    setFounderForm((prev) => ({ ...prev, photoUrl: DEFAULT_FOUNDER_PROFILE.photoUrl }));
+    setFounderUrlInput(DEFAULT_FOUNDER_PROFILE.photoUrl);
+    setFounderError(null);
+  };
+
+  const handleDeleteAndSaveFounderPhoto = async () => {
+    const updated = { ...founderForm, photoUrl: "" };
+    setFounderForm(updated);
+    setFounderUrlInput("");
+    setFounderSaving(true);
+    setFounderError(null);
+    try {
+      await onSaveFounder(updated);
+      setFounderSuccess(true);
+      setTimeout(() => setFounderSuccess(false), 4000);
+    } catch (err: any) {
+      setFounderError(err.message || "Failed to delete and save founder photo");
+    } finally {
+      setFounderSaving(false);
+    }
   };
 
   const handleApplyAdvocateUrl = async () => {
@@ -396,17 +427,42 @@ export default function AdminTeamManager({
                 <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-gold/30 p-1 bg-ivory">
                   <div className="w-full h-full relative overflow-hidden rounded-sm bg-forest/5 flex items-center justify-center">
                     {founderForm.photoUrl ? (
-                      <img
-                        src={founderForm.photoUrl}
-                        alt={founderForm.name}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        <img
+                          src={founderForm.photoUrl}
+                          alt={founderForm.name}
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Overlay delete button on hover */}
+                        <div className="absolute inset-0 bg-forest/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-3 text-center">
+                          <button
+                            type="button"
+                            onClick={handleDeleteFounderPhoto}
+                            className="inline-flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-sm shadow cursor-pointer transition-transform hover:scale-105"
+                          >
+                            <Trash2 size={14} />
+                            Delete Picture
+                          </button>
+                          <span className="text-[10px] text-ivory/80">
+                            Switches to Chambers Monogram Seal
+                          </span>
+                        </div>
+                      </>
                     ) : (
-                      <div className="flex flex-col items-center justify-center text-charcoal/40 p-4 text-center">
-                        <User size={48} className="text-forest/30 mb-2" />
-                        <span className="text-xs font-serif font-bold text-forest">No Portrait Selected</span>
-                        <span className="text-[10px] text-charcoal/60 mt-1">Upload a photo below</span>
+                      <div className="w-full h-full bg-forest text-gold flex flex-col items-center justify-center p-4 text-center relative overflow-hidden">
+                        <div className="w-16 h-16 rounded-full border-2 border-gold/40 flex items-center justify-center mb-2 bg-forest-light/60">
+                          <Shield size={28} className="text-gold" />
+                        </div>
+                        <span className="font-serif text-lg font-bold text-ivory tracking-wide">
+                          {founderForm.name.split(" ").map(w => w[0]).filter(Boolean).slice(-2).join("") || "RD"}
+                        </span>
+                        <span className="text-[9px] text-gold font-bold uppercase tracking-widest mt-1">
+                          Chambers Monogram Seal
+                        </span>
+                        <span className="text-[8px] text-ivory/60 mt-0.5">
+                          (Photo Removed)
+                        </span>
                       </div>
                     )}
 
@@ -430,6 +486,50 @@ export default function AdminTeamManager({
                     {founderForm.title}
                   </p>
                 </div>
+
+                {/* Direct Action Buttons Under Preview: Delete Photo / Restore Default */}
+                <div className="mt-3 pt-3 border-t border-forest/10 flex flex-col gap-2">
+                  {founderForm.photoUrl ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={handleDeleteFounderPhoto}
+                        className="inline-flex items-center justify-center gap-1.5 text-xs text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 py-2 px-3 rounded-sm font-semibold transition-colors cursor-pointer"
+                        title="Delete current portrait photo and switch to monogram seal"
+                      >
+                        <Trash2 size={14} />
+                        Delete Picture
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleDeleteAndSaveFounderPhoto}
+                        disabled={founderSaving}
+                        className="inline-flex items-center justify-center gap-1.5 text-xs text-white bg-red-700 hover:bg-red-800 py-2 px-3 rounded-sm font-semibold transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+                        title="Delete photo and publish change to live website immediately"
+                      >
+                        <Trash2 size={14} />
+                        {founderSaving ? "Saving..." : "Delete & Save Live"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[11px] p-2 rounded-sm flex items-center gap-1.5">
+                        <AlertCircle size={14} className="shrink-0 text-amber-600" />
+                        <span>Picture deleted. The website now shows the Chambers Monogram Seal.</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleRestoreDefaultFounderPhoto}
+                        className="w-full inline-flex items-center justify-center gap-1.5 text-xs text-forest bg-gold/20 hover:bg-gold/30 border border-gold/40 py-2 px-3 rounded-sm font-semibold transition-colors cursor-pointer"
+                      >
+                        <RotateCcw size={14} />
+                        Restore Default Portrait Picture
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Photo Changing Controls: File Upload & Drag & Drop */}
@@ -439,7 +539,16 @@ export default function AdminTeamManager({
                     <Camera size={14} className="text-gold" />
                     Change Portrait Picture
                   </span>
-                  <span className="text-[10px] text-charcoal/50">PNG, JPG, WebP</span>
+                  {founderForm.photoUrl && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteFounderPhoto}
+                      className="text-[11px] text-red-600 hover:text-red-800 font-semibold inline-flex items-center gap-1 cursor-pointer hover:underline"
+                    >
+                      <Trash2 size={12} />
+                      Remove
+                    </button>
+                  )}
                 </div>
 
                 {/* Hidden File Input */}
@@ -510,7 +619,24 @@ export default function AdminTeamManager({
                       Select from Professional Headshot Presets
                     </span>
                   </div>
-                  <div className="grid grid-cols-6 gap-2">
+                  <div className="grid grid-cols-7 gap-2">
+                    {/* Clear / No Photo Tile */}
+                    <button
+                      type="button"
+                      onClick={handleDeleteFounderPhoto}
+                      title="Clear / Delete Photo (Use Monogram Seal)"
+                      className={`relative aspect-square rounded overflow-hidden border-2 transition-all cursor-pointer flex flex-col items-center justify-center p-1 bg-forest/5 hover:bg-red-50 hover:border-red-300 ${
+                        !founderForm.photoUrl
+                          ? "border-gold bg-forest text-gold ring-2 ring-gold/40 shadow"
+                          : "border-gray-200 text-charcoal/50"
+                      }`}
+                    >
+                      <Trash2 size={15} className={!founderForm.photoUrl ? "text-gold" : "text-red-500"} />
+                      <span className={`text-[8px] font-bold uppercase tracking-tight mt-0.5 ${!founderForm.photoUrl ? "text-gold" : "text-charcoal/60"}`}>
+                        No Photo
+                      </span>
+                    </button>
+
                     {LEGAL_PORTRAIT_PRESETS.map((preset) => (
                       <button
                         key={preset.id}

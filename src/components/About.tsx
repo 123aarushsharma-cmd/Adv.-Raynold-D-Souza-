@@ -39,12 +39,30 @@ export default function About() {
               {/* Double border aesthetic frame */}
               <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-gold/20 p-1 bg-ivory">
                 <div className="w-full h-full relative overflow-hidden rounded-sm bg-forest/5 flex items-center justify-center">
-                  <img
-                    src={founder.photoUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600"}
-                    alt={founder.name}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  {founder.photoUrl ? (
+                    <img
+                      src={founder.photoUrl}
+                      alt={founder.name}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-forest text-gold flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+                      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#d4af37_1px,transparent_1px)] [background-size:16px_16px]" />
+                      <div className="w-20 h-20 rounded-full border-2 border-gold/40 flex items-center justify-center mb-3 bg-forest-light/60 shadow-inner">
+                        <Scale size={34} className="text-gold" />
+                      </div>
+                      <span className="font-serif text-2xl font-bold text-ivory tracking-wide">
+                        {founder.name.split(" ").map(w => w[0]).filter(Boolean).slice(-2).join("") || "RD"}
+                      </span>
+                      <span className="font-sans text-[10px] text-gold font-bold tracking-[0.2em] uppercase mt-2">
+                        Olive Law Chambers
+                      </span>
+                      <span className="font-sans text-[9px] text-ivory/60 mt-0.5">
+                        Principal Chambers Seal
+                      </span>
+                    </div>
+                  )}
                   {/* Elegant decorative gold overlays */}
                   <div className="absolute inset-0 bg-gradient-to-t from-forest/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                   
