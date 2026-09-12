@@ -56,7 +56,7 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 120, opacity: 0, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 180, damping: 22 }}
-          className="fixed bottom-6 right-6 z-40 w-[92%] max-w-[450px] bg-forest/98 backdrop-blur-xl border border-gold/30 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-5 sm:p-6 text-ivory flex flex-col gap-4 select-none left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0"
+          className="fixed bottom-6 right-6 z-[60] w-[92%] max-w-[450px] bg-forest/98 backdrop-blur-xl border border-gold/30 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-5 sm:p-6 text-ivory flex flex-col gap-4 select-none left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0"
           id="cookie-consent-container"
         >
           {/* Header */}

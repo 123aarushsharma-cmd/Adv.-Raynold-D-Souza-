@@ -246,7 +246,7 @@ export default function AdminLogoManager({ onClose }: AdminLogoManagerProps) {
                   Olive®
                 </span>
                 <span className="font-sans text-[8px] tracking-[0.25em] uppercase font-semibold leading-none mt-1 text-gold">
-                  Law Chambers®
+                  Law Firm®
                 </span>
               </div>
             </div>
@@ -270,7 +270,7 @@ export default function AdminLogoManager({ onClose }: AdminLogoManagerProps) {
                   Olive®
                 </span>
                 <span className="font-sans text-[8px] tracking-[0.25em] uppercase font-semibold leading-none mt-1 text-[#8C6B14]">
-                  Law Chambers®
+                  Law Firm®
                 </span>
               </div>
             </div>

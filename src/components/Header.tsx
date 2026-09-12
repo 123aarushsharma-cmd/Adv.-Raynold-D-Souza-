@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import Logo from "./Logo";
+import StickyBottomDock from "./StickyBottomDock";
 import { 
-  PhoneCall, 
-  Calendar, 
   Home, 
   User, 
   Scale, 
   Award, 
   MessageSquare, 
+  HelpCircle,
   Landmark, 
   ShieldAlert, 
   Building2, 
@@ -23,7 +23,6 @@ import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 interface HeaderProps {
   onOpenConsultationModal: () => void;
   onOpenAdmin: () => void;
-  onOpenUserPortal: () => void;
 }
 
 const practiceSubmenu = [
@@ -41,9 +40,10 @@ const navLinks = [
   { name: "Practice Areas", href: "#practice-areas", icon: Scale },
   { name: "Why Choose Us", href: "#why-choose-us", icon: Award },
   { name: "Contact", href: "#contact", icon: MessageSquare },
+  { name: "FAQ", href: "#faq", icon: HelpCircle },
 ];
 
-export default function Header({ onOpenConsultationModal, onOpenAdmin, onOpenUserPortal }: HeaderProps) {
+export default function Header({ onOpenConsultationModal, onOpenAdmin }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [isPracticeDropdownOpen, setIsPracticeDropdownOpen] = useState(false);
@@ -68,7 +68,7 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin, onOpenUse
 
       let currentActive = "home";
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50) {
-        currentActive = "contact";
+        currentActive = "faq";
       } else {
         for (const link of navLinks) {
           const id = link.href.substring(1);
@@ -133,7 +133,7 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin, onOpenUse
         }`}>
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a href="#home" onClick={handleLogoClick} className="flex items-center shrink-0" title="Olive Law Firm" id="header-logo-link">
+            <a href="#home" onClick={handleLogoClick} className="flex items-center shrink-0 transition-transform duration-200 hover:scale-[1.03] group active:scale-95" title="Olive Law Firm" id="header-logo-link">
               <Logo inverse={true} size={isScrolled ? 34 : 40} />
             </a>
 
@@ -244,38 +244,20 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin, onOpenUse
               })}
             </nav>
 
-            {/* Action Area (Extremely Clean, Luxury Icon Buttons only - No text clutter) */}
-            <div className="flex items-center gap-3 shrink-0" id="header-action-area">
-              {/* Phone Icon Button */}
-              <a 
-                href="tel:+919740577775" 
-                className="w-10 h-10 rounded-sm bg-gold/10 border border-gold/30 text-gold flex items-center justify-center transition-all duration-200 active:scale-95 cursor-pointer hover:bg-gold/20 hover:text-ivory hover:border-gold hover:shadow-[0_0_12px_rgba(201,162,39,0.2)]"
-                title="Call Advocate Reynold D'Souza: +91 97405 77775"
-                id="header-phone-btn"
-              >
-                <PhoneCall size={16} />
-              </a>
-
-              {/* Book Consultation Icon Button */}
-              <button
-                onClick={onOpenConsultationModal}
-                className="w-10 h-10 rounded-sm bg-gold text-forest flex items-center justify-center transition-all duration-200 active:scale-95 cursor-pointer hover:bg-gold/90 hover:scale-[1.05] hover:shadow-[0_0_15px_rgba(201,162,39,0.35)] animate-pulse-subtle"
-                title="Book a Consultation"
-                id="header-book-btn"
-              >
-                <Calendar size={16} />
-              </button>
-
-
-            </div>
+            {/* Navigation links complete - action area removed for clean aesthetic */}
           </div>
         </div>
       </header>
 
-      {/* 2. Premium Floating Navigation Dock (Bottom centered, luxury glassmorphic design) */}
+      {/* 2. Interactive Bottom Sticky Hover Dock (Logo-only Call & Client Intake with rich hover animations) */}
+      <StickyBottomDock 
+        onOpenConsultationModal={onOpenConsultationModal}
+      />
+
+      {/* 3. Premium Floating Navigation Dock (Mobile/Tablet centered, luxury glassmorphic design) */}
       <motion.div 
         id="mobile-floating-dock"
-        className="fixed bottom-5 left-1/2 z-50 w-[88%] max-w-[340px] bg-forest/40 hover:bg-forest/75 backdrop-blur-xl border border-gold/25 hover:border-gold/45 rounded-full px-3 py-1 shadow-[0_12px_32px_rgba(0,0,0,0.35),_inset_0_1px_1px_rgba(255,255,255,0.12)] flex items-center justify-between transition-all duration-300"
+        className="fixed bottom-3 sm:bottom-5 left-1/2 z-40 w-[92%] max-w-[350px] lg:hidden bg-forest/70 hover:bg-forest/90 backdrop-blur-xl border border-gold/25 hover:border-gold/45 rounded-full px-2.5 sm:px-3 py-1 shadow-[0_12px_32px_rgba(0,0,0,0.35),_inset_0_1px_1px_rgba(255,255,255,0.12)] flex items-center justify-between transition-all duration-300"
         initial={{ y: 20, opacity: 0, x: "-50%" }}
         animate={{ y: 0, opacity: 1, x: "-50%" }}
         transition={{ delay: 0.5, duration: 0.5 }}

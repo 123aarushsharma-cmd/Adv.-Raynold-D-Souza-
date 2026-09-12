@@ -32,6 +32,7 @@ export default function Footer({ onOpenPrivacy, onOpenTerms }: FooterProps) {
     { name: "About Firm", href: "#about" },
     { name: "Practice Areas", href: "#practice-areas" },
     { name: "Contact Firm", href: "#contact" },
+    { name: "FAQ Dossier", href: "#faq" },
   ];
 
   const socialLinks = [
@@ -47,7 +48,7 @@ export default function Footer({ onOpenPrivacy, onOpenTerms }: FooterProps) {
       <div className="absolute inset-0 opacity-5 pointer-events-none motif-bg" />
 
       {/* Primary footer layout links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-28 sm:pb-32 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-40 sm:pb-32 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 border-b border-gold/15 pb-12">
           
           {/* Column 1: Brand & Blurb */}

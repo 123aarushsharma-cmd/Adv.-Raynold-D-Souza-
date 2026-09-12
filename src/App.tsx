@@ -7,17 +7,14 @@ import PracticeAreas from "./components/PracticeAreas";
 import WhyChooseUs from "./components/WhyChooseUs";
 import AdditionalAdvocates from "./components/AdditionalAdvocates";
 import FAQ from "./components/FAQ";
-import Internships from "./components/Internships";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
-import BackToTop from "./components/BackToTop";
 import ConsultationModal from "./components/ConsultationModal";
 import ScrollAnimate from "./components/ScrollAnimate";
 import AdminPortal from "./components/AdminPortal";
 import CookieConsent from "./components/CookieConsent";
 import { PrivacyPolicyModal, TermsOfServiceModal } from "./components/LegalModals";
 import SplashPreloader from "./components/SplashPreloader";
-import UserPortal from "./components/UserPortal";
 import ClientTestimonials from "./components/ClientTestimonials";
 import CyberSecurityShield from "./components/CyberSecurityShield";
 
@@ -27,7 +24,6 @@ export default function App() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isSplashActive, setIsSplashActive] = useState(true);
-  const [isUserPortalOpen, setIsUserPortalOpen] = useState(false);
   const [adminInitialTab, setAdminInitialTab] = useState<"consultations" | "notifications" | "team" | "analytics" | "branding">("consultations");
   const [adminTeamTarget, setAdminTeamTarget] = useState<"founder" | string>("founder");
 
@@ -104,7 +100,6 @@ export default function App() {
       <Header 
         onOpenConsultationModal={openModal} 
         onOpenAdmin={() => setIsAdminOpen(true)} 
-        onOpenUserPortal={() => setIsUserPortalOpen(true)}
       />
 
       {/* Main Content Sections */}
@@ -137,19 +132,14 @@ export default function App() {
           <ClientTestimonials />
         </ScrollAnimate>
 
-        {/* Section 4.6: Frequently Asked Questions */}
-        <ScrollAnimate id="faq">
-          <FAQ />
-        </ScrollAnimate>
-
-        {/* Section 4.7: Internship Applications */}
-        <ScrollAnimate id="internships">
-          <Internships />
-        </ScrollAnimate>
-
         {/* Section 5: Admissions Case Intake Desk */}
         <ScrollAnimate id="contact">
           <Contact />
+        </ScrollAnimate>
+
+        {/* Section 6: FAQ Dossier (Compact & Humanized) */}
+        <ScrollAnimate id="faq">
+          <FAQ />
         </ScrollAnimate>
       </main>
 
@@ -158,9 +148,6 @@ export default function App() {
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenTerms={() => setIsTermsOpen(true)}
       />
-
-      {/* Floating Utilities */}
-      <BackToTop />
 
       {/* Interactive Modal Booking Dialogue */}
       <ConsultationModal isOpen={isModalOpen} onClose={closeModal} />
@@ -176,13 +163,6 @@ export default function App() {
       {/* Legal Protected Disclaimers & Modals */}
       <PrivacyPolicyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
       <TermsOfServiceModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
-
-      {/* Client Secure Portal Modal */}
-      <UserPortal 
-        isOpen={isUserPortalOpen} 
-        onClose={() => setIsUserPortalOpen(false)} 
-        onOpenConsultation={openModal} 
-      />
     </div>
     </>
   );

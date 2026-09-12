@@ -18,7 +18,7 @@ const features: Feature[] = [
   {
     icon: <HeartHandshake className="text-gold" size={28} />,
     title: "Client-Centered Approach",
-    desc: "We prioritize deep personal empathy and communication. We limit our docket size to dedicate custom attention to every matter.",
+    desc: "We prioritize deep personal empathy and communication. We limit our active caseload to dedicate custom attention to every matter.",
   },
   {
     icon: <Coins className="text-gold" size={28} />,

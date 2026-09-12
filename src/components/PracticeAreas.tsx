@@ -165,7 +165,7 @@ const practiceData: PracticeArea[] = [
     id: "arbitration",
     title: "Arbitration, Mediation & Conciliation",
     shortDesc: "Alternative Dispute Resolution (ADR) services covering international/domestic arbitration, mediation, and conciliation.",
-    longDesc: "When dispute resolution demands confidentiality, velocity, and specialized commercial expertise, our chambers orchestrate state-of-the-art Alternative Dispute Resolution (ADR). We offer comprehensive advocacy and neutral services in Domestic and International Arbitrations, judicial mediations, and family conciliation across Bengaluru, Dharwad, and Belagavi.",
+    longDesc: "When dispute resolution demands confidentiality, velocity, and specialized commercial expertise, our firm orchestrates state-of-the-art Alternative Dispute Resolution (ADR). We offer comprehensive advocacy and neutral services in Domestic and International Arbitrations, judicial mediations, and family conciliation across Bengaluru, Dharwad, and Belagavi.",
     icon: <HeartHandshake size={24} />,
     iconName: "HeartHandshake",
     mattersCovered: [

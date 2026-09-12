@@ -762,7 +762,7 @@ export default function Contact() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-gold/25 pb-3">
                   <h3 className="font-serif text-2xl text-gold font-bold">
-                    Firm Presence &amp; Chambers
+                    Firm Presence &amp; Offices
                   </h3>
                   <span className="text-[10px] uppercase font-sans tracking-widest text-gold/70 font-semibold bg-gold/10 px-2 py-0.5 rounded border border-gold/20">
                     3 Strategic Locations
@@ -784,7 +784,7 @@ export default function Contact() {
                         <MapPin className="text-gold shrink-0 mt-1" size={18} />
                         <div>
                           <span className="font-sans text-[10px] tracking-widest text-gold uppercase font-bold block mb-1">
-                            Chambers Head Office
+                            Firm Head Office
                           </span>
                           <p className="font-serif text-base text-ivory font-bold">
                             Bengaluru Head Office
