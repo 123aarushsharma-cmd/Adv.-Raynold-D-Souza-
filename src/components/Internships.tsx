@@ -210,7 +210,7 @@ export default function Internships() {
           </h2>
           <div className="mt-4 h-[1px] w-12 bg-gold mx-auto" />
           <p className="font-sans text-sm sm:text-base text-charcoal/70 mt-3 font-light">
-            Olive Law Chambers® provides rigorous legal training, case research modeling, and trial court observations for meritorious law students across our Bengaluru Head Office and our distinct satellite locations.
+            Olive Law Firm® provides rigorous legal training, case research modeling, and trial court observations for meritorious law students across our Bengaluru Head Office and our distinct satellite locations.
           </p>
         </div>
 
@@ -260,7 +260,7 @@ export default function Internships() {
             </div>
 
             <div className="pt-6 border-t border-gold/15 mt-6 text-[11px] font-sans font-light text-ivory/70 leading-relaxed">
-              * Note: Olive Law Chambers® is an equal opportunity workplace. All meritorious applications are analyzed based purely on academic research competency, scholastic consistency, and professional writing standards.
+              * Note: Olive Law Firm® is an equal opportunity workplace. All meritorious applications are analyzed based purely on academic research competency, scholastic consistency, and professional writing standards.
             </div>
           </div>
 
@@ -310,7 +310,7 @@ export default function Internships() {
                   </h3>
 
                   <p className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-md mb-6 font-light">
-                    Thank you for applying to Olive Law Chambers®. Your internship dossier has been logged in our chambers database and routed directly to Advocate Reynold D'Souza (<strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>).
+                    Thank you for applying to Olive Law Firm®. Your internship dossier has been logged in our firm database and routed directly to Advocate Reynold D'Souza (<strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>).
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8 w-full max-w-md">

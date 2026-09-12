@@ -5,8 +5,8 @@ import { submitConsultation } from "../lib/firebase";
 import { createConsultationMailtoUrl, sendDirectEmailCopy } from "../lib/email";
 
 interface OfficeLocation {
-  id: "bengaluru" | "hubballi" | "dharwad" | "belagavi";
-  category: "Chambers Head Office" | "Distinct Satellite Location";
+  id: "bengaluru" | "dharwad" | "belagavi";
+  category: "Firm Head Office" | "Distinct Satellite Location";
   name: string;
   shortName: string;
   badge: string;
@@ -23,7 +23,7 @@ interface OfficeLocation {
 const FIRM_LOCATIONS: OfficeLocation[] = [
   {
     id: "bengaluru",
-    category: "Chambers Head Office",
+    category: "Firm Head Office",
     name: "Bengaluru Head Office",
     shortName: "Bengaluru (HQ)",
     badge: "Head Office",
@@ -34,30 +34,11 @@ const FIRM_LOCATIONS: OfficeLocation[] = [
       "Bengaluru 560070, Karnataka, India"
     ],
     fullAddressText: "2nd Floor, #520, 10th Cross, 12th Main, Padmanabhanagar, Bengaluru 560070, Karnataka, India",
-    embedMapUrlRoadmap: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=m&z=17&output=embed",
-    embedMapUrlSatellite: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=k&z=18&output=embed",
-    embedMapUrlHybrid: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Chambers+Bengaluru)&t=h&z=18&output=embed",
+    embedMapUrlRoadmap: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Firm+Bengaluru)&t=m&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Firm+Bengaluru)&t=k&z=18&output=embed",
+    embedMapUrlHybrid: "https://maps.google.com/maps?q=12.923708,77.551322+(Olive+Law+Firm+Bengaluru)&t=h&z=18&output=embed",
     directMapsUrl: "https://www.google.com/maps/search/?api=1&query=12.923708,77.551322",
     landmarkInfo: "Padmanabhanagar • 10th Cross / 12th Main Rd"
-  },
-  {
-    id: "hubballi",
-    category: "Distinct Satellite Location",
-    name: "Hubballi Satellite Location",
-    shortName: "Hubballi",
-    badge: "Satellite Location",
-    coordinates: "15.3524° N, 75.1384° E",
-    addressLines: [
-      "Chamber #14, Ground Floor,",
-      "District Court Complex,",
-      "Hubballi - 580020, Karnataka, India"
-    ],
-    fullAddressText: "Chamber #14, Ground Floor, District Court Complex, Hubballi - 580020, Karnataka, India",
-    embedMapUrlRoadmap: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=m&z=17&output=embed",
-    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=k&z=18&output=embed",
-    embedMapUrlHybrid: "https://maps.google.com/maps?q=15.352400,75.138400+(District+Court+Complex+Hubballi)&t=h&z=18&output=embed",
-    directMapsUrl: "https://www.google.com/maps/search/?api=1&query=15.352400,75.138400",
-    landmarkInfo: "District Court Complex • Chamber #14"
   },
   {
     id: "dharwad",
@@ -65,17 +46,18 @@ const FIRM_LOCATIONS: OfficeLocation[] = [
     name: "Dharwad Satellite Location",
     shortName: "Dharwad",
     badge: "Satellite Location",
-    coordinates: "15.4589° N, 75.0078° E",
+    coordinates: "15.4660° N, 75.0080° E",
     addressLines: [
-      "Court Road, Near High Court Bench of Karnataka,",
-      "Dharwad - 580011, Karnataka, India"
+      "#300, Olive Tree Apartment,",
+      "1st Cross, Sadankeri,",
+      "Dharwad, 560070"
     ],
-    fullAddressText: "Court Road, Near High Court Bench of Karnataka, Dharwad - 580011, Karnataka, India",
-    embedMapUrlRoadmap: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=m&z=17&output=embed",
-    embedMapUrlSatellite: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=k&z=18&output=embed",
-    embedMapUrlHybrid: "https://maps.google.com/maps?q=15.458900,75.007800+(High+Court+Bench+Court+Road+Dharwad)&t=h&z=18&output=embed",
-    directMapsUrl: "https://www.google.com/maps/search/?api=1&query=15.458900,75.007800",
-    landmarkInfo: "Court Road • Near High Court Bench of Karnataka"
+    fullAddressText: "#300, Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad, 560070",
+    embedMapUrlRoadmap: "https://maps.google.com/maps?q=Olive+Tree+Apartment,+1st+Cross,+Sadankeri,+Dharwad+560070&t=m&z=17&output=embed",
+    embedMapUrlSatellite: "https://maps.google.com/maps?q=Olive+Tree+Apartment,+1st+Cross,+Sadankeri,+Dharwad+560070&t=k&z=18&output=embed",
+    embedMapUrlHybrid: "https://maps.google.com/maps?q=Olive+Tree+Apartment,+1st+Cross,+Sadankeri,+Dharwad+560070&t=h&z=18&output=embed",
+    directMapsUrl: "https://www.google.com/maps/search/?api=1&query=Olive+Tree+Apartment,+1st+Cross,+Sadankeri,+Dharwad+560070",
+    landmarkInfo: "Sadankeri • 1st Cross • Olive Tree Apartment"
   },
   {
     id: "belagavi",
@@ -114,7 +96,7 @@ interface FormErrors {
 }
 
 export default function Contact() {
-  const [activeLocationId, setActiveLocationId] = useState<"bengaluru" | "hubballi" | "dharwad" | "belagavi">("bengaluru");
+  const [activeLocationId, setActiveLocationId] = useState<"bengaluru" | "dharwad" | "belagavi">("bengaluru");
   const [mapMode, setMapMode] = useState<"roadmap" | "satellite" | "hybrid">("roadmap");
   const [copiedLocationId, setCopiedLocationId] = useState<string | null>(null);
   const [fields, setFields] = useState<FormFields>({
@@ -391,12 +373,12 @@ export default function Contact() {
                     transition={{ delay: 0.8, duration: 0.5 }}
                     className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-md mb-6 font-light"
                   >
-                    Thank you for contacting Advocate Reynold D'Souza. Your submission is protected under attorney-client privilege, logged in our chambers database, and routed directly to <strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>.
+                    Thank you for contacting Advocate Reynold D'Souza. Your submission is protected under attorney-client privilege, logged in our firm database, and routed directly to <strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>.
                   </motion.p>
 
                   <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8 w-full max-w-md">
                     <a
-                      href={lastMailtoUrl || "mailto:advrdsouza181@gmail.com?subject=Chambers%20Legal%20Inquiry%20Submission"}
+                      href={lastMailtoUrl || "mailto:advrdsouza181@gmail.com?subject=Legal%20Inquiry%20Submission%20-%20Olive%20Law%20Firm"}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center justify-center gap-2 bg-forest hover:bg-forest/90 text-gold border border-gold/30 font-sans font-semibold text-xs tracking-wider uppercase px-5 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
@@ -759,7 +741,7 @@ export default function Contact() {
                   return (
                     <iframe
                       key={`${currentLoc.id}-${mapMode}`}
-                      title={`Olive Law Chambers - ${currentLoc.name}`}
+                      title={`Olive Law Firm - ${currentLoc.name}`}
                       src={mapEmbedSrc}
                       width="100%"
                       height="100%"
@@ -780,10 +762,10 @@ export default function Contact() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between border-b border-gold/25 pb-3">
                   <h3 className="font-serif text-2xl text-gold font-bold">
-                    Firm Presence &amp; Offices
+                    Firm Presence &amp; Chambers
                   </h3>
                   <span className="text-[10px] uppercase font-sans tracking-widest text-gold/70 font-semibold bg-gold/10 px-2 py-0.5 rounded border border-gold/20">
-                    4 Strategic Locations
+                    3 Strategic Locations
                   </span>
                 </div>
 
@@ -834,32 +816,6 @@ export default function Contact() {
                       Distinct Satellite Locations
                     </span>
                     <div className="grid grid-cols-1 gap-2.5">
-                      {/* Hubballi */}
-                      <div 
-                        onClick={() => setActiveLocationId("hubballi")}
-                        className={`cursor-pointer transition-all rounded-sm p-3 border ${
-                          activeLocationId === "hubballi"
-                            ? "bg-gold/15 border-gold shadow-md ring-1 ring-gold/40"
-                            : "bg-ivory/5 border-gold/15 hover:bg-ivory/10 hover:border-gold/30"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className="font-serif text-sm font-semibold text-gold">Hubballi Satellite Location</p>
-                            <p className="font-sans text-xs text-ivory/80 mt-1">
-                              Chamber #14, Ground Floor, District Court Complex, Hubballi - 580020
-                            </p>
-                          </div>
-                          <span className={`text-[9px] uppercase font-sans font-semibold px-2 py-0.5 rounded shrink-0 ${
-                            activeLocationId === "hubballi"
-                              ? "bg-gold text-forest font-bold"
-                              : "text-gold/70 bg-forest-light/60"
-                          }`}>
-                            {activeLocationId === "hubballi" ? "Active" : "View"}
-                          </span>
-                        </div>
-                      </div>
-
                       {/* Dharwad */}
                       <div 
                         onClick={() => setActiveLocationId("dharwad")}
@@ -873,7 +829,7 @@ export default function Contact() {
                           <div>
                             <p className="font-serif text-sm font-semibold text-gold">Dharwad Satellite Location</p>
                             <p className="font-sans text-xs text-ivory/80 mt-1">
-                              Court Road, Near High Court Bench of Karnataka, Dharwad - 580011
+                              #300, Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad, 560070
                             </p>
                           </div>
                           <span className={`text-[9px] uppercase font-sans font-semibold px-2 py-0.5 rounded shrink-0 ${

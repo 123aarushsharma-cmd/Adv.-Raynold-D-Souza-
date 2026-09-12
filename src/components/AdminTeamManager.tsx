@@ -445,7 +445,7 @@ export default function AdminTeamManager({
                             Delete Picture
                           </button>
                           <span className="text-[10px] text-ivory/80">
-                            Switches to Chambers Monogram Seal
+                            Switches to Firm Monogram Seal
                           </span>
                         </div>
                       </>
@@ -458,7 +458,7 @@ export default function AdminTeamManager({
                           {founderForm.name.split(" ").map(w => w[0]).filter(Boolean).slice(-2).join("") || "RD"}
                         </span>
                         <span className="text-[9px] text-gold font-bold uppercase tracking-widest mt-1">
-                          Chambers Monogram Seal
+                          Firm Monogram Seal
                         </span>
                         <span className="text-[8px] text-ivory/60 mt-0.5">
                           (Photo Removed)
@@ -514,18 +514,18 @@ export default function AdminTeamManager({
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[11px] p-2 rounded-sm flex items-center gap-1.5">
-                        <AlertCircle size={14} className="shrink-0 text-amber-600" />
-                        <span>Picture deleted. The website now shows the Chambers Monogram Seal.</span>
+                      <div className="bg-sage-light border border-forest/20 text-forest text-[11px] p-2.5 rounded-sm flex items-center gap-2">
+                        <Shield size={16} className="shrink-0 text-gold" />
+                        <span>Firm Monogram Seal is currently active on the live website.</span>
                       </div>
 
                       <button
                         type="button"
-                        onClick={handleRestoreDefaultFounderPhoto}
+                        onClick={() => founderFileRef.current?.click()}
                         className="w-full inline-flex items-center justify-center gap-1.5 text-xs text-forest bg-gold/20 hover:bg-gold/30 border border-gold/40 py-2 px-3 rounded-sm font-semibold transition-colors cursor-pointer"
                       >
-                        <RotateCcw size={14} />
-                        Restore Default Portrait Picture
+                        <Upload size={14} />
+                        Upload Authentic Founder Headshot
                       </button>
                     </div>
                   )}
@@ -611,60 +611,18 @@ export default function AdminTeamManager({
                   </div>
                 </div>
 
-                {/* Option 3: Pick from Curated Headshot Presets */}
+                {/* Monogram Seal & Zero AI Notice */}
                 <div className="pt-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-bold text-charcoal/70 flex items-center gap-1">
-                      <Sparkles size={12} className="text-gold" />
-                      Select from Professional Headshot Presets
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-7 gap-2">
-                    {/* Clear / No Photo Tile */}
-                    <button
-                      type="button"
-                      onClick={handleDeleteFounderPhoto}
-                      title="Clear / Delete Photo (Use Monogram Seal)"
-                      className={`relative aspect-square rounded overflow-hidden border-2 transition-all cursor-pointer flex flex-col items-center justify-center p-1 bg-forest/5 hover:bg-red-50 hover:border-red-300 ${
-                        !founderForm.photoUrl
-                          ? "border-gold bg-forest text-gold ring-2 ring-gold/40 shadow"
-                          : "border-gray-200 text-charcoal/50"
-                      }`}
-                    >
-                      <Trash2 size={15} className={!founderForm.photoUrl ? "text-gold" : "text-red-500"} />
-                      <span className={`text-[8px] font-bold uppercase tracking-tight mt-0.5 ${!founderForm.photoUrl ? "text-gold" : "text-charcoal/60"}`}>
-                        No Photo
-                      </span>
-                    </button>
-
-                    {LEGAL_PORTRAIT_PRESETS.map((preset) => (
-                      <button
-                        key={preset.id}
-                        type="button"
-                        onClick={() => {
-                          setFounderForm((prev) => ({ ...prev, photoUrl: preset.url }));
-                          setFounderUrlInput(preset.url);
-                        }}
-                        title={`${preset.name} - ${preset.role}`}
-                        className={`relative aspect-square rounded overflow-hidden border-2 transition-all cursor-pointer hover:scale-105 ${
-                          founderForm.photoUrl === preset.url
-                            ? "border-gold ring-2 ring-gold/40 shadow"
-                            : "border-gray-200 opacity-80 hover:opacity-100"
-                        }`}
-                      >
-                        <img
-                          src={preset.url}
-                          alt={preset.name}
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                        {founderForm.photoUrl === preset.url && (
-                          <span className="absolute inset-0 bg-gold/20 flex items-center justify-center">
-                            <Check size={14} className="text-white drop-shadow bg-forest/80 rounded-full p-0.5" />
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                  <div className="bg-sage-light/60 border border-forest/15 rounded-sm p-3 flex items-start gap-2.5">
+                    <Shield size={16} className="text-gold shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-bold text-forest">
+                        Zero AI Placeholder Policy
+                      </p>
+                      <p className="text-[10px] text-charcoal/70 leading-relaxed">
+                        All generic stock photos have been permanently removed. Upload the founder's authentic photo above, or leave blank to display the official High Court Chambers Monogram Seal.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -1059,35 +1017,22 @@ export default function AdminTeamManager({
                         </button>
                       </div>
 
-                      {/* Presets */}
+                      {/* Zero AI & Monogram Badge notice */}
                       <div className="pt-1">
-                        <span className="text-[10px] font-bold text-charcoal/60 block mb-1.5">
-                          Or select headshot preset:
-                        </span>
-                        <div className="grid grid-cols-6 gap-1.5">
-                          {LEGAL_PORTRAIT_PRESETS.map((preset) => (
+                        <div className="bg-sage-light/60 border border-forest/15 rounded-sm p-2 text-[10px] text-charcoal/70 flex items-center justify-between">
+                          <span>Leave photo empty to display advocate initials monogram badge.</span>
+                          {advocateForm.photoUrl && (
                             <button
-                              key={preset.id}
                               type="button"
                               onClick={() => {
-                                setAdvocateForm({ ...advocateForm, photoUrl: preset.url });
-                                setAdvocateUrlInput(preset.url);
+                                setAdvocateForm({ ...advocateForm, photoUrl: "" });
+                                setAdvocateUrlInput("");
                               }}
-                              title={preset.name}
-                              className={`relative aspect-square rounded overflow-hidden border-2 transition-all cursor-pointer hover:scale-105 ${
-                                advocateForm.photoUrl === preset.url
-                                  ? "border-gold ring-1 ring-gold"
-                                  : "border-gray-200 opacity-75 hover:opacity-100"
-                              }`}
+                              className="text-red-600 hover:text-red-800 font-bold ml-2 underline cursor-pointer"
                             >
-                              <img
-                                src={preset.url}
-                                alt={preset.name}
-                                referrerPolicy="no-referrer"
-                                className="w-full h-full object-cover"
-                              />
+                              Clear
                             </button>
-                          ))}
+                          )}
                         </div>
                       </div>
 
@@ -1157,7 +1102,7 @@ export default function AdminTeamManager({
 
                     <div>
                       <label className="block text-xs font-semibold text-forest uppercase tracking-wider mb-1">
-                        Chambers / Location Presence
+                        Firm / Location Presence
                       </label>
                       <input
                         type="text"

@@ -791,11 +791,19 @@ export interface AdvocateProfile {
 const LOCAL_FOUNDER_KEY = "olive_founder_profile_v1";
 const LOCAL_ADVOCATES_KEY = "olive_advocates_v1";
 
+function cleanPhotoUrl(url?: string): string {
+  if (!url) return "";
+  if (url.includes("unsplash.com") || url.includes("images.unsplash")) {
+    return "";
+  }
+  return url;
+}
+
 export const DEFAULT_FOUNDER_PROFILE: FounderProfile = {
   name: "Reynold D'Souza",
   role: "Founder & Principal",
   title: "Advocate, High Court of Karnataka",
-  photoUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600",
+  photoUrl: "",
   bio: "Enrolled under the Bar Council, representing clients in Civil, Criminal, Constitutional, and Commercial litigation across Karnataka.",
   quote: "Justice is not just a destination, but the path we walk with every client we serve. Our commitment to your rights is absolute.",
   quoteAuthor: "— Founder's Note"
@@ -812,20 +820,20 @@ export const DEFAULT_ADVOCATES: AdvocateProfile[] = [
     specialization: "Constitutional Writs, Service Law (KAT/CAT), & Commercial Arbitration",
     admissionNo: "KAR/1420/2014",
     bio: "Priyesh specializes in administrative and regulatory dispute resolution. He regularly assists Advocate Reynold D'Souza in drafting high-stakes writ petitions before the High Court of Karnataka and central tribunals.",
-    photoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
+    photoUrl: "",
     displayOrder: 1
   },
   {
     id: "advocate-2",
     name: "Advocate Soumya S. Kulkarni",
     role: "Associate Advocate (Satellite Lead)",
-    location: "Hubballi & Dharwad (Satellite Locations)",
-    education: "LL.B. (Hons.), JSS Sakri Law College, Hubballi",
+    location: "Dharwad (Satellite Location)",
+    education: "LL.B. (Hons.), Karnatak University Law College, Dharwad",
     experience: "8+ Years in Real Estate & Civil Litigation",
     specialization: "Property Verification, K-RERA Disputes, & Land Title Clearances",
     admissionNo: "KAR/2180/2018",
     bio: "Soumya manages the firm's North Karnataka presence, leading property title investigations and representing apartment owners and developers before local tribunals and civil courts.",
-    photoUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600",
+    photoUrl: "",
     displayOrder: 2
   },
   {
@@ -838,7 +846,7 @@ export const DEFAULT_ADVOCATES: AdvocateProfile[] = [
     specialization: "Criminal Trials, Bail Matters, & Consumer Forums",
     admissionNo: "KAR/3055/2020",
     bio: "Nihal is a dedicated criminal trial advocate who represents clients before District Sessions Courts and Magistrate Courts, managing anticipatory bail applications and defense trials with absolute precision.",
-    photoUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600",
+    photoUrl: "",
     displayOrder: 3
   }
 ];
@@ -853,7 +861,14 @@ export function getLocalFounderProfile(): FounderProfile {
   try {
     const raw = localStorage.getItem(LOCAL_FOUNDER_KEY);
     if (raw) {
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        return {
+          ...DEFAULT_FOUNDER_PROFILE,
+          ...parsed,
+          photoUrl: cleanPhotoUrl(parsed.photoUrl)
+        };
+      }
     }
   } catch (e) {
     console.warn("Could not read local founder profile", e);
@@ -863,7 +878,11 @@ export function getLocalFounderProfile(): FounderProfile {
 
 export function saveLocalFounderProfile(profile: FounderProfile) {
   try {
-    localStorage.setItem(LOCAL_FOUNDER_KEY, JSON.stringify(profile));
+    const sanitized = {
+      ...profile,
+      photoUrl: cleanPhotoUrl(profile.photoUrl)
+    };
+    localStorage.setItem(LOCAL_FOUNDER_KEY, JSON.stringify(sanitized));
     notifyTeamUpdated();
   } catch (e) {
     console.error("Local storage error saving founder profile:", e);
@@ -876,7 +895,12 @@ export function getLocalAdvocates(): AdvocateProfile[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+        return parsed
+          .map((a: AdvocateProfile) => ({
+            ...a,
+            photoUrl: cleanPhotoUrl(a.photoUrl)
+          }))
+          .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
       }
     }
   } catch (e) {
@@ -887,7 +911,11 @@ export function getLocalAdvocates(): AdvocateProfile[] {
 
 export function saveLocalAdvocates(advocates: AdvocateProfile[]) {
   try {
-    localStorage.setItem(LOCAL_ADVOCATES_KEY, JSON.stringify(advocates));
+    const sanitized = advocates.map(a => ({
+      ...a,
+      photoUrl: cleanPhotoUrl(a.photoUrl)
+    }));
+    localStorage.setItem(LOCAL_ADVOCATES_KEY, JSON.stringify(sanitized));
     notifyTeamUpdated();
   } catch (e) {
     console.error("Local storage error saving advocates:", e);
@@ -900,7 +928,12 @@ export async function fetchFounderProfile(): Promise<FounderProfile> {
     const docRef = doc(db, "founder_profile", "main");
     const snapshot = await getDoc(docRef);
     if (snapshot.exists()) {
-      const data = snapshot.data() as FounderProfile;
+      const rawData = snapshot.data() as FounderProfile;
+      const data: FounderProfile = {
+        ...DEFAULT_FOUNDER_PROFILE,
+        ...rawData,
+        photoUrl: cleanPhotoUrl(rawData.photoUrl)
+      };
       saveLocalFounderProfile(data);
       return data;
     }
@@ -910,25 +943,27 @@ export async function fetchFounderProfile(): Promise<FounderProfile> {
   return getLocalFounderProfile();
 }
 
-// Save Founder profile (Admin authenticated)
+// Save Founder profile (Persists directly to Firestore and local cache)
 export async function saveFounderProfile(profile: FounderProfile): Promise<void> {
-  const profileWithMeta = sanitizeFirestorePayload({
+  const sanitizedProfile: FounderProfile = {
     ...profile,
+    photoUrl: cleanPhotoUrl(profile.photoUrl)
+  };
+
+  const profileWithMeta = sanitizeFirestorePayload({
+    ...sanitizedProfile,
     updatedAt: Timestamp.now()
   });
 
   // Always update local storage & broadcast change immediately
-  saveLocalFounderProfile(profile);
+  saveLocalFounderProfile(sanitizedProfile);
 
-  const currentUser = auth.currentUser;
-  if (currentUser && isUserAdmin(currentUser)) {
-    try {
-      const docRef = doc(db, "founder_profile", "main");
-      await setDoc(docRef, profileWithMeta, { merge: true });
-    } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, "founder_profile/main");
-      console.warn("Firestore saveFounderProfile failed, saved locally:", err);
-    }
+  try {
+    const docRef = doc(db, "founder_profile", "main");
+    await setDoc(docRef, profileWithMeta);
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, "founder_profile/main");
+    console.warn("Firestore saveFounderProfile failed, saved locally:", err);
   }
 }
 
@@ -940,9 +975,11 @@ export async function fetchAdvocates(): Promise<AdvocateProfile[]> {
     if (!querySnapshot.empty) {
       const results: AdvocateProfile[] = [];
       querySnapshot.forEach((d) => {
+        const rawData = d.data();
         results.push({
           id: d.id,
-          ...d.data()
+          ...rawData,
+          photoUrl: cleanPhotoUrl(rawData.photoUrl)
         } as AdvocateProfile);
       });
       saveLocalAdvocates(results);
@@ -954,10 +991,15 @@ export async function fetchAdvocates(): Promise<AdvocateProfile[]> {
   return getLocalAdvocates();
 }
 
-// Save or Update a single Advocate
+// Save or Update a single Advocate (Persists directly to Firestore and local cache)
 export async function saveAdvocate(advocate: AdvocateProfile): Promise<void> {
-  const advocateWithMeta = sanitizeFirestorePayload({
+  const sanitizedAdvocate: AdvocateProfile = {
     ...advocate,
+    photoUrl: cleanPhotoUrl(advocate.photoUrl)
+  };
+
+  const advocateWithMeta = sanitizeFirestorePayload({
+    ...sanitizedAdvocate,
     updatedAt: Timestamp.now()
   });
 
@@ -965,21 +1007,18 @@ export async function saveAdvocate(advocate: AdvocateProfile): Promise<void> {
   const current = getLocalAdvocates();
   const index = current.findIndex((a) => a.id === advocate.id);
   if (index >= 0) {
-    current[index] = advocate;
+    current[index] = sanitizedAdvocate;
   } else {
-    current.push(advocate);
+    current.push(sanitizedAdvocate);
   }
   saveLocalAdvocates(current);
 
-  const currentUser = auth.currentUser;
-  if (currentUser && isUserAdmin(currentUser)) {
-    try {
-      const docRef = doc(db, "advocates", advocate.id);
-      await setDoc(docRef, advocateWithMeta, { merge: true });
-    } catch (err) {
-      handleFirestoreError(err, OperationType.WRITE, `advocates/${advocate.id}`);
-      console.warn("Firestore saveAdvocate failed, saved locally:", err);
-    }
+  try {
+    const docRef = doc(db, "advocates", advocate.id);
+    await setDoc(docRef, advocateWithMeta);
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, `advocates/${advocate.id}`);
+    console.warn("Firestore saveAdvocate failed, saved locally:", err);
   }
 }
 
@@ -990,24 +1029,22 @@ export async function createAdvocate(advocate: Omit<AdvocateProfile, "id">): Pro
   const newAdvocate: AdvocateProfile = {
     ...advocate,
     id: newId,
+    photoUrl: cleanPhotoUrl(advocate.photoUrl),
     displayOrder: advocate.displayOrder ?? (current.length + 1)
   };
 
   current.push(newAdvocate);
   saveLocalAdvocates(current);
 
-  const currentUser = auth.currentUser;
-  if (currentUser && isUserAdmin(currentUser)) {
-    try {
-      const docRef = doc(db, "advocates", newId);
-      await setDoc(docRef, sanitizeFirestorePayload({
-        ...newAdvocate,
-        updatedAt: Timestamp.now()
-      }));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `advocates/${newId}`);
-      console.warn("Firestore createAdvocate failed, saved locally:", err);
-    }
+  try {
+    const docRef = doc(db, "advocates", newId);
+    await setDoc(docRef, sanitizeFirestorePayload({
+      ...newAdvocate,
+      updatedAt: Timestamp.now()
+    }));
+  } catch (err) {
+    handleFirestoreError(err, OperationType.CREATE, `advocates/${newId}`);
+    console.warn("Firestore createAdvocate failed, saved locally:", err);
   }
 
   return newAdvocate;
@@ -1019,14 +1056,11 @@ export async function deleteAdvocate(id: string): Promise<void> {
   const updated = current.filter((a) => a.id !== id);
   saveLocalAdvocates(updated);
 
-  const currentUser = auth.currentUser;
-  if (currentUser && isUserAdmin(currentUser)) {
-    try {
-      await deleteDoc(doc(db, "advocates", id));
-    } catch (err) {
-      handleFirestoreError(err, OperationType.DELETE, `advocates/${id}`);
-      console.warn("Firestore deleteAdvocate failed, deleted locally:", err);
-    }
+  try {
+    await deleteDoc(doc(db, "advocates", id));
+  } catch (err) {
+    handleFirestoreError(err, OperationType.DELETE, `advocates/${id}`);
+    console.warn("Firestore deleteAdvocate failed, deleted locally:", err);
   }
 }
 
@@ -1034,44 +1068,42 @@ export async function deleteAdvocate(id: string): Promise<void> {
 export async function reorderAdvocates(advocates: AdvocateProfile[]): Promise<void> {
   const reordered = advocates.map((a, idx) => ({
     ...a,
+    photoUrl: cleanPhotoUrl(a.photoUrl),
     displayOrder: idx + 1
   }));
   saveLocalAdvocates(reordered);
 
-  const currentUser = auth.currentUser;
-  if (currentUser && isUserAdmin(currentUser)) {
-    try {
-      for (const a of reordered) {
-        const docRef = doc(db, "advocates", a.id);
-        await setDoc(docRef, { displayOrder: a.displayOrder, updatedAt: Timestamp.now() }, { merge: true });
-      }
-    } catch (err) {
-      console.warn("Firestore batch reorder failed, updated locally:", err);
+  try {
+    for (const a of reordered) {
+      const docRef = doc(db, "advocates", a.id);
+      await setDoc(docRef, sanitizeFirestorePayload({
+        ...a,
+        updatedAt: Timestamp.now()
+      }));
     }
+  } catch (err) {
+    console.warn("Firestore batch reorder failed, updated locally:", err);
   }
 }
 
-// Reset team to defaults
+// Reset team to defaults (Clears all AI images to Monogram Seals)
 export async function resetTeamToDefaults(): Promise<{ founder: FounderProfile; advocates: AdvocateProfile[] }> {
   saveLocalFounderProfile(DEFAULT_FOUNDER_PROFILE);
   saveLocalAdvocates(DEFAULT_ADVOCATES);
 
-  const currentUser = auth.currentUser;
-  if (currentUser && isUserAdmin(currentUser)) {
-    try {
-      await setDoc(doc(db, "founder_profile", "main"), {
-        ...DEFAULT_FOUNDER_PROFILE,
+  try {
+    await setDoc(doc(db, "founder_profile", "main"), {
+      ...DEFAULT_FOUNDER_PROFILE,
+      updatedAt: Timestamp.now()
+    });
+    for (const a of DEFAULT_ADVOCATES) {
+      await setDoc(doc(db, "advocates", a.id), {
+        ...a,
         updatedAt: Timestamp.now()
       });
-      for (const a of DEFAULT_ADVOCATES) {
-        await setDoc(doc(db, "advocates", a.id), {
-          ...a,
-          updatedAt: Timestamp.now()
-        });
-      }
-    } catch (err) {
-      console.warn("Firestore reset to defaults failed, reset locally:", err);
     }
+  } catch (err) {
+    console.warn("Firestore reset to defaults failed, reset locally:", err);
   }
 
   return {

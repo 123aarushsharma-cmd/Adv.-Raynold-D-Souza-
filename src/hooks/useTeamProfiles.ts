@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
+import { doc, collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import {
+  db,
   FounderProfile,
   AdvocateProfile,
   DEFAULT_FOUNDER_PROFILE,
@@ -13,7 +15,9 @@ import {
   reorderAdvocates,
   resetTeamToDefaults,
   getLocalFounderProfile,
-  getLocalAdvocates
+  getLocalAdvocates,
+  saveLocalFounderProfile,
+  saveLocalAdvocates
 } from "../lib/firebase";
 
 export function useTeamProfiles() {
@@ -39,14 +43,57 @@ export function useTeamProfiles() {
   useEffect(() => {
     loadData();
 
-    // Listen to real-time custom events when team profiles change
+    // 1. Listen to real-time custom events across local windows/tabs
     const handleUpdate = () => {
       setFounder(getLocalFounderProfile());
       setAdvocates(getLocalAdvocates());
     };
-
     window.addEventListener("olive_team_updated", handleUpdate);
-    return () => window.removeEventListener("olive_team_updated", handleUpdate);
+
+    // 2. Real-time Firestore Cloud listener for Founder Profile
+    const founderDocRef = doc(db, "founder_profile", "main");
+    const unsubscribeFounder = onSnapshot(founderDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const raw = docSnap.data();
+        const cleanPhoto = (raw.photoUrl && !raw.photoUrl.includes("unsplash.com")) ? raw.photoUrl : "";
+        const liveFounder: FounderProfile = {
+          ...DEFAULT_FOUNDER_PROFILE,
+          ...raw,
+          photoUrl: cleanPhoto
+        };
+        setFounder(liveFounder);
+        saveLocalFounderProfile(liveFounder);
+      }
+    }, (err) => {
+      console.warn("Firestore live founder listener disconnected:", err);
+    });
+
+    // 3. Real-time Firestore Cloud listener for Advocates
+    const advocatesQuery = query(collection(db, "advocates"), orderBy("displayOrder", "asc"));
+    const unsubscribeAdvocates = onSnapshot(advocatesQuery, (querySnap) => {
+      if (!querySnap.empty) {
+        const liveAdvocates: AdvocateProfile[] = [];
+        querySnap.forEach((d) => {
+          const raw = d.data();
+          const cleanPhoto = (raw.photoUrl && !raw.photoUrl.includes("unsplash.com")) ? raw.photoUrl : "";
+          liveAdvocates.push({
+            id: d.id,
+            ...raw,
+            photoUrl: cleanPhoto
+          } as AdvocateProfile);
+        });
+        setAdvocates(liveAdvocates);
+        saveLocalAdvocates(liveAdvocates);
+      }
+    }, (err) => {
+      console.warn("Firestore live advocates listener disconnected:", err);
+    });
+
+    return () => {
+      window.removeEventListener("olive_team_updated", handleUpdate);
+      unsubscribeFounder();
+      unsubscribeAdvocates();
+    };
   }, [loadData]);
 
   const updateFounder = async (updated: FounderProfile) => {

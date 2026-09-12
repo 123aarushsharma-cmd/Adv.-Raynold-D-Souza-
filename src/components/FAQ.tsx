@@ -125,10 +125,10 @@ const faqs: FAQItem[] = [
     ),
   },
   {
-    question: "Can I schedule a consultation at your Hubballi, Dharwad, or Belagavi satellite locations?",
+    question: "Can I schedule a consultation at your Dharwad or Belagavi satellite locations?",
     answer: (
       <p className="font-sans text-sm text-charcoal/80 leading-relaxed font-light">
-        Yes. While Advocate Reynold D'Souza's primary chamber remains our clearly designated Bengaluru Head Office, our associate advocates actively manage fully staffed distinct satellite locations in Hubballi, Dharwad, and Belagavi. Clients can schedule local in-person meetings at these satellite chambers or opt for highly secure video-conferencing sessions coordinated directly by our senior team in Bengaluru.
+        Yes. While Advocate Reynold D'Souza's primary office remains our clearly designated Bengaluru Head Office, our associate advocates actively manage distinct satellite locations in Dharwad and Belagavi. Clients can schedule local in-person meetings at these satellite locations or opt for highly secure video-conferencing sessions coordinated directly by our senior team in Bengaluru.
       </p>
     ),
   },

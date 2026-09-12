@@ -58,7 +58,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
                   Last Updated: September 2026 • Multi-Jurisdictional Privacy Standard
                 </p>
                 <p className="text-xs text-charcoal/70 mt-1 font-light">
-                  This comprehensive Global Privacy Policy governs all data collection, custody, retention, and processing activities undertaken by <strong>Olive Law Chambers / Olive Law Firm</strong>, established at Bengaluru, Karnataka, India. We enforce the highest combined global standards of privacy, attorney-client privilege, and cybersecurity.
+                  This comprehensive Global Privacy Policy governs all data collection, custody, retention, and processing activities undertaken by <strong>Olive Law Firm</strong>, established at Bengaluru, Karnataka, India. We enforce the highest combined global standards of privacy, attorney-client privilege, and cybersecurity.
                 </p>
               </div>
 
@@ -69,7 +69,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
                   1. Comprehensive Global Legislative Harmonization
                 </h3>
                 <p className="font-light text-xs sm:text-sm">
-                  Olive Law Chambers strictly complies with and harmonizes its data protection practices under all prevailing international privacy statutes:
+                  Olive Law Firm strictly complies with and harmonizes its data protection practices under all prevailing international privacy statutes:
                 </p>
                 <ul className="list-disc pl-5 text-xs sm:text-sm font-light space-y-1">
                   <li><strong>India:</strong> Digital Personal Data Protection Act (DPDPA), 2023 & Section 43A of the Information Technology Act, 2000.</li>
@@ -128,7 +128,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
                   5. Universal Global User Rights (Data Subject & Data Principal Rights)
                 </h3>
                 <p className="font-light text-xs sm:text-sm">
-                  Regardless of your geographic location, Olive Law Chambers affords every user the full suite of modern privacy rights without discrimination:
+                  Regardless of your geographic location, Olive Law Firm affords every user the full suite of modern privacy rights without discrimination:
                 </p>
                 <ul className="list-disc pl-5 text-xs sm:text-sm font-light space-y-1">
                   <li><strong>Right of Access & Portability:</strong> Obtain a transparent, machine-readable record of your personal data held in our systems.</li>
@@ -139,7 +139,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
                 </ul>
                 <div className="bg-sage/10 p-3 rounded-sm border border-forest/10 mt-3 text-xs space-y-1">
                   <p className="font-semibold text-forest">Data Protection Officer & Privacy Compliance Desk:</p>
-                  <p><strong>Olive Law Chambers</strong> • Bengaluru, Karnataka, India</p>
+                  <p><strong>Olive Law Firm</strong> • Bengaluru, Karnataka, India</p>
                   <p>Official Statutory Privacy Inquiries: <a href="mailto:admin@olivelawfirm.in" className="text-gold font-bold underline hover:text-gold/80">admin@olivelawfirm.in</a></p>
                 </div>
               </section>

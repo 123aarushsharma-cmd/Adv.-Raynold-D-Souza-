@@ -55,9 +55,9 @@ const practiceData: PracticeArea[] = [
       result: "Successfully challenged and overturned an unlawful executive decree infringing upon public service rights before the High Court of Karnataka.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
-    seoTitle: "Constitutional & Writ Petition Advocate | High Court Dharwad & Bengaluru | Olive Law Chambers®",
-    seoDescription: "Specialized Writ Petitions under Article 226 & 32, Special Leave Petitions (SLPs) before Supreme Court of India, and High Court litigation across Bengaluru, Hubballi, Dharwad, and Belagavi by Advocate Reynold D'Souza.",
-    seoKeywords: "Writ petition advocate Dharwad High Court, Constitutional lawyer Bengaluru, Supreme Court SLP advocate Karnataka, Article 226 advocate Hubballi, Human rights lawyer Belagavi, High Court litigation Karnataka",
+    seoTitle: "Constitutional & Writ Petition Advocate | High Court Dharwad & Bengaluru | Olive Law Firm®",
+    seoDescription: "Specialized Writ Petitions under Article 226 & 32, Special Leave Petitions (SLPs) before Supreme Court of India, and High Court litigation across Bengaluru, Dharwad, and Belagavi by Advocate Reynold D'Souza.",
+    seoKeywords: "Writ petition advocate Dharwad High Court, Constitutional lawyer Bengaluru, Supreme Court SLP advocate Karnataka, Article 226 advocate Dharwad, Human rights lawyer Belagavi, High Court litigation Karnataka",
     serviceType: "Constitutional & Writ Petition Litigation",
     schemaCategory: "Constitutional & Human Rights Law"
   },
@@ -65,7 +65,7 @@ const practiceData: PracticeArea[] = [
     id: "criminal",
     title: "Criminal Defense & Trial Advocacy",
     shortDesc: "Rigorous trial defense and appellate representation before Sessions Courts, High Court, and the Supreme Court.",
-    longDesc: "When liberty, reputation, and livelihood are on the line, we deploy relentless and masterfully researched defense strategies. We handle complex trials, criminal appeals, revision petitions, and bail applications before Sessions Courts and District Courts in Bengaluru, Hubballi, Dharwad, Belagavi, the High Court of Karnataka, and the Supreme Court of India.",
+    longDesc: "When liberty, reputation, and livelihood are on the line, we deploy relentless and masterfully researched defense strategies. We handle complex trials, criminal appeals, revision petitions, and bail applications before Sessions Courts and District Courts in Bengaluru, Dharwad, Belagavi, the High Court of Karnataka, and the Supreme Court of India.",
     icon: <ShieldAlert size={24} />,
     iconName: "ShieldAlert",
     mattersCovered: [
@@ -80,9 +80,9 @@ const practiceData: PracticeArea[] = [
       result: "Obtained clean acquittal in a complex, multi-party criminal charge before the Sessions Court through intensive cross-examination.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
-    seoTitle: "Criminal Defense & Trial Advocate | Sessions & High Court Karnataka | Olive Law Chambers®",
-    seoDescription: "Relentless criminal trial defense, Sessions Court litigation, anticipatory bail applications (BNSS / CrPC), and appellate defense before High Court of Karnataka and Supreme Court across Bengaluru, Hubballi, Dharwad, and Belagavi.",
-    seoKeywords: "Criminal defense lawyer Hubballi, Anticipatory bail advocate Belagavi, Sessions Court trial advocate Dharwad, Criminal appeal lawyer High Court Bengaluru, White collar defense lawyer Karnataka, Section 482 BNSS bail lawyer",
+    seoTitle: "Criminal Defense & Trial Advocate | Sessions & High Court Karnataka | Olive Law Firm®",
+    seoDescription: "Relentless criminal trial defense, Sessions Court litigation, anticipatory bail applications (BNSS / CrPC), and appellate defense before High Court of Karnataka and Supreme Court across Bengaluru, Dharwad, and Belagavi.",
+    seoKeywords: "Criminal defense lawyer Dharwad, Anticipatory bail advocate Belagavi, Sessions Court trial advocate Dharwad, Criminal appeal lawyer High Court Bengaluru, White collar defense lawyer Karnataka, Section 482 BNSS bail lawyer",
     serviceType: "Criminal Defense & Appellate Advocacy",
     schemaCategory: "Criminal Law"
   },
@@ -105,9 +105,9 @@ const practiceData: PracticeArea[] = [
       result: "Resolved a major builder delay dispute, securing full interest and refund compensation for 15 apartment buyers.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
-    seoTitle: "Property Dispute & K-RERA Lawyer | Title Clearance Karnataka | Olive Law Chambers®",
-    seoDescription: "Comprehensive property title verification, partition suits, K-RERA developer dispute settlement, and apartment association litigation in Bengaluru, Hubballi, Dharwad, and Belagavi.",
-    seoKeywords: "Property dispute advocate Hubballi, K-RERA lawyer Bengaluru, Title verification lawyer Dharwad, Apartment association legal counsel Belagavi, Land partition suit advocate Karnataka, Revenue court lawyer",
+    seoTitle: "Property Dispute & K-RERA Lawyer | Title Clearance Karnataka | Olive Law Firm®",
+    seoDescription: "Comprehensive property title verification, partition suits, K-RERA developer dispute settlement, and apartment association litigation in Bengaluru, Dharwad, and Belagavi.",
+    seoKeywords: "Property dispute advocate Dharwad, K-RERA lawyer Bengaluru, Title verification lawyer Dharwad, Apartment association legal counsel Belagavi, Land partition suit advocate Karnataka, Revenue court lawyer",
     serviceType: "Property & Real Estate Legal Services",
     schemaCategory: "Property & RERA Law"
   },
@@ -130,9 +130,9 @@ const practiceData: PracticeArea[] = [
       result: "Secured complete punitive damage compensation and interest against a multi-national financial vendor for severe service neglect.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
-    seoTitle: "Consumer Protection & NCLT Advocate | KSDRC Appeals | Olive Law Chambers®",
+    seoTitle: "Consumer Protection & NCLT Advocate | KSDRC Appeals | Olive Law Firm®",
     seoDescription: "Strategic prosecution of corporate negligence, service deficiency claims before District Forums, KSDRC State Commission, NCDRC, and NCLT corporate dispute advocacy in Karnataka.",
-    seoKeywords: "Consumer court lawyer Bengaluru, KSDRC advocate Karnataka, Service deficiency advocate Hubballi, NCLT corporate litigation Dharwad, Product liability lawyer Belagavi, NCDRC consumer rights lawyer",
+    seoKeywords: "Consumer court lawyer Bengaluru, KSDRC advocate Karnataka, Service deficiency advocate Dharwad, NCLT corporate litigation Dharwad, Product liability lawyer Belagavi, NCDRC consumer rights lawyer",
     serviceType: "Consumer Rights & NCLT Litigation",
     schemaCategory: "Consumer & Corporate Law"
   },
@@ -155,9 +155,9 @@ const practiceData: PracticeArea[] = [
       result: "Reversed a wrongful administrative suspension, restoring full seniority and back wages for a long-serving state official.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
-    seoTitle: "Service Law & KAT Advocate | Labour Court & Tribunal Lawyer | Olive Law Chambers®",
-    seoDescription: "Dedicated service petitions before Karnataka Administrative Tribunal (KAT), CAT, CGIT, and industrial disputes before Labour Courts in Bengaluru, Hubballi, Dharwad, and Belagavi.",
-    seoKeywords: "KAT advocate Bengaluru, Karnataka Administrative Tribunal lawyer, Service law petition advocate Dharwad, Labour court lawyer Belagavi, CGIT advocate Hubballi, CAT service petition lawyer",
+    seoTitle: "Service Law & KAT Advocate | Labour Court & Tribunal Lawyer | Olive Law Firm®",
+    seoDescription: "Dedicated service petitions before Karnataka Administrative Tribunal (KAT), CAT, CGIT, and industrial disputes before Labour Courts in Bengaluru, Dharwad, and Belagavi.",
+    seoKeywords: "KAT advocate Bengaluru, Karnataka Administrative Tribunal lawyer, Service law petition advocate Dharwad, Labour court lawyer Belagavi, CGIT advocate Dharwad, CAT service petition lawyer",
     serviceType: "Administrative & Service Law Services",
     schemaCategory: "Labour & Administrative Law"
   },
@@ -165,7 +165,7 @@ const practiceData: PracticeArea[] = [
     id: "arbitration",
     title: "Arbitration, Mediation & Conciliation",
     shortDesc: "Alternative Dispute Resolution (ADR) services covering international/domestic arbitration, mediation, and conciliation.",
-    longDesc: "When dispute resolution demands confidentiality, velocity, and specialized commercial expertise, our chambers orchestrate state-of-the-art Alternative Dispute Resolution (ADR). We offer comprehensive advocacy and neutral services in Domestic and International Arbitrations, judicial mediations, and family conciliation across Bengaluru, Hubballi, Dharwad, and Belagavi.",
+    longDesc: "When dispute resolution demands confidentiality, velocity, and specialized commercial expertise, our chambers orchestrate state-of-the-art Alternative Dispute Resolution (ADR). We offer comprehensive advocacy and neutral services in Domestic and International Arbitrations, judicial mediations, and family conciliation across Bengaluru, Dharwad, and Belagavi.",
     icon: <HeartHandshake size={24} />,
     iconName: "HeartHandshake",
     mattersCovered: [
@@ -180,9 +180,9 @@ const practiceData: PracticeArea[] = [
       result: "Concluded a long-running family property division out-of-court, saving valuable time and protecting family relations.",
     },
     keyAttorney: "Advocate Reynold D'Souza",
-    seoTitle: "Commercial Arbitration & Mediation Advocate | Domestic & International ADR | Olive Law Chambers®",
-    seoDescription: "Expert Alternative Dispute Resolution (ADR), Section 11/9/34/37 arbitration petitions, court-referred mediations, and family conciliation in Bengaluru, Hubballi, Dharwad, and Belagavi.",
-    seoKeywords: "Arbitration lawyer Bengaluru, Commercial dispute arbitrator Karnataka, Court mediation lawyer Hubballi, Family conciliation advocate Dharwad, ADR legal counsel Belagavi, Arbitration Act section 11 lawyer",
+    seoTitle: "Commercial Arbitration & Mediation Advocate | Domestic & International ADR | Olive Law Firm®",
+    seoDescription: "Expert Alternative Dispute Resolution (ADR), Section 11/9/34/37 arbitration petitions, court-referred mediations, and family conciliation in Bengaluru, Dharwad, and Belagavi.",
+    seoKeywords: "Arbitration lawyer Bengaluru, Commercial dispute arbitrator Karnataka, Court mediation lawyer Dharwad, Family conciliation advocate Dharwad, ADR legal counsel Belagavi, Arbitration Act section 11 lawyer",
     serviceType: "Alternative Dispute Resolution & Arbitration Services",
     schemaCategory: "Arbitration & Dispute Resolution"
   },
@@ -309,15 +309,15 @@ export default function PracticeAreas() {
         canonical.setAttribute("href", practiceUrl);
       }
     } else {
-      document.title = "Olive Law Chambers® | Supreme Court & High Court Litigation | Hubballi, Dharwad, Belagavi & Bengaluru";
+      document.title = "Olive Law Firm® | Supreme Court & High Court Litigation | Dharwad, Belagavi & Bengaluru";
 
-      setMetaTag('meta[property="og:title"]', "content", "Olive Law Chambers® | Supreme Court & High Court Litigation | Hubballi, Dharwad, Belagavi & Bengaluru");
-      setMetaTag('meta[property="og:description"]', "content", "Olive Law Chambers®, led by Advocate Reynold D'Souza, specializes in Supreme Court and High Court litigation across Karnataka, with branch locations in Hubballi, Dharwad, Belagavi, and Bengaluru.");
+      setMetaTag('meta[property="og:title"]', "content", "Olive Law Firm® | Supreme Court & High Court Litigation | Dharwad, Belagavi & Bengaluru");
+      setMetaTag('meta[property="og:description"]', "content", "Olive Law Firm®, led by Advocate Reynold D'Souza, specializes in Supreme Court and High Court litigation across Karnataka, with branch locations in Dharwad, Belagavi, and Bengaluru.");
       setMetaTag('meta[property="og:url"]', "content", origin);
       setMetaTag('meta[property="og:type"]', "content", "website");
-      setMetaTag('meta[name="twitter:title"]', "content", "Olive Law Chambers® | Supreme Court & High Court Litigation | Hubballi, Dharwad, Belagavi & Bengaluru");
-      setMetaTag('meta[name="twitter:description"]', "content", "Specializing in Supreme Court and High Court litigation with branch locations across Hubballi, Dharwad, Belagavi, and Bengaluru.");
-      setMetaTag('meta[name="keywords"]', "content", "Olive Law Chambers, Advocate Reynold D'Souza, Supreme Court litigation advocate, High Court litigation lawyer Karnataka, law firm Hubballi, top advocate Dharwad, High Court Dharwad bench lawyer, legal counsel Belagavi, best law firm Bengaluru");
+      setMetaTag('meta[name="twitter:title"]', "content", "Olive Law Firm® | Supreme Court & High Court Litigation | Dharwad, Belagavi & Bengaluru");
+      setMetaTag('meta[name="twitter:description"]', "content", "Specializing in Supreme Court and High Court litigation with branch locations across Dharwad, Belagavi, and Bengaluru.");
+      setMetaTag('meta[name="keywords"]', "content", "Olive Law Firm, Advocate Reynold D'Souza, Supreme Court litigation advocate, High Court litigation lawyer Karnataka, top advocate Dharwad, High Court Dharwad bench lawyer, legal counsel Belagavi, best law firm Bengaluru");
 
       let canonical = document.querySelector('link[rel="canonical"]');
       if (canonical) {
@@ -361,8 +361,8 @@ export default function PracticeAreas() {
                 {
                   "@type": "LegalService",
                   "@id": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/#organization`,
-                  "name": "Olive Law Chambers®",
-                  "description": "Premier law firm specializing in Supreme Court of India and High Court of Karnataka litigation, with branch locations in Hubballi, Dharwad, Belagavi, and Head Office in Bengaluru.",
+                  "name": "Olive Law Firm®",
+                  "description": "Premier law firm specializing in Supreme Court of India and High Court of Karnataka litigation, with branch locations in Dharwad, Belagavi, and Head Office in Bengaluru.",
                   "url": typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com",
                   "logo": `${typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"}/logo.png`,
                   "founder": {
@@ -371,7 +371,6 @@ export default function PracticeAreas() {
                     "jobTitle": "Lead Advocate & Counsel"
                   },
                   "areaServed": [
-                    { "@type": "City", "name": "Hubballi" },
                     { "@type": "City", "name": "Dharwad" },
                     { "@type": "City", "name": "Belagavi" },
                     { "@type": "City", "name": "Bengaluru" },
@@ -389,11 +388,10 @@ export default function PracticeAreas() {
                   "description": area.longDesc,
                   "provider": {
                     "@type": "LegalService",
-                    "name": "Olive Law Chambers®",
+                    "name": "Olive Law Firm®",
                     "url": typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com"
                   },
                   "areaServed": [
-                    { "@type": "City", "name": "Hubballi", "sameAs": "https://en.wikipedia.org/wiki/Hubli" },
                     { "@type": "City", "name": "Dharwad", "sameAs": "https://en.wikipedia.org/wiki/Dharwad" },
                     { "@type": "City", "name": "Belagavi", "sameAs": "https://en.wikipedia.org/wiki/Belgaum" },
                     { "@type": "City", "name": "Bengaluru", "sameAs": "https://en.wikipedia.org/wiki/Bangalore" },

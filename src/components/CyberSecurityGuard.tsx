@@ -8,7 +8,7 @@ export default function CyberSecurityGuard() {
   useEffect(() => {
     // 1. Console Cyber Security & Intellectual Property Notice
     console.log(
-      "%c 🛡️ OLIVE LAW CHAMBERS CYBER SECURITY & IP PROTECTION %c\nUnauthorized source inspection, code scraping, or reverse engineering is strictly monitored under Sections 43 & 66 of the Information Technology Act, 2000 and Indian Copyright Law.",
+      "%c 🛡️ OLIVE LAW FIRM CYBER SECURITY & IP PROTECTION %c\nUnauthorized source inspection, code scraping, or reverse engineering is strictly monitored under Sections 43 & 66 of the Information Technology Act, 2000 and Indian Copyright Law.",
       "background: #0B1D0F; color: #C9A227; font-size: 14px; font-weight: bold; padding: 8px 12px; border-radius: 4px; border: 1px solid #C9A227;",
       "color: #1c2b20; font-size: 11px; font-weight: normal;"
     );
@@ -16,7 +16,7 @@ export default function CyberSecurityGuard() {
     // 2. Prevent Right Click Context Menu
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
-      setWarningText("🔒 Olive Law Chambers IP Guard: Context menu and element inspection are restricted.");
+      setWarningText("🔒 Olive Law Firm IP Guard: Context menu and element inspection are restricted.");
       setShowWarning(true);
       setTimeout(() => setShowWarning(false), 3000);
     };

@@ -555,7 +555,7 @@ export default function AdminPortal({
                   Olive Law Firm
                 </span>
                 <span className="bg-gold/15 border border-gold/30 text-gold text-[9px] uppercase px-1.5 py-0.5 rounded tracking-widest font-bold">
-                  Authorized Chambers Admin
+                  Authorized Firm Admin
                 </span>
               </div>
               <p className="text-[10px] text-ivory/60 uppercase tracking-widest">

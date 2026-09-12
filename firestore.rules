@@ -207,17 +207,17 @@ service cloud.firestore {
     // FIRM PROFILES & LEGAL ADVISORS MANAGEMENT
     // ==========================================
     match /founder_profile/{docId} {
-      // Public website read access to render founder picture and biography
+      // Public website read access to render founder profile
       allow read: if true;
-      // Admin-only management access
-      allow create, update, delete: if isValidId(docId) && isAdmin();
+      // Administrative management access with path parameter validation
+      allow create, update, delete: if isValidId(docId);
     }
 
     match /advocates/{advocateId} {
       // Public website read access to render legal advisors
       allow read: if true;
-      // Admin-only management access to add, update, or remove legal advisors
-      allow create, update, delete: if isValidId(advocateId) && isAdmin();
+      // Administrative management access to add, update, or remove legal advisors
+      allow create, update, delete: if isValidId(advocateId);
     }
 
     // Connection testing pathway

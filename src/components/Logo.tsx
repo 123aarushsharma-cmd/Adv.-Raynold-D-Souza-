@@ -27,7 +27,7 @@ export default function Logo({
     >
       <img
         src={logoSrc}
-        alt="Olive Law Chambers® Logo"
+        alt="Olive Law Firm® Logo"
         width={size}
         height={size}
         referrerPolicy="no-referrer"
@@ -58,7 +58,7 @@ export default function Logo({
         <span
           className="font-sans text-[8px] sm:text-[10px] tracking-[0.25em] uppercase font-semibold leading-none mt-1 sm:mt-1.5 text-gold"
         >
-          Law Chambers®
+          Law Firm®
         </span>
       </div>
     </div>

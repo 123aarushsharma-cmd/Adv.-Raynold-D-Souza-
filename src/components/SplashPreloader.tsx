@@ -71,7 +71,7 @@ export default function SplashPreloader({ onComplete }: SplashPreloaderProps) {
           >
             <img
               src={logoSrc}
-              alt="Olive Law Chambers® Official Logo"
+              alt="Olive Law Firm® Official Logo"
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain drop-shadow-[0_2px_14px_rgba(201,162,39,0.4)] brightness-105"
             />

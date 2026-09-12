@@ -11,50 +11,7 @@ export interface PortraitPreset {
   genderDescription?: string;
 }
 
-export const LEGAL_PORTRAIT_PRESETS: PortraitPreset[] = [
-  {
-    id: "preset-reynold-original",
-    name: "Distinguished Principal",
-    role: "Senior / Principal Advocate",
-    url: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600",
-    genderDescription: "Formal navy suit & tie, executive pose"
-  },
-  {
-    id: "preset-senior-counsel",
-    name: "Senior Litigator",
-    role: "Appellate & Writ Counsel",
-    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
-    genderDescription: "Formal black suit, classic legal portrait"
-  },
-  {
-    id: "preset-experienced-advocate",
-    name: "Trial & Arbitration Lead",
-    role: "Senior Associate Advocate",
-    url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600",
-    genderDescription: "Dark charcoal blazer, professional smile"
-  },
-  {
-    id: "preset-female-lead",
-    name: "Corporate & Real Estate Lead",
-    role: "Associate Advocate / Satellite Lead",
-    url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600",
-    genderDescription: "Formal dark business suit, confident stance"
-  },
-  {
-    id: "preset-female-partner",
-    name: "Constitutional & Regulatory Counsel",
-    role: "Senior Associate Advocate",
-    url: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&q=80&w=600",
-    genderDescription: "Elegant formal dark blazer, sharp poise"
-  },
-  {
-    id: "preset-young-trial-advocate",
-    name: "Criminal & Trial Defense",
-    role: "Associate Advocate",
-    url: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600",
-    genderDescription: "Crisp white shirt and formal tie, courtroom advocate"
-  }
-];
+export const LEGAL_PORTRAIT_PRESETS: PortraitPreset[] = [];
 
 /**
  * Resizes and compresses any user-uploaded image file on the client side

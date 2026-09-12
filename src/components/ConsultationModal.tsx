@@ -241,7 +241,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                     </h4>
 
                     <p className="font-sans text-sm text-charcoal/80 leading-relaxed max-w-sm mb-6 font-light">
-                      Your details are protected under attorney-client privilege, logged in our chambers database, and routed directly to Advocate Reynold D'Souza (<strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>).
+                      Your details are protected under attorney-client privilege, logged in our firm database, and routed directly to Advocate Reynold D'Souza (<strong className="text-forest font-semibold">advrdsouza181@gmail.com</strong>).
                     </p>
 
                     <div className="flex flex-col gap-2 w-full max-w-sm mb-8">

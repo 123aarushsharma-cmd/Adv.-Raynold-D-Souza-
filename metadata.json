@@ -1,6 +1,6 @@
 {
-  "name": "Olive Law Chambers",
-  "description": "Olive Law Chambers®, led by Advocate Reynold D'Souza, specializes in Supreme Court and High Court litigation across Karnataka, with branch locations in Hubballi, Dharwad, Belagavi, and Bengaluru. Expert legal counsel in writ petitions, criminal defense, property disputes, and civil appeals.",
+  "name": "Olive Law Firm",
+  "description": "Olive Law Firm®, led by Advocate Reynold D'Souza, specializes in Supreme Court and High Court litigation across Karnataka, with branch locations in Dharwad, Belagavi, and Bengaluru. Expert legal counsel in writ petitions, criminal defense, property disputes, and civil appeals.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

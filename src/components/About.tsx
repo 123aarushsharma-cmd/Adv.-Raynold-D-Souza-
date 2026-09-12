@@ -56,10 +56,10 @@ export default function About() {
                         {founder.name.split(" ").map(w => w[0]).filter(Boolean).slice(-2).join("") || "RD"}
                       </span>
                       <span className="font-sans text-[10px] text-gold font-bold tracking-[0.2em] uppercase mt-2">
-                        Olive Law Chambers
+                        Olive Law Firm
                       </span>
                       <span className="font-sans text-[9px] text-ivory/60 mt-0.5">
-                        Principal Chambers Seal
+                        Principal Firm Seal
                       </span>
                     </div>
                   )}

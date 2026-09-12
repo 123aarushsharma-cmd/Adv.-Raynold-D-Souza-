@@ -15,7 +15,7 @@ export default function CyberSecurityShield() {
     // 1. Prevent Right-Click Context Menu
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
-      triggerWarning("Right-click context menu disabled under Olive Law Chambers CyberSecurity Protocol.");
+      triggerWarning("Right-click context menu disabled under Olive Law Firm CyberSecurity Protocol.");
     };
 
     // 2. Prevent Developer Tools / Inspect Element Hotkeys
@@ -24,7 +24,7 @@ export default function CyberSecurityShield() {
       if (e.key === "F12" || e.keyCode === 123 || (e.shiftKey && e.key === "F10")) {
         e.preventDefault();
         e.stopPropagation();
-        triggerWarning("Developer Tools inspection locked under Chambers Privacy Protocol.");
+        triggerWarning("Developer Tools inspection locked under Firm Privacy Protocol.");
         return false;
       }
 
@@ -89,7 +89,7 @@ export default function CyberSecurityShield() {
           </p>
           <div className="flex items-center gap-1 text-[10px] text-gold/70 mt-2 pt-1 border-t border-gold/15">
             <Lock size={10} />
-            <span>Olive Law Chambers Security Protocol • Section 66 IT Act & IP Laws</span>
+            <span>Olive Law Firm Security Protocol • Section 66 IT Act & IP Laws</span>
           </div>
         </div>
       </div>
