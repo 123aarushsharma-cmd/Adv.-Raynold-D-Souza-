@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { submitConsultation } from "../lib/firebase";
 import { createConsultationMailtoUrl, sendDirectEmailCopy } from "../lib/email";
 import { sanitizeInput, isValidSecureEmail, isValidSecurePhone, checkRateLimit, isHoneypotTriggered } from "../lib/security";
+import { useFirmSettings } from "../hooks/useFirmSettings";
 
 interface OfficeLocation {
   id: "bengaluru" | "dharwad" | "belagavi";
@@ -97,6 +98,7 @@ interface FormErrors {
 }
 
 export default function Contact() {
+  const { contact } = useFirmSettings();
   const [activeLocationId, setActiveLocationId] = useState<"bengaluru" | "dharwad" | "belagavi">("bengaluru");
   const [mapMode, setMapMode] = useState<"roadmap" | "satellite" | "hybrid">("roadmap");
   const [copiedLocationId, setCopiedLocationId] = useState<string | null>(null);
@@ -922,8 +924,8 @@ export default function Contact() {
                         <span className="font-sans text-[9px] tracking-wider text-gold uppercase font-bold block">
                           Admissions Desk
                         </span>
-                        <a href="tel:+919740577775" className="font-sans text-xs text-ivory hover:text-gold transition-colors block mt-0.5">
-                          +91 97405 77775
+                        <a href={`tel:${contact.primaryPhone.replace(/\s+/g, "")}`} className="font-sans text-xs text-ivory hover:text-gold transition-colors block mt-0.5">
+                          {contact.primaryPhone}
                         </a>
                       </div>
                     </div>
@@ -933,8 +935,8 @@ export default function Contact() {
                         <span className="font-sans text-[9px] tracking-wider text-gold uppercase font-bold block">
                           Electronic Mail
                         </span>
-                        <a href="mailto:advrdsouza181@gmail.com" className="font-sans text-xs text-ivory hover:text-gold transition-colors block mt-0.5 truncate">
-                          advrdsouza181@gmail.com
+                        <a href={`mailto:${contact.primaryEmail}`} className="font-sans text-xs text-ivory hover:text-gold transition-colors block mt-0.5 truncate">
+                          {contact.primaryEmail}
                         </a>
                       </div>
                     </div>
@@ -944,7 +946,7 @@ export default function Contact() {
                   <div className="flex items-center gap-2.5 bg-gold/10 border border-gold/20 p-2.5 rounded-sm text-xs mt-2">
                     <Clock className="text-gold shrink-0" size={14} />
                     <span className="font-sans text-[11px] text-ivory/90">
-                      Office Timings: 9:00 AM – 7:30 PM • Mon – Sat
+                      Office Timings: {contact.officeHours}
                     </span>
                   </div>
                 </div>

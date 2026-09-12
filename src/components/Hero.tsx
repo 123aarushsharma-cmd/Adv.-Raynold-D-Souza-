@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
+import { Shield } from "lucide-react";
 import Logo from "./Logo";
 
 export default function Hero() {
@@ -24,8 +25,8 @@ export default function Hero() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/10 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Giant Custom Logo Background Watermark */}
-      <div className="absolute right-[-100px] bottom-[-50px] md:right-[-50px] md:bottom-[-20px] w-[350px] md:w-[600px] h-auto opacity-[0.06] pointer-events-none select-none">
-        <Logo size={600} showText={false} inverse={true} />
+      <div className="absolute right-[-80px] bottom-[-40px] md:right-[-20px] md:bottom-[-10px] w-[350px] md:w-[580px] h-auto opacity-[0.08] pointer-events-none select-none">
+        <Logo size={580} showText={false} variant="watermark" />
       </div>
 
       {/* Floating Leaf Particles */}
@@ -40,53 +41,28 @@ export default function Hero() {
         </svg>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Headline Text Panel */}
-          <div className="lg:col-span-8 flex flex-col justify-center text-left">
-            {/* Powerful Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-ivory font-bold tracking-tight leading-[1.1] mb-6"
-            >
-              Justice, Rooted in <br />
-              <span className="text-gold font-serif italic font-normal">Uncompromising Integrity</span>
-            </motion.h1>
-
-            {/* Subheadline */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-base sm:text-lg md:text-xl text-ivory/85 font-sans leading-relaxed max-w-2xl font-light"
-            >
-              Advocate Reynold D'Souza stands as a dedicated guardian of rights and unyielding advocate for justice, litigating before high courts and tribunals with highly rigorous scholarship.
-            </motion.p>
-          </div>
-
-          {/* Aesthetic Geometric/Symmetry Frame */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="hidden lg:flex lg:col-span-4 justify-center items-center relative"
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12 md:py-20">
+        <div className="max-w-4xl flex flex-col justify-center text-left">
+          {/* Powerful Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-ivory font-bold tracking-tight leading-[1.15] mb-6"
           >
-            <div className="relative w-80 h-[480px] border border-gold/30 rounded-t-full p-4 flex items-center justify-center">
-              <div className="absolute inset-0 border border-gold/15 rounded-t-full m-3 pointer-events-none" />
-              
-              {/* Central Premium Seal Motif */}
-              <div className="flex flex-col items-center text-center max-w-[200px]">
-                <Logo size={110} showText={false} inverse={true} className="mb-6 animate-pulse-slow" />
-                <h3 className="font-serif text-2xl text-ivory font-semibold mb-2">Advocates of Truth</h3>
-                <div className="w-12 h-0.5 bg-gold mb-4" />
-                <p className="font-sans text-xs text-ivory/70 leading-relaxed font-light">
-                  A legacy of legal brilliance, dedicated to achieving equity and lasting results.
-                </p>
-              </div>
-            </div>
-          </motion.div>
+            Justice, Rooted in <br />
+            <span className="text-gold font-serif italic font-normal">Uncompromising Integrity</span>
+          </motion.h1>
+
+          {/* Subheadline */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-base sm:text-lg md:text-xl text-ivory/85 font-sans leading-relaxed max-w-2xl font-light"
+          >
+            Advocate Reynold D'Souza stands as a dedicated guardian of rights and unyielding advocate for justice, litigating before high courts and tribunals with highly rigorous scholarship.
+          </motion.p>
         </div>
       </div>
     </section>

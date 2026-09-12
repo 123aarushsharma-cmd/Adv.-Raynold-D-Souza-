@@ -1112,3 +1112,88 @@ export async function resetTeamToDefaults(): Promise<{ founder: FounderProfile; 
   };
 }
 
+// ============================================================================
+// 14. BRAND SETTINGS & LOGO MANAGEMENT
+// ============================================================================
+export interface FirmSettings {
+  logoUrl?: string;
+  firmName?: string;
+  updatedAt?: any;
+}
+
+const LOCAL_BRAND_LOGO_KEY = "olive_official_brand_logo_v3";
+
+export function getLocalBrandLogo(): string {
+  try {
+    const raw = localStorage.getItem(LOCAL_BRAND_LOGO_KEY);
+    if (raw && raw.trim().length > 0) {
+      return raw;
+    }
+  } catch (e) {
+    console.warn("Could not read local brand logo", e);
+  }
+  return "";
+}
+
+export function saveLocalBrandLogo(logoUrl: string): void {
+  try {
+    if (logoUrl && logoUrl.trim().length > 0) {
+      localStorage.setItem(LOCAL_BRAND_LOGO_KEY, logoUrl);
+    } else {
+      localStorage.removeItem(LOCAL_BRAND_LOGO_KEY);
+    }
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("olive_brand_logo_updated"));
+    }
+  } catch (e) {
+    console.error("Error saving local brand logo:", e);
+  }
+}
+
+export async function fetchBrandLogo(): Promise<string> {
+  try {
+    const docRef = doc(db, "firm_settings", "logo");
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      if (data && typeof data.logoUrl === "string") {
+        saveLocalBrandLogo(data.logoUrl);
+        return data.logoUrl;
+      }
+    }
+  } catch (err) {
+    console.warn("Firestore fetchBrandLogo unavailable, using local cache:", err);
+  }
+  return getLocalBrandLogo();
+}
+
+export async function saveBrandLogo(logoUrl: string): Promise<boolean> {
+  saveLocalBrandLogo(logoUrl);
+  try {
+    const docRef = doc(db, "firm_settings", "logo");
+    await setDoc(docRef, {
+      logoUrl,
+      updatedAt: Timestamp.now()
+    });
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, "firm_settings/logo");
+    console.warn("Firestore saveBrandLogo failed, saved locally:", err);
+    return true;
+  }
+}
+
+export async function resetBrandLogo(): Promise<void> {
+  saveLocalBrandLogo("");
+  try {
+    const docRef = doc(db, "firm_settings", "logo");
+    await setDoc(docRef, {
+      logoUrl: "",
+      updatedAt: Timestamp.now()
+    });
+  } catch (err) {
+    console.warn("Firestore resetBrandLogo failed, reset locally:", err);
+  }
+}
+
+

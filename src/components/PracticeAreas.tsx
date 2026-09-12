@@ -12,7 +12,11 @@ import {
   Briefcase,
   TrendingUp,
   CheckCircle2,
-  Search
+  Search,
+  Share2,
+  Copy,
+  Check,
+  ExternalLink
 } from "lucide-react";
 
 interface PracticeArea {
@@ -204,9 +208,12 @@ export default function PracticeAreas() {
     { id: "tribunals", label: "Tribunals & ADR" },
   ];
 
+  const [copiedLink, setCopiedLink] = useState(false);
+
   // Focus trap & Escape key listener for the practice area modal
   useEffect(() => {
     if (selectedArea) {
+      setCopiedLink(false);
       const timer = setTimeout(() => {
         const closeBtn = modalRef.current?.querySelector<HTMLElement>("#close-practice-modal");
         closeBtn?.focus();
@@ -324,7 +331,7 @@ export default function PracticeAreas() {
     };
   }, []);
 
-  // Dynamically update document title, OpenGraph tags, Twitter card, and canonical links for local legal service SEO
+  // Dynamically update document title, OpenGraph tags, Twitter card, and canonical links for individual practice area pages & social sharing
   useEffect(() => {
     const setMetaTag = (selector: string, attribute: string, value: string) => {
       let el = document.querySelector(selector);
@@ -339,41 +346,105 @@ export default function PracticeAreas() {
       el.setAttribute(attribute, value);
     };
 
-    const origin = typeof window !== "undefined" ? window.location.origin : "https://olivelawfirm.com";
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://www.olivelawfirm.in";
+    const canonicalBase = "https://www.olivelawfirm.in";
+    const logoUrl = `${canonicalBase}/logo.png`;
 
     if (selectedArea) {
+      const practiceUrl = `${canonicalBase}/#practice-${selectedArea.id}`;
       document.title = selectedArea.seoTitle;
-      const practiceUrl = `${origin}/#practice-${selectedArea.id}`;
 
+      // Primary Standard Meta Tags
+      setMetaTag('meta[name="description"]', "content", selectedArea.seoDescription);
+      setMetaTag('meta[name="keywords"]', "content", selectedArea.seoKeywords);
+      setMetaTag('meta[name="author"]', "content", "Advocate Reynold D'Souza - Olive Law Firm®");
+
+      // Open Graph Meta Tags for Social Sharing & Search Crawlers
       setMetaTag('meta[property="og:title"]', "content", selectedArea.seoTitle);
       setMetaTag('meta[property="og:description"]', "content", selectedArea.seoDescription);
       setMetaTag('meta[property="og:url"]', "content", practiceUrl);
       setMetaTag('meta[property="og:type"]', "content", "article");
-      setMetaTag('meta[name="twitter:title"]', "content", selectedArea.seoTitle);
-      setMetaTag('meta[name="twitter:description"]', "content", selectedArea.seoDescription);
-      setMetaTag('meta[name="keywords"]', "content", selectedArea.seoKeywords);
+      setMetaTag('meta[property="og:site_name"]', "content", "Olive Law Firm®");
+      setMetaTag('meta[property="og:locale"]', "content", "en_IN");
+      setMetaTag('meta[property="og:image"]', "content", logoUrl);
+      setMetaTag('meta[property="og:image:secure_url"]', "content", logoUrl);
+      setMetaTag('meta[property="og:image:alt"]', "content", `Olive Law Firm® - ${selectedArea.title} Legal Practice (Bengaluru, Dharwad, Belagavi)`);
+      setMetaTag('meta[property="og:image:type"]', "content", "image/png");
+      setMetaTag('meta[property="og:image:width"]', "content", "1024");
+      setMetaTag('meta[property="og:image:height"]', "content", "1024");
+      setMetaTag('meta[property="article:section"]', "content", selectedArea.schemaCategory);
+      setMetaTag('meta[property="article:author"]', "content", selectedArea.keyAttorney);
+      setMetaTag('meta[property="article:publisher"]', "content", canonicalBase);
 
+      // Twitter Card Meta Tags for X / Twitter Social Cards
+      setMetaTag('meta[name="twitter:card"]', "content", "summary_large_image");
+      setMetaTag('meta[name="twitter:site"]', "content", "@OliveLawFirm");
+      setMetaTag('meta[name="twitter:creator"]', "content", "@OliveLawFirm");
+      setMetaTag('meta[name="twitter:title"]', "content", `${selectedArea.title} | Olive Law Firm®`);
+      setMetaTag('meta[name="twitter:description"]', "content", selectedArea.seoDescription);
+      setMetaTag('meta[name="twitter:image"]', "content", logoUrl);
+      setMetaTag('meta[name="twitter:image:alt"]', "content", `Olive Law Firm® - ${selectedArea.title} Counsel`);
+      setMetaTag('meta[name="twitter:label1"]', "content", "Practice Area");
+      setMetaTag('meta[name="twitter:data1"]', "content", selectedArea.title);
+      setMetaTag('meta[name="twitter:label2"]', "content", "Lead Counsel");
+      setMetaTag('meta[name="twitter:data2"]', "content", "Advocate Reynold D'Souza (Bengaluru, Dharwad, Belagavi)");
+
+      // Canonical link update
       let canonical = document.querySelector('link[rel="canonical"]');
       if (canonical) {
         canonical.setAttribute("href", practiceUrl);
       }
     } else {
-      document.title = "Olive Law Firm® | Supreme Court & High Court Litigation | Dharwad, Belagavi & Bengaluru";
+      const defaultTitle = "Olive Law Firm® | Supreme Court & High Court Litigation | Bengaluru, Dharwad & Belagavi";
+      const defaultDesc = "Olive Law Firm® (www.olivelawfirm.in), led by Advocate Reynold D'Souza, specializes in Supreme Court and High Court litigation across Karnataka, with office chambers in Bengaluru, Dharwad, and Belagavi.";
+      const defaultKeywords = "Olive Law Firm, Advocate Reynold D'Souza, Supreme Court litigation advocate, High Court litigation lawyer Karnataka, top advocate Dharwad, High Court Dharwad bench lawyer, legal counsel Belagavi, best law firm Bengaluru, Supreme Court SLP advocate, High Court writ petition lawyer";
+      
+      document.title = defaultTitle;
 
-      setMetaTag('meta[property="og:title"]', "content", "Olive Law Firm® | Supreme Court & High Court Litigation | Dharwad, Belagavi & Bengaluru");
-      setMetaTag('meta[property="og:description"]', "content", "Olive Law Firm®, led by Advocate Reynold D'Souza, specializes in Supreme Court and High Court litigation across Karnataka, with branch locations in Dharwad, Belagavi, and Bengaluru.");
-      setMetaTag('meta[property="og:url"]', "content", origin);
+      // Primary Standard Meta Tags
+      setMetaTag('meta[name="description"]', "content", defaultDesc);
+      setMetaTag('meta[name="keywords"]', "content", defaultKeywords);
+      setMetaTag('meta[name="author"]', "content", "Olive Law Firm®");
+
+      // Open Graph Default Tags
+      setMetaTag('meta[property="og:title"]', "content", defaultTitle);
+      setMetaTag('meta[property="og:description"]', "content", defaultDesc);
+      setMetaTag('meta[property="og:url"]', "content", canonicalBase);
       setMetaTag('meta[property="og:type"]', "content", "website");
-      setMetaTag('meta[name="twitter:title"]', "content", "Olive Law Firm® | Supreme Court & High Court Litigation | Dharwad, Belagavi & Bengaluru");
-      setMetaTag('meta[name="twitter:description"]', "content", "Specializing in Supreme Court and High Court litigation with branch locations across Dharwad, Belagavi, and Bengaluru.");
-      setMetaTag('meta[name="keywords"]', "content", "Olive Law Firm, Advocate Reynold D'Souza, Supreme Court litigation advocate, High Court litigation lawyer Karnataka, top advocate Dharwad, High Court Dharwad bench lawyer, legal counsel Belagavi, best law firm Bengaluru");
+      setMetaTag('meta[property="og:site_name"]', "content", "Olive Law Firm®");
+      setMetaTag('meta[property="og:locale"]', "content", "en_IN");
+      setMetaTag('meta[property="og:image"]', "content", logoUrl);
+      setMetaTag('meta[property="og:image:secure_url"]', "content", logoUrl);
+      setMetaTag('meta[property="og:image:alt"]', "content", "Olive Law Firm® Official Emblem - Bengaluru, Dharwad, Belagavi");
+      setMetaTag('meta[property="og:image:type"]', "content", "image/png");
+      setMetaTag('meta[property="og:image:width"]', "content", "1024");
+      setMetaTag('meta[property="og:image:height"]', "content", "1024");
+
+      // Twitter Card Default Tags
+      setMetaTag('meta[name="twitter:card"]', "content", "summary_large_image");
+      setMetaTag('meta[name="twitter:site"]', "content", "@OliveLawFirm");
+      setMetaTag('meta[name="twitter:creator"]', "content", "@OliveLawFirm");
+      setMetaTag('meta[name="twitter:title"]', "content", defaultTitle);
+      setMetaTag('meta[name="twitter:description"]', "content", "Specializing in Supreme Court and High Court litigation across Karnataka with office chambers in Bengaluru, Dharwad, and Belagavi. Led by Advocate Reynold D'Souza. Visit https://www.olivelawfirm.in");
+      setMetaTag('meta[name="twitter:image"]', "content", logoUrl);
+      setMetaTag('meta[name="twitter:image:alt"]', "content", "Olive Law Firm® - Supreme Court & High Court Litigation");
 
       let canonical = document.querySelector('link[rel="canonical"]');
       if (canonical) {
-        canonical.setAttribute("href", origin);
+        canonical.setAttribute("href", canonicalBase);
       }
     }
   }, [selectedArea]);
+
+  const handleCopyShareLink = (area: PracticeArea) => {
+    const shareUrl = `https://www.olivelawfirm.in/#practice-${area.id}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2500);
+      });
+    }
+  };
 
   return (
     <section className="py-14 md:py-16 bg-ivory relative">
@@ -725,6 +796,67 @@ export default function PracticeAreas() {
                   <p className="font-sans text-sm text-charcoal leading-relaxed font-medium mt-1">
                     {selectedArea.successCase.result}
                   </p>
+                </div>
+
+                {/* Social Sharing & Link Bar for improved visibility */}
+                <div className="bg-forest/5 border border-forest/10 p-3.5 rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 text-forest/70 font-sans font-medium">
+                    <Share2 size={14} className="text-gold" aria-hidden="true" />
+                    <span>Share this practice area dossier:</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => handleCopyShareLink(selectedArea)}
+                      className="px-2.5 py-1.5 rounded bg-white hover:bg-gold/15 text-forest border border-forest/15 font-sans font-medium text-[11px] flex items-center gap-1.5 transition-colors cursor-pointer"
+                      title="Copy practice area URL"
+                    >
+                      {copiedLink ? (
+                        <>
+                          <Check size={12} className="text-emerald-600" />
+                          <span className="text-emerald-700 font-semibold">Link Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={12} className="text-gold" />
+                          <span>Copy Link</span>
+                        </>
+                      )}
+                    </button>
+                    <a
+                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                        `Olive Law Firm® - ${selectedArea.title}: ${selectedArea.shortDesc} https://www.olivelawfirm.in/#practice-${selectedArea.id}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-medium text-[11px] flex items-center gap-1 transition-colors"
+                      title="Share on WhatsApp"
+                    >
+                      <span>WhatsApp</span>
+                    </a>
+                    <a
+                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                        `${selectedArea.seoTitle}`
+                      )}&url=${encodeURIComponent(`https://www.olivelawfirm.in/#practice-${selectedArea.id}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded bg-neutral-900 hover:bg-neutral-800 text-white font-sans font-medium text-[11px] flex items-center gap-1 transition-colors"
+                      title="Share on X / Twitter"
+                    >
+                      <span>X / Twitter</span>
+                    </a>
+                    <a
+                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                        `https://www.olivelawfirm.in/#practice-${selectedArea.id}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1.5 rounded bg-blue-700 hover:bg-blue-800 text-white font-sans font-medium text-[11px] flex items-center gap-1 transition-colors"
+                      title="Share on LinkedIn"
+                    >
+                      <span>LinkedIn</span>
+                    </a>
+                  </div>
                 </div>
 
                 {/* Senior Contact */}

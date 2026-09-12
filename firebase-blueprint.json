@@ -68,6 +68,13 @@
         "displayOrder": { "type": "number", "optional": true },
         "updatedAt": { "type": "timestamp" }
       }
+    },
+    "firm_settings": {
+      "fields": {
+        "logoUrl": { "type": "string", "optional": true },
+        "firmName": { "type": "string", "optional": true },
+        "updatedAt": { "type": "timestamp" }
+      }
     }
   },
   "firestore": {

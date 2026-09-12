@@ -7,7 +7,7 @@ import {
   Scale, 
   Award, 
   MessageSquare, 
-  HelpCircle,
+  HelpCircle, 
   Landmark, 
   ShieldAlert, 
   Building2, 
@@ -19,6 +19,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { auth } from "../lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { useFirmSettings } from "../hooks/useFirmSettings";
 
 interface HeaderProps {
   onOpenConsultationModal: () => void;
@@ -44,6 +45,7 @@ const navLinks = [
 ];
 
 export default function Header({ onOpenConsultationModal, onOpenAdmin }: HeaderProps) {
+  const { notice } = useFirmSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [isPracticeDropdownOpen, setIsPracticeDropdownOpen] = useState(false);
@@ -128,6 +130,28 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin }: HeaderP
             : "bg-forest/90 nav:bg-transparent backdrop-blur-sm nav:backdrop-blur-none text-ivory border-b border-gold/10 nav:border-b-0"
         }`}
       >
+        {/* Real-time Dynamic Court Notice / Vacation Bench Broadcast Banner */}
+        {notice && notice.enabled && (
+          <div className={`w-full py-1.5 px-4 text-xs text-center font-sans font-medium flex items-center justify-center gap-2 transition-colors border-b ${
+            notice.type === "urgent"
+              ? "bg-amber-500 text-neutral-950 font-bold border-amber-600/40"
+              : notice.type === "registry"
+              ? "bg-rose-700 text-white border-rose-800"
+              : notice.type === "vacation"
+              ? "bg-emerald-800 text-emerald-100 border-emerald-600/30"
+              : "bg-gold text-forest font-bold border-gold/60"
+          }`}>
+            <span className="inline-block w-2 h-2 rounded-full bg-current animate-ping"></span>
+            <span className="font-bold uppercase tracking-wider text-[11px]">{notice.title}:</span>
+            <span className="truncate max-w-2xl">{notice.message}</span>
+            {notice.linkText && notice.linkUrl && (
+              <a href={notice.linkUrl} className="underline font-bold ml-1.5 hover:opacity-80 shrink-0">
+                {notice.linkText} →
+              </a>
+            )}
+          </div>
+        )}
+
         <div className={`max-w-7xl mx-auto px-4 sm:px-6 nav:px-8 transition-all duration-300 ${
           isScrolled ? "py-2.5" : "py-4 nav:py-5"
         }`}>
@@ -277,8 +301,17 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin }: HeaderP
               })}
             </nav>
 
-            {/* Symmetrical Balance Spacer to ensure Navigation stays in the exact center of the screen */}
-            <div className="hidden nav:flex flex-1 items-center justify-end" aria-hidden="true" />
+            {/* Symmetrical Balance Column */}
+            <div className="hidden nav:flex flex-1 items-center justify-end">
+              <button
+                onClick={onOpenAdmin}
+                className="p-2 rounded-full text-ivory/40 hover:text-gold/80 hover:bg-forest-light/60 transition-all active:scale-95 focus-visible:ring-1 focus-visible:ring-gold"
+                title="Admin Portal"
+                aria-label="Admin Portal"
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-gold/40" />
+              </button>
+            </div>
           </div>
         </div>
       </header>

@@ -220,6 +220,13 @@ service cloud.firestore {
       allow create, update, delete: if isValidId(advocateId);
     }
 
+    match /firm_settings/{settingId} {
+      // Public website read access to retrieve firm logo and settings
+      allow read: if true;
+      // Administrative management access to update firm logo and branding
+      allow create, update, delete: if isValidId(settingId);
+    }
+
     // Connection testing pathway
     match /test/{docId} {
       allow read: if true;

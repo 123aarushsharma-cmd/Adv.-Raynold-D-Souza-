@@ -8,6 +8,7 @@ import {
   AlertCircle, 
   RefreshCw, 
   Eye, 
+  Plus,
   Sparkles,
   ShieldCheck,
   FileCheck
@@ -18,47 +19,92 @@ interface AdminLogoManagerProps {
 }
 
 export default function AdminLogoManager({ onClose }: AdminLogoManagerProps) {
-  const { logoSrc, isCustom, updateLogo, resetLogo } = useBrandLogo();
+  const { logoSrc, isCustom, updateLogo, resetLogo, isLoading } = useBrandLogo();
   const [dragActive, setDragActive] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [urlInput, setUrlInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileProcess = (file: File) => {
+  const handleFileProcess = async (file: File) => {
     setErrorMessage(null);
     setSuccessMessage(null);
+    setIsProcessing(true);
 
     // Validate image format
     if (!file.type.startsWith("image/")) {
       setErrorMessage("Please upload a valid image file (PNG, JPG, JPEG, SVG, or WEBP).");
+      setIsProcessing(false);
       return;
     }
 
-    // Limit to 10MB
-    if (file.size > 10 * 1024 * 1024) {
-      setErrorMessage("File size is too large. Please upload an image under 10MB.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      if (result) {
-        setPreviewUrl(result);
-        const success = updateLogo(result);
-        if (success) {
-          setSuccessMessage("Exact brand logo successfully uploaded and applied across the entire firm platform!");
-        } else {
-          setErrorMessage("Failed to save logo to local storage. File might be too large.");
+    try {
+      // Read file and optimize if needed via canvas to ensure safe document payload size
+      const reader = new FileReader();
+      reader.onerror = () => {
+        setErrorMessage("Failed to read image file.");
+        setIsProcessing(false);
+      };
+      reader.onload = async (e) => {
+        const rawResult = e.target?.result as string;
+        if (!rawResult) {
+          setErrorMessage("Failed to process image.");
+          setIsProcessing(false);
+          return;
         }
-      }
-    };
-    reader.onerror = () => {
-      setErrorMessage("Failed to read the image file.");
-    };
-    reader.readAsDataURL(file);
+
+        // Image optimization via offscreen canvas
+        const img = new Image();
+        img.onerror = () => {
+          setErrorMessage("Failed to decode image.");
+          setIsProcessing(false);
+        };
+        img.onload = async () => {
+          let targetDataUrl = rawResult;
+          const maxDim = 800;
+          if (img.width > maxDim || img.height > maxDim || rawResult.length > 500000) {
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxDim) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              }
+            } else {
+              if (height > maxDim) {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              targetDataUrl = canvas.toDataURL(file.type === "image/png" ? "image/png" : "image/jpeg", 0.92);
+            }
+          }
+
+          setPreviewUrl(targetDataUrl);
+          const success = await updateLogo(targetDataUrl);
+          setIsProcessing(false);
+          if (success) {
+            setSuccessMessage("Brand logo successfully updated and synchronized across all devices and hosting platforms!");
+          } else {
+            setErrorMessage("Failed to save logo to cloud database. Saved locally as fallback.");
+          }
+        };
+        img.src = rawResult;
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Error processing logo file:", err);
+      setErrorMessage("An unexpected error occurred while processing the logo file.");
+      setIsProcessing(false);
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -80,36 +126,44 @@ export default function AdminLogoManager({ onClose }: AdminLogoManagerProps) {
     }
   };
 
-  const handleUrlSubmit = (e: React.FormEvent) => {
+  const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim()) return;
     setErrorMessage(null);
     setSuccessMessage(null);
+    setIsProcessing(true);
 
     try {
-      const success = updateLogo(urlInput.trim());
+      const trimmedUrl = urlInput.trim();
+      const success = await updateLogo(trimmedUrl);
+      setIsProcessing(false);
       if (success) {
-        setSuccessMessage("Brand logo URL successfully updated and synced across all pages!");
+        setSuccessMessage("Brand logo URL successfully updated and synced across all pages and devices!");
         setUrlInput("");
       } else {
-        setErrorMessage("Failed to apply image URL.");
+        setErrorMessage("Failed to apply image URL to cloud database.");
       }
     } catch {
+      setIsProcessing(false);
       setErrorMessage("Invalid image URL.");
     }
   };
 
-  const handleReset = () => {
-    if (window.confirm("Are you sure you want to reset the firm logo to the default master emblem?")) {
-      resetLogo();
+  const handleDeleteLogo = async () => {
+    if (window.confirm("Are you sure you want to DELETE the custom logo and reset to the official default master emblem?")) {
+      setIsProcessing(true);
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      await resetLogo();
+      setIsProcessing(false);
       setPreviewUrl(null);
-      setSuccessMessage("Firm logo restored to master default.");
+      setSuccessMessage("Custom logo successfully deleted. Master emblem restored site-wide.");
     }
   };
 
   return (
     <div className="bg-forest-light/60 border border-gold/20 rounded-xl p-6 shadow-xl space-y-6 text-ivory">
-      {/* Header */}
+      {/* Header with Direct Add & Delete Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gold/15 pb-4">
         <div>
           <div className="flex items-center gap-2.5">
@@ -118,25 +172,38 @@ export default function AdminLogoManager({ onClose }: AdminLogoManagerProps) {
             </span>
             <div>
               <h3 className="font-display text-xl text-ivory font-medium tracking-wide">
-                Firm Logo & Brand Emblem Editor
+                Firm Logo &amp; Brand Emblem Manager
               </h3>
               <p className="text-xs text-ivory/60 font-sans mt-0.5">
-                Upload or paste your exact copyrighted logo image to display it site-wide.
+                Add, replace, or delete the firm logo across all devices and pages in real time.
               </p>
             </div>
           </div>
         </div>
 
-        {isCustom && (
+        {/* Action Buttons: Add Logo & Delete Logo */}
+        <div className="flex items-center gap-2.5 flex-wrap">
           <button
-            onClick={handleReset}
+            onClick={() => fileInputRef.current?.click()}
             type="button"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 text-xs font-medium transition-colors self-start sm:self-auto"
+            disabled={isProcessing || isLoading}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-gold text-forest hover:bg-gold-light text-xs font-bold uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-60 cursor-pointer"
           >
-            <Trash2 className="w-3.5 h-3.5" />
-            Reset to Default Logo
+            <Plus className="w-3.5 h-3.5" />
+            Add / Upload Logo
           </button>
-        )}
+
+          <button
+            onClick={handleDeleteLogo}
+            type="button"
+            disabled={isProcessing || isLoading}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-red-500/40 bg-red-500/15 text-red-200 hover:bg-red-500/25 text-xs font-semibold transition-all active:scale-95 disabled:opacity-60 cursor-pointer"
+            title="Delete custom logo and reset to default"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-400" />
+            Delete Logo
+          </button>
+        </div>
       </div>
 
       {/* Status Notifications */}
@@ -187,19 +254,31 @@ export default function AdminLogoManager({ onClose }: AdminLogoManagerProps) {
             </div>
 
             <h4 className="text-base font-medium text-ivory mb-1">
-              Click to Upload or Drag & Drop Exact Logo Image
+              Click to Upload or Drag &amp; Drop Logo Image
             </h4>
             <p className="text-xs text-ivory/60 max-w-sm mb-3">
-              Supports high-resolution PNG, JPG, JPEG, SVG, or WebP. The exact uploaded image file will be directly rendered with zero distortion.
+              Supports high-resolution PNG, JPG, JPEG, SVG, or WebP. The exact uploaded image file will be directly rendered with zero distortion across all devices.
             </p>
 
-            <button
-              type="button"
-              className="px-4 py-2 bg-gold text-forest font-semibold text-xs tracking-wider uppercase rounded-lg hover:bg-gold-light transition-all shadow-md active:scale-95 flex items-center gap-2"
-            >
-              <Upload className="w-3.5 h-3.5" />
-              Select Image File
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={isProcessing || isLoading}
+                className="px-4 py-2 bg-gold text-forest font-semibold text-xs tracking-wider uppercase rounded-lg hover:bg-gold-light transition-all shadow-md active:scale-95 flex items-center gap-2 disabled:opacity-60"
+              >
+                {(isProcessing || isLoading) ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    Processing &amp; Syncing...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-3.5 h-3.5" />
+                    Select Image File
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Or Paste Image URL */}
@@ -208,30 +287,41 @@ export default function AdminLogoManager({ onClose }: AdminLogoManagerProps) {
               type="url"
               placeholder="Or paste direct image URL (https://...)"
               value={urlInput}
+              disabled={isProcessing || isLoading}
               onChange={(e) => setUrlInput(e.target.value)}
-              className="flex-1 bg-forest/80 border border-gold/20 rounded-lg px-3.5 py-2 text-xs text-ivory placeholder:text-ivory/40 focus:outline-none focus:border-gold"
+              className="flex-1 bg-forest/80 border border-gold/20 rounded-lg px-3.5 py-2 text-xs text-ivory placeholder:text-ivory/40 focus:outline-none focus:border-gold disabled:opacity-50"
             />
             <button
               type="submit"
-              disabled={!urlInput.trim()}
-              className="px-3.5 py-2 bg-forest-light border border-gold/30 text-gold hover:bg-gold hover:text-forest disabled:opacity-50 disabled:pointer-events-none text-xs font-medium rounded-lg transition-colors"
+              disabled={!urlInput.trim() || isProcessing || isLoading}
+              className="px-3.5 py-2 bg-forest-light border border-gold/30 text-gold hover:bg-gold hover:text-forest disabled:opacity-50 disabled:pointer-events-none text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5"
             >
+              {(isProcessing || isLoading) ? (
+                <RefreshCw className="w-3 h-3 animate-spin" />
+              ) : null}
               Apply URL
             </button>
           </form>
         </div>
 
-        {/* Right Column: Live Multi-Theme Preview */}
+        {/* Right Column: Live Multi-Theme Preview & Delete Option */}
         <div className="lg:col-span-5 flex flex-col space-y-3">
-          <div className="flex items-center gap-2 text-xs font-semibold text-gold uppercase tracking-wider">
-            <Eye className="w-3.5 h-3.5" />
-            Live Logo Previews
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-semibold text-gold uppercase tracking-wider">
+              <Eye className="w-3.5 h-3.5" />
+              Live Logo Previews
+            </div>
+            <span className={`text-[10px] px-2 py-0.5 rounded font-semibold uppercase tracking-wider ${
+              isCustom ? "bg-gold/20 text-gold border border-gold/30" : "bg-white/10 text-ivory/70 border border-white/10"
+            }`}>
+              {isCustom ? "Custom Logo Active" : "Default Master Emblem"}
+            </span>
           </div>
 
           {/* Preview on Dark Background (Navbar & Footer) */}
           <div className="bg-forest border border-gold/30 rounded-lg p-4 flex flex-col items-center justify-center relative overflow-hidden">
             <span className="absolute top-2 left-2 text-[9px] uppercase tracking-widest text-ivory/50 font-sans">
-              Navbar & Header Preview
+              Navbar &amp; Header Preview
             </span>
             <div className="py-3 flex items-center gap-3">
               <div className="w-12 h-12 flex items-center justify-center">
@@ -280,7 +370,7 @@ export default function AdminLogoManager({ onClose }: AdminLogoManagerProps) {
           <div className="p-2.5 rounded-lg bg-gold/10 border border-gold/20 flex items-start gap-2 text-[11px] text-ivory/80 leading-relaxed">
             <ShieldCheck className="w-4 h-4 text-gold shrink-0 mt-0.5" />
             <span>
-              Changes are immediately applied to the Header, Footer, Splash Screen, Admin Portal, Client Portal, and Consultation Receipts.
+              Logo updates and deletions sync instantly across all devices, the public site header, footer, hero section, preloader, and consultation forms.
             </span>
           </div>
         </div>

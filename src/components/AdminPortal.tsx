@@ -51,15 +51,21 @@ import {
   Info,
   Camera,
   Image as ImageIcon,
-  Sparkles
+  Sparkles,
+  Sliders,
+  Radio,
+  Zap,
+  Database
 } from "lucide-react";
 import AdminTeamManager from "./AdminTeamManager";
+import AdminOperationsManager from "./AdminOperationsManager";
 import { useTeamProfiles } from "../hooks/useTeamProfiles";
 import CyberSecurityShield from "./CyberSecurityShield";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
 interface AdminPortalProps {
   onClose: () => void;
-  initialTab?: "consultations" | "notifications" | "team" | "analytics" | "branding";
+  initialTab?: "consultations" | "notifications" | "team" | "analytics" | "branding" | "operations";
   initialTeamTarget?: "founder" | string;
 }
 
@@ -94,7 +100,7 @@ export default function AdminPortal({
   const [isSaving, setIsSaving] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"consultations" | "notifications" | "team" | "analytics" | "branding">(
+  const [activeTab, setActiveTab] = useState<"consultations" | "notifications" | "team" | "analytics" | "branding" | "operations">(
     initialTab || "consultations"
   );
 
@@ -125,15 +131,69 @@ export default function AdminPortal({
 
   useEffect(() => {
     // Listen for real auth changes
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    let unsubConsultations: (() => void) | null = null;
+    let unsubNotifications: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
       if (currentUser && isUserAdmin(currentUser)) {
         loadBackendData();
+
+        // 1. Real-time live Firestore listener for Consultations across all devices
+        try {
+          const consultationsQuery = query(collection(db, "consultations"), orderBy("createdAt", "desc"));
+          unsubConsultations = onSnapshot(consultationsQuery, (snapshot) => {
+            const liveConsultations: Consultation[] = [];
+            snapshot.forEach((docSnap) => {
+              const data = docSnap.data();
+              liveConsultations.push({
+                id: docSnap.id,
+                ...data
+              } as Consultation);
+            });
+            if (liveConsultations.length > 0) {
+              setConsultations(liveConsultations);
+            }
+          }, (err) => {
+            console.warn("Real-time consultations listener note:", err);
+          });
+        } catch (e) {
+          console.warn("Consultations snapshot setup error:", e);
+        }
+
+        // 2. Real-time live Firestore listener for Notifications across all devices
+        try {
+          const notificationsQuery = query(collection(db, "notifications"), orderBy("createdAt", "desc"));
+          unsubNotifications = onSnapshot(notificationsQuery, (snapshot) => {
+            const liveNotes: LawNotification[] = [];
+            snapshot.forEach((docSnap) => {
+              const data = docSnap.data();
+              liveNotes.push({
+                id: docSnap.id,
+                ...data
+              } as LawNotification);
+            });
+            if (liveNotes.length > 0) {
+              setNotifications(liveNotes);
+            }
+          }, (err) => {
+            console.warn("Real-time notifications listener note:", err);
+          });
+        } catch (e) {
+          console.warn("Notifications snapshot setup error:", e);
+        }
+      } else {
+        if (unsubConsultations) unsubConsultations();
+        if (unsubNotifications) unsubNotifications();
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubConsultations) unsubConsultations();
+      if (unsubNotifications) unsubNotifications();
+    };
   }, []);
 
   const loadBackendData = async () => {
@@ -150,12 +210,13 @@ export default function AdminPortal({
     }
   };
 
-  const adminTabKeys: ("consultations" | "notifications" | "analytics" | "team" | "branding")[] = [
+  const adminTabKeys: ("consultations" | "notifications" | "analytics" | "team" | "branding" | "operations")[] = [
     "consultations",
     "notifications",
     "analytics",
     "team",
-    "branding"
+    "branding",
+    "operations"
   ];
 
   const handleTabKeyDown = (e: React.KeyboardEvent, index: number) => {
@@ -832,6 +893,27 @@ export default function AdminPortal({
               Edit
             </span>
           </button>
+
+          <button
+            role="tab"
+            id="admin-tab-operations"
+            aria-selected={activeTab === "operations"}
+            aria-controls="admin-tabpanel"
+            tabIndex={activeTab === "operations" ? 0 : -1}
+            onKeyDown={(e) => handleTabKeyDown(e, 5)}
+            onClick={() => setActiveTab("operations")}
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
+              activeTab === "operations"
+                ? "border-gold text-forest bg-white/40 font-bold"
+                : "border-transparent text-charcoal/60 hover:text-forest"
+            }`}
+          >
+            <Radio size={14} className={activeTab === "operations" ? "text-gold animate-pulse" : "text-charcoal/40"} aria-hidden="true" />
+            <span>Operations &amp; Broadcast</span>
+            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded">
+              Live Sync
+            </span>
+          </button>
         </div>
 
         {/* Tab Panel Container */}
@@ -1266,6 +1348,15 @@ export default function AdminPortal({
         {/* Tab 5: Firm Logo & Brand Identity Manager */}
         {activeTab === "branding" && (
           <AdminLogoManager onClose={onClose} />
+        )}
+
+        {/* Tab 6: Firm Operations, Urgent Broadcast & Data Vault */}
+        {activeTab === "operations" && (
+          <AdminOperationsManager 
+            consultations={consultations}
+            notifications={notifications}
+            adminEmail={user?.email || "advrdsouza181@gmail.com"}
+          />
         )}
 
         </div> {/* End Tabpanel */}
