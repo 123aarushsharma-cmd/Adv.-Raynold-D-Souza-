@@ -109,39 +109,25 @@ export default function App() {
         <Hero />
 
         {/* Section 2: About Story & Mission */}
-        <ScrollAnimate id="about">
-          <About />
-        </ScrollAnimate>
+        <About />
 
         {/* Section 3: Practice Areas Competencies Grid */}
-        <ScrollAnimate id="practice-areas">
-          <PracticeAreas />
-        </ScrollAnimate>
+        <PracticeAreas />
 
         {/* Section 4: Why Choose Us Feature Row */}
-        <ScrollAnimate id="why-choose-us">
-          <WhyChooseUs />
-        </ScrollAnimate>
+        <WhyChooseUs />
 
         {/* Section 4.1: Additional Advocates */}
-        <ScrollAnimate id="advocates">
-          <AdditionalAdvocates />
-        </ScrollAnimate>
+        <AdditionalAdvocates />
 
         {/* Section 4.5: Peer & Client Endorsements Carousel */}
-        <ScrollAnimate id="testimonials">
-          <ClientTestimonials />
-        </ScrollAnimate>
+        <ClientTestimonials />
 
         {/* Section 5: Admissions Case Intake Desk */}
-        <ScrollAnimate id="contact">
-          <Contact />
-        </ScrollAnimate>
+        <Contact />
 
         {/* Section 6: FAQ Dossier (Compact & Humanized) */}
-        <ScrollAnimate id="faq">
-          <FAQ />
-        </ScrollAnimate>
+        <FAQ />
       </main>
 
       {/* Footer Navigation & Advertising compliance */}

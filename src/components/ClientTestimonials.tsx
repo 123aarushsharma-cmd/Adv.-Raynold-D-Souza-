@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Quote, ChevronLeft, ChevronRight, Star, Award, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import SectionHeaderReveal from "./SectionHeaderReveal";
 
 interface Testimonial {
   id: number;
@@ -135,23 +136,15 @@ export default function ClientTestimonials() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Header Title with premium legal aesthetic */}
-        <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="w-8 h-px bg-gold/50" />
-            <span className="font-sans text-xs sm:text-sm text-gold font-bold tracking-[0.2em] uppercase">
-              Professional Endorsements
-            </span>
-            <span className="w-8 h-px bg-gold/50" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-forest tracking-tight">
-            Client &amp; Professional Testimonials
-          </h2>
-          <p className="font-sans text-xs sm:text-sm text-charcoal/60 uppercase tracking-widest font-semibold mt-3">
-            Scholarly Advocacy • Proven Judicial Results
-          </p>
-          <div className="mt-5 h-[1px] w-12 bg-gold mx-auto" />
-        </div>
+        {/* Reveal-on-Scroll Section Header */}
+        <SectionHeaderReveal
+          eyebrow="Professional Endorsements"
+          title="Client & Professional Testimonials"
+          subtitle="Scholarly Advocacy • Proven Judicial Results"
+          alignment="center"
+          maxWidth="max-w-2xl"
+          className="mb-12 md:mb-16"
+        />
 
         {/* Testimonials Carousel Wrapper */}
         <div 

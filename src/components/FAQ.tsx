@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ChevronDown, MessageSquare, PhoneCall, HelpCircle, ShieldCheck, Clock, FileText, MapPin, Scale } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import SectionHeaderReveal from "./SectionHeaderReveal";
 
 interface FAQItem {
   id: string;
@@ -67,22 +68,15 @@ export default function FAQ() {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
         
-        {/* Section Header - Compact & Elegant */}
-        <div className="text-center max-w-2xl mx-auto mb-7">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="w-6 h-px bg-gold" />
-            <span className="font-sans text-xs text-gold font-bold tracking-[0.2em] uppercase">
-              FAQ Dossier
-            </span>
-            <span className="w-6 h-px bg-gold" />
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-forest tracking-tight">
-            Frequently Asked Questions
-          </h2>
-          <p className="font-sans text-xs sm:text-sm text-charcoal/75 mt-2 font-light max-w-lg mx-auto leading-relaxed">
-            Straightforward, human answers on consultations, required documents, and what to expect when working with Olive Law Firm.
-          </p>
-        </div>
+        {/* Reveal-on-Scroll Section Header - Compact & Elegant */}
+        <SectionHeaderReveal
+          eyebrow="FAQ Dossier"
+          title="Frequently Asked Questions"
+          subtitle="Straightforward, human answers on consultations, required documents, and what to expect when working with Olive Law Firm."
+          alignment="center"
+          maxWidth="max-w-2xl"
+          className="mb-7"
+        />
 
         {/* Compact Accordion Group */}
         <div className="space-y-2.5" id="faq-accordion-group" role="region" aria-label="Frequently Asked Questions list">

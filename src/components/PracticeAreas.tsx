@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import SectionHeaderReveal from "./SectionHeaderReveal";
 import {
   Gavel,
   ShieldAlert,
@@ -447,29 +448,19 @@ export default function PracticeAreas() {
   };
 
   return (
-    <section className="py-14 md:py-16 bg-ivory relative">
+    <section id="practice-areas" className="py-14 md:py-16 bg-ivory relative">
       <div className="absolute inset-0 opacity-5 pointer-events-none motif-bg" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="w-8 h-px bg-gold" />
-            <span className="font-sans text-xs sm:text-sm text-gold font-bold tracking-[0.2em] uppercase">
-              Areas of Practice
-            </span>
-            <span className="w-8 h-px bg-gold" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-forest tracking-tight">
-            Comprehensive Legal Protection, Crafted for Exceptional Outcomes
-          </h2>
-          <div className="mt-6 h-[1px] w-12 bg-gold mx-auto" />
-          <p className="font-sans text-sm sm:text-base text-charcoal/70 mt-4 font-light">
-            We operate across major legal disciplines to deliver strategic, precise advocacy. 
-            Select an area to explore detailed competencies and case results.
-          </p>
-        </div>
+        {/* Reveal-on-Scroll Section Header */}
+        <SectionHeaderReveal
+          eyebrow="Areas of Practice"
+          title="Comprehensive Legal Protection, Crafted for Exceptional Outcomes"
+          subtitle="We operate across major legal disciplines to deliver strategic, precise advocacy. Select an area to explore detailed competencies and case results."
+          alignment="center"
+          className="mb-10"
+        />
 
         {/* Dynamic SEO JSON-LD Structured Data for Local Legal Services */}
         <script

@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { Scale, Shield, Check, BookOpen, Clock } from "lucide-react";
 import { useTeamProfiles } from "../hooks/useTeamProfiles";
+import SectionHeaderReveal from "./SectionHeaderReveal";
 
 const pillars = [
   {
@@ -30,7 +31,7 @@ export default function About() {
   const { founder } = useTeamProfiles();
 
   return (
-    <section className="py-14 md:py-16 bg-sage-light overflow-hidden">
+    <section id="about" className="py-14 md:py-16 bg-sage-light overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           {/* Column 1: Founder's Portrait & Credentials (4 Cols) */}
@@ -112,17 +113,15 @@ export default function About() {
 
           {/* Column 2: Story & Mission Panel (5 Cols) */}
           <div className="lg:col-span-5 md:col-span-1">
-            {/* Subsection header */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-8 h-px bg-gold" />
-              <span className="font-sans text-xs sm:text-sm text-gold font-bold tracking-[0.2em] uppercase">
-                Our Foundation
-              </span>
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl font-serif font-bold text-forest tracking-tight mb-6 leading-tight">
-              A Legacy Built on Absolute Trust, Integrity &amp; Pursuit of Justice
-            </h2>
+            {/* Reveal-on-scroll section header */}
+            <SectionHeaderReveal
+              eyebrow="Our Foundation"
+              title="A Legacy Built on Absolute Trust, Integrity & Pursuit of Justice"
+              alignment="left"
+              maxWidth="max-w-none"
+              showDivider={false}
+              className="mb-6"
+            />
 
             <div className="space-y-5 text-charcoal/90 leading-relaxed font-sans font-light text-sm sm:text-base">
               <p>

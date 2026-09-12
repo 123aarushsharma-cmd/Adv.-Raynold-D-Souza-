@@ -2,6 +2,7 @@ import React from "react";
 import { Scale, HeartHandshake, Coins, Trophy, CheckCircle } from "lucide-react";
 import { motion } from "motion/react";
 import ScrollAnimate from "./ScrollAnimate";
+import SectionHeaderReveal from "./SectionHeaderReveal";
 
 interface Feature {
   icon: React.ReactNode;
@@ -35,7 +36,7 @@ const features: Feature[] = [
 export default function WhyChooseUs() {
 
   return (
-    <section className="py-14 md:py-16 bg-forest text-ivory relative overflow-hidden">
+    <section id="why-choose-us" className="py-14 md:py-16 bg-forest text-ivory relative overflow-hidden">
       {/* Background motif */}
       <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none motif-bg" />
       
@@ -44,20 +45,15 @@ export default function WhyChooseUs() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Title */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="w-8 h-px bg-gold/50" />
-            <span className="font-sans text-xs sm:text-sm text-gold font-bold tracking-[0.2em] uppercase">
-              The Professional Standard
-            </span>
-            <span className="w-8 h-px bg-gold/50" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-ivory tracking-tight">
-            Why Clients Trust Advocate Reynold D'Souza
-          </h2>
-          <div className="mt-6 h-[1px] w-12 bg-gold mx-auto" />
-        </div>
+        {/* Reveal-on-Scroll Section Title */}
+        <SectionHeaderReveal
+          eyebrow="The Professional Standard"
+          title="Why Clients Trust Advocate Reynold D'Souza"
+          theme="dark"
+          alignment="center"
+          maxWidth="max-w-2xl"
+          className="mb-10"
+        />
 
         {/* Features Row Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

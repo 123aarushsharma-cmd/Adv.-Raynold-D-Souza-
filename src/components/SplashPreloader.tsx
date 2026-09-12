@@ -62,42 +62,42 @@ export default function SplashPreloader({ onComplete }: SplashPreloaderProps) {
             className="absolute inset-0 bg-gold/40 rounded-full blur-3xl filter -m-10"
           />
 
-          {/* Animated Logo Container */}
+          {/* Animated Logo Container matching inner website logo badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.75, rotate: -5 }}
-            animate={step >= 1 ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.75, rotate: -5 }}
+            initial={{ opacity: 0, scale: 0.75, rotate: -4 }}
+            animate={step >= 1 ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.75, rotate: -4 }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10 w-32 h-32 flex items-center justify-center p-3 rounded-full border border-gold/40 bg-forest/80 backdrop-blur-md shadow-[0_8px_32px_rgba(201,162,39,0.3)]"
+            className="relative z-10 w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center p-3 rounded-full overflow-hidden bg-white border-2 border-gold/80 shadow-[0_8px_32px_rgba(201,162,39,0.35)]"
           >
             <img
               src={logoSrc}
               alt="Olive Law Firm® Official Logo"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-contain drop-shadow-[0_2px_14px_rgba(201,162,39,0.4)] brightness-105"
+              className="w-full h-full object-contain p-1 transform scale-105"
             />
           </motion.div>
         </div>
 
-        {/* Brand Text Reveal */}
-        <div className="overflow-hidden py-1 h-14">
+        {/* Brand Text Reveal matching inner website typography */}
+        <div className="overflow-hidden py-1">
           <motion.h1
             initial={{ y: 50, opacity: 0 }}
             animate={step >= 1 ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display text-3xl sm:text-4xl text-ivory tracking-[0.25em] uppercase font-medium"
+            className="font-display text-3xl sm:text-4xl text-ivory tracking-[0.18em] uppercase font-medium leading-none"
           >
-            OLIVE
+            Olive®
           </motion.h1>
         </div>
 
-        <div className="overflow-hidden py-0.5 h-6">
+        <div className="overflow-hidden py-0.5">
           <motion.p
             initial={{ y: 20, opacity: 0 }}
             animate={step >= 1 ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="font-sans text-[10px] sm:text-xs text-gold tracking-[0.3em] uppercase font-semibold"
+            className="font-sans text-[11px] sm:text-xs text-gold tracking-[0.25em] uppercase font-semibold mt-1"
           >
-            LAW FIRM
+            Law Firm®
           </motion.p>
         </div>
 

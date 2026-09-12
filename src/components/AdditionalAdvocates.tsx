@@ -2,6 +2,7 @@ import React from "react";
 import { Award, Briefcase, GraduationCap, MapPin, Shield } from "lucide-react";
 import { motion } from "motion/react";
 import { useTeamProfiles } from "../hooks/useTeamProfiles";
+import SectionHeaderReveal from "./SectionHeaderReveal";
 
 export default function AdditionalAdvocates() {
   const { advocates } = useTeamProfiles();
@@ -12,23 +13,15 @@ export default function AdditionalAdvocates() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="w-8 h-px bg-gold" />
-            <span className="font-sans text-xs sm:text-sm text-gold font-bold tracking-[0.2em] uppercase">
-              Our Advocates
-            </span>
-            <span className="w-8 h-px bg-gold" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-serif font-bold text-forest tracking-tight">
-            Additional Legal Advisors
-          </h2>
-          <div className="mt-4 h-[1px] w-12 bg-gold mx-auto" />
-          <p className="font-sans text-sm text-charcoal/70 mt-3 font-light">
-            Our firm is strengthened by highly qualified associates stationed across major judicial hubs in Karnataka, ensuring continuous advocacy from trial courts to appellate benches.
-          </p>
-        </div>
+        {/* Reveal-on-Scroll Section Header */}
+        <SectionHeaderReveal
+          eyebrow="Our Advocates"
+          title="Additional Legal Advisors"
+          subtitle="Our firm is strengthened by highly qualified associates stationed across major judicial hubs in Karnataka, ensuring continuous advocacy from trial courts to appellate benches."
+          alignment="center"
+          maxWidth="max-w-2xl"
+          className="mb-12"
+        />
 
         {/* Advocates Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

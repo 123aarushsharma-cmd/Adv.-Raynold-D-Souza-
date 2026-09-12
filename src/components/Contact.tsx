@@ -5,6 +5,7 @@ import { submitConsultation } from "../lib/firebase";
 import { createConsultationMailtoUrl, sendDirectEmailCopy } from "../lib/email";
 import { sanitizeInput, isValidSecureEmail, isValidSecurePhone, checkRateLimit, isHoneypotTriggered } from "../lib/security";
 import { useFirmSettings } from "../hooks/useFirmSettings";
+import SectionHeaderReveal from "./SectionHeaderReveal";
 
 interface OfficeLocation {
   id: "bengaluru" | "dharwad" | "belagavi";
@@ -307,28 +308,20 @@ export default function Contact() {
   };
 
   return (
-    <section className="py-14 md:py-16 bg-ivory relative">
+    <section id="contact" className="py-14 md:py-16 bg-ivory relative">
       <div className="absolute inset-0 opacity-5 pointer-events-none motif-bg" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Title */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className="w-8 h-px bg-gold" />
-            <span className="font-sans text-xs sm:text-sm text-gold font-bold tracking-[0.2em] uppercase">
-              Client Intake
-            </span>
-            <span className="w-8 h-px bg-gold" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-forest tracking-tight">
-            Initiate a Case Consultation
-          </h2>
-          <div className="mt-6 h-[1px] w-12 bg-gold mx-auto" />
-          <p className="font-sans text-sm sm:text-base text-charcoal/70 mt-4 font-light">
-            Contact our dedicated admissions desk. We review every query with absolute confidentiality and respond within one statutory business day.
-          </p>
-        </div>
+        {/* Reveal-on-Scroll Section Title */}
+        <SectionHeaderReveal
+          eyebrow="Client Intake"
+          title="Initiate a Case Consultation"
+          subtitle="Contact our dedicated admissions desk. We review every query with absolute confidentiality and respond within one statutory business day."
+          alignment="center"
+          maxWidth="max-w-2xl"
+          className="mb-10"
+        />
 
         {/* Content Split Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch">
