@@ -1,58 +1,130 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Shield, Scale, FileText, CheckCircle2 } from "lucide-react";
+import { X, Shield, Scale, CheckCircle2 } from "lucide-react";
 
 interface LegalModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+function useModalAccessibility(isOpen: boolean, onClose: () => void) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+
+      const timer = setTimeout(() => {
+        const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        firstFocusable?.focus();
+      }, 50);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          onClose();
+          return;
+        }
+
+        if (e.key === "Tab" && modalRef.current) {
+          const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusable.length === 0) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener("keydown", handleKeyDown);
+        triggerRef.current?.focus();
+      };
+    }
+  }, [isOpen, onClose]);
+
+  return modalRef;
+}
+
 export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
+  const modalRef = useModalAccessibility(isOpen, onClose);
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="presentation"
+        >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            aria-hidden="true"
             className="absolute inset-0 bg-forest/80 backdrop-blur-md"
           />
 
           {/* Modal Container */}
           <motion.div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="privacy-policy-title"
+            aria-describedby="privacy-policy-desc"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-full max-w-3xl max-h-[85vh] bg-ivory rounded-sm shadow-2xl border border-gold/35 flex flex-col z-10 overflow-hidden"
+            className="relative w-full max-w-3xl max-h-[85vh] bg-ivory rounded-sm shadow-2xl border border-gold/35 flex flex-col z-10 overflow-hidden focus:outline-none"
           >
             {/* Header */}
             <div className="bg-forest px-6 py-5 border-b border-gold/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-sm bg-gold/15 flex items-center justify-center text-gold border border-gold/20">
+                <div className="w-10 h-10 rounded-sm bg-gold/15 flex items-center justify-center text-gold border border-gold/20" aria-hidden="true">
                   <Shield size={20} />
                 </div>
                 <div>
-                  <h2 className="font-serif text-xl font-bold text-ivory">Global Privacy Policy & Data Protection Charter</h2>
-                  <p className="text-[10px] uppercase tracking-widest text-gold/80 font-bold font-sans">
+                  <h2 id="privacy-policy-title" className="font-serif text-xl font-bold text-ivory">Global Privacy Policy & Data Protection Charter</h2>
+                  <p id="privacy-policy-desc" className="text-[10px] uppercase tracking-widest text-gold/80 font-bold font-sans">
                     DPDPA 2023 • GDPR (EU/UK) • CCPA/CPRA (US) • PIPEDA • APPs COMPLIANT
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-sm bg-gold/10 hover:bg-gold/20 text-gold flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Close modal"
+                className="w-8 h-8 rounded-sm bg-gold/10 hover:bg-gold/20 text-gold flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
+                aria-label="Close Privacy Policy dialog"
               >
-                <X size={18} />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 font-sans text-sm text-charcoal/85 space-y-6 leading-relaxed select-text scrollbar-thin scrollbar-thumb-gold/30">
+            <div 
+              tabIndex={0} 
+              aria-label="Privacy Policy details scroll area"
+              className="flex-1 overflow-y-auto px-6 py-6 font-sans text-sm text-charcoal/85 space-y-6 leading-relaxed select-text scrollbar-thin scrollbar-thumb-gold/30 focus:outline-none focus-visible:ring-1 focus-visible:ring-gold/50"
+            >
               <div className="bg-sage/10 border-l-4 border-gold p-4 rounded-sm">
                 <p className="font-serif font-semibold text-forest text-sm">
                   Last Updated: September 2026 • Multi-Jurisdictional Privacy Standard
@@ -140,7 +212,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
                 <div className="bg-sage/10 p-3 rounded-sm border border-forest/10 mt-3 text-xs space-y-1">
                   <p className="font-semibold text-forest">Data Protection Officer & Privacy Compliance Desk:</p>
                   <p><strong>Olive Law Firm</strong> • Bengaluru, Karnataka, India</p>
-                  <p>Official Statutory Privacy Inquiries: <a href="mailto:admin@olivelawfirm.in" className="text-gold font-bold underline hover:text-gold/80">admin@olivelawfirm.in</a></p>
+                  <p>Official Statutory Privacy Inquiries: <a href="mailto:admin@olivelawfirm.in" className="text-gold font-bold underline hover:text-gold/80 focus-visible:ring-1 focus-visible:ring-gold rounded">admin@olivelawfirm.in</a></p>
                 </div>
               </section>
             </div>
@@ -149,7 +221,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
             <div className="bg-sage px-6 py-4 border-t border-forest/10 flex justify-end">
               <button
                 onClick={onClose}
-                className="btn-gold px-6 py-2 rounded-sm font-bold text-xs uppercase tracking-wider shadow-md hover:brightness-110 active:scale-95 transition-all duration-200"
+                className="btn-gold px-6 py-2 rounded-sm font-bold text-xs uppercase tracking-wider shadow-md hover:brightness-110 active:scale-95 transition-all duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
               >
                 Acknowledge
               </button>
@@ -162,57 +234,72 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
 }
 
 export function TermsOfServiceModal({ isOpen, onClose }: LegalModalProps) {
+  const modalRef = useModalAccessibility(isOpen, onClose);
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="presentation"
+        >
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            aria-hidden="true"
             className="absolute inset-0 bg-forest/80 backdrop-blur-md"
           />
 
           {/* Modal Container */}
           <motion.div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="terms-modal-title"
+            aria-describedby="terms-modal-desc"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-full max-w-3xl max-h-[85vh] bg-ivory rounded-sm shadow-2xl border border-gold/35 flex flex-col z-10 overflow-hidden"
+            className="relative w-full max-w-3xl max-h-[85vh] bg-ivory rounded-sm shadow-2xl border border-gold/35 flex flex-col z-10 overflow-hidden focus:outline-none"
           >
             {/* Header */}
             <div className="bg-forest px-6 py-5 border-b border-gold/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-sm bg-gold/15 flex items-center justify-center text-gold border border-gold/20">
+                <div className="w-10 h-10 rounded-sm bg-gold/15 flex items-center justify-center text-gold border border-gold/20" aria-hidden="true">
                   <Scale size={20} />
                 </div>
                 <div>
-                  <h2 className="font-serif text-xl font-bold text-ivory">Terms of Service</h2>
-                  <p className="text-[10px] uppercase tracking-widest text-gold/80 font-bold font-sans">
+                  <h2 id="terms-modal-title" className="font-serif text-xl font-bold text-ivory">Terms of Service</h2>
+                  <p id="terms-modal-desc" className="text-[10px] uppercase tracking-widest text-gold/80 font-bold font-sans">
                     BAR COUNCIL OF INDIA COMPLIANT DISCLAIMER
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-sm bg-gold/10 hover:bg-gold/20 text-gold flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Close modal"
+                className="w-8 h-8 rounded-sm bg-gold/10 hover:bg-gold/20 text-gold flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
+                aria-label="Close Terms of Service dialog"
               >
-                <X size={18} />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 font-sans text-sm text-charcoal/85 space-y-6 leading-relaxed select-text scrollbar-thin scrollbar-thumb-gold/30">
+            <div 
+              tabIndex={0} 
+              aria-label="Terms of Service details scroll area"
+              className="flex-1 overflow-y-auto px-6 py-6 font-sans text-sm text-charcoal/85 space-y-6 leading-relaxed select-text scrollbar-thin scrollbar-thumb-gold/30 focus:outline-none focus-visible:ring-1 focus-visible:ring-gold/50"
+            >
               <div className="bg-gold/5 border-l-4 border-gold p-4 rounded-sm">
-                <h4 className="font-serif font-bold text-forest text-sm">
+                <h3 className="font-serif font-bold text-forest text-sm">
                   CRITICAL MANDATORY ACKNOWLEDGMENT
-                </h4>
+                </h3>
                 <p className="text-xs text-charcoal/80 mt-1.5 font-light">
-                  Rule 36 of Chapter II, Part VI of the **Bar Council of India Rules** restricts advocates from advertising or soliciting clients. Please review this declaration carefully to proceed.
+                  Rule 36 of Chapter II, Part VI of the <strong>Bar Council of India Rules</strong> restricts advocates from advertising or soliciting clients. Please review this declaration carefully to proceed.
                 </p>
               </div>
 
@@ -238,7 +325,7 @@ export function TermsOfServiceModal({ isOpen, onClose }: LegalModalProps) {
                   2. No Attorney-Client Relationship Created
                 </h3>
                 <p className="font-light text-xs sm:text-sm">
-                  Your transmission of data via our case scheduler, callbacks, or e-mail inboxes does **not** institute a formal attorney-client relationship or represent legal retainer contract initiation. Olive Law Firm is under no statutory obligation to assume case representation until a formal professional engagement agreement is signed by Advocate Reynold D'Souza and appropriate retainer deposits are filed.
+                  Your transmission of data via our case scheduler, callbacks, or e-mail inboxes does <strong>not</strong> institute a formal attorney-client relationship or represent legal retainer contract initiation. Olive Law Firm is under no statutory obligation to assume case representation until a formal professional engagement agreement is signed by Advocate Reynold D'Souza and appropriate retainer deposits are filed.
                 </p>
               </section>
 
@@ -268,7 +355,7 @@ export function TermsOfServiceModal({ isOpen, onClose }: LegalModalProps) {
                   5. Jurisdiction & Choice of Law
                 </h3>
                 <p className="font-light text-xs sm:text-sm">
-                  These Terms of Service shall be interpreted and governed exclusively in accordance with the Laws of the Republic of India. Any legal actions, proceedings, or arbitration arising from the use of this website, information processing, or consultations must be instituted solely in courts holding competent territory jurisdiction in **Bengaluru, Karnataka, India**.
+                  These Terms of Service shall be interpreted and governed exclusively in accordance with the Laws of the Republic of India. Any legal actions, proceedings, or arbitration arising from the use of this website, information processing, or consultations must be instituted solely in courts holding competent territory jurisdiction in <strong>Bengaluru, Karnataka, India</strong>.
                 </p>
               </section>
             </div>
@@ -277,7 +364,7 @@ export function TermsOfServiceModal({ isOpen, onClose }: LegalModalProps) {
             <div className="bg-sage px-6 py-4 border-t border-forest/10 flex justify-end">
               <button
                 onClick={onClose}
-                className="btn-gold px-6 py-2 rounded-sm font-bold text-xs uppercase tracking-wider shadow-md hover:brightness-110 active:scale-95 transition-all duration-200"
+                className="btn-gold px-6 py-2 rounded-sm font-bold text-xs uppercase tracking-wider shadow-md hover:brightness-110 active:scale-95 transition-all duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
               >
                 I Agree & Accept
               </button>

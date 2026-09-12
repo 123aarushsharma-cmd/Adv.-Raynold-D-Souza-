@@ -52,6 +52,8 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
     <AnimatePresence>
       {isVisible && (
         <motion.div
+          role="region"
+          aria-label="Cookie and Privacy Compliance Banner"
           initial={{ y: 120, opacity: 0, scale: 0.95 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 120, opacity: 0, scale: 0.95 }}
@@ -62,7 +64,7 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
           {/* Header */}
           <div className="flex items-start justify-between gap-3 border-b border-gold/15 pb-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-sm bg-gold/15 flex items-center justify-center text-gold border border-gold/25 shrink-0">
+              <div className="w-9 h-9 rounded-sm bg-gold/15 flex items-center justify-center text-gold border border-gold/25 shrink-0" aria-hidden="true">
                 <ShieldCheck size={18} className="animate-pulse" />
               </div>
               <div>
@@ -76,30 +78,32 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
             </div>
             <button
               onClick={handleAcceptNecessary}
-              className="text-ivory/45 hover:text-gold transition-colors p-1 rounded-sm hover:bg-white/5 cursor-pointer"
-              aria-label="Close consent banner"
+              className="text-ivory/45 hover:text-gold transition-colors p-1 rounded-sm hover:bg-white/5 cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
+              aria-label="Close consent banner and accept essential only"
             >
-              <X size={15} />
+              <X size={15} aria-hidden="true" />
             </button>
           </div>
 
           {/* Core Legal Declaration */}
-          <div className="space-y-3">
+          <div className="space-y-3" id="cookie-consent-desc">
             <p className="font-sans text-xs text-ivory/80 leading-relaxed font-light">
-              Pursuant to India's **Digital Personal Data Protection Act (DPDPA), 2023** and **IT Rules, 2011**, this portal utilizes security certificates, critical session tokens, and telemetry logs. We guarantee absolute confidentiality under professional attorney-client privilege.
+              Pursuant to India's <strong>Digital Personal Data Protection Act (DPDPA), 2023</strong> and <strong>IT Rules, 2011</strong>, this portal utilizes security certificates, critical session tokens, and telemetry logs. We guarantee absolute confidentiality under professional attorney-client privilege.
             </p>
             <p className="font-sans text-[11px] text-gold/80 font-light">
               Review our verified{" "}
               <button
+                type="button"
                 onClick={onOpenPrivacy}
-                className="text-gold font-bold underline hover:text-white transition-colors cursor-pointer"
+                className="text-gold font-bold underline hover:text-white transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-gold rounded"
               >
                 Privacy Policy
               </button>{" "}
               and{" "}
               <button
+                type="button"
                 onClick={onOpenTerms}
-                className="text-gold font-bold underline hover:text-white transition-colors cursor-pointer"
+                className="text-gold font-bold underline hover:text-white transition-colors cursor-pointer focus-visible:ring-1 focus-visible:ring-gold rounded"
               >
                 Terms of Service
               </button>
@@ -111,6 +115,9 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
           <AnimatePresence>
             {showPreferences && (
               <motion.div
+                id="cookie-preferences-panel"
+                role="region"
+                aria-label="Cookie preferences panel"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
@@ -132,7 +139,7 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
                       Maintains intake security sessions, prevents CSRF forgery, and stores your privacy options.
                     </p>
                   </div>
-                  <div className="w-8 h-4 bg-gold/25 rounded-full flex items-center justify-end px-0.5 opacity-80 mt-1 cursor-not-allowed">
+                  <div className="w-8 h-4 bg-gold/25 rounded-full flex items-center justify-end px-0.5 opacity-80 mt-1 cursor-not-allowed" aria-label="Always active" role="switch" aria-checked="true" aria-disabled="true">
                     <div className="w-3 h-3 bg-gold rounded-full" />
                   </div>
                 </div>
@@ -146,8 +153,12 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
                     </p>
                   </div>
                   <button
+                    type="button"
+                    role="switch"
+                    aria-checked={analyticsEnabled}
+                    aria-label="Enable inbound traffic and diagnostic logs"
                     onClick={() => setAnalyticsEnabled(!analyticsEnabled)}
-                    className={`w-8 h-4 rounded-full flex items-center transition-colors duration-200 mt-1 cursor-pointer p-0.5 ${
+                    className={`w-8 h-4 rounded-full flex items-center transition-colors duration-200 mt-1 cursor-pointer p-0.5 focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
                       analyticsEnabled ? "bg-gold" : "bg-white/20"
                     }`}
                   >
@@ -169,8 +180,12 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
                     </p>
                   </div>
                   <button
+                    type="button"
+                    role="switch"
+                    aria-checked={draftVaultEnabled}
+                    aria-label="Enable case-intake auto-save drafts"
                     onClick={() => setDraftVaultEnabled(!draftVaultEnabled)}
-                    className={`w-8 h-4 rounded-full flex items-center transition-colors duration-200 mt-1 cursor-pointer p-0.5 ${
+                    className={`w-8 h-4 rounded-full flex items-center transition-colors duration-200 mt-1 cursor-pointer p-0.5 focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
                       draftVaultEnabled ? "bg-gold" : "bg-white/20"
                     }`}
                   >
@@ -191,18 +206,22 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
             <div className="flex items-center justify-between gap-2.5">
               {/* Show/Hide Toggles */}
               <button
+                type="button"
+                aria-expanded={showPreferences}
+                aria-controls="cookie-preferences-panel"
                 onClick={() => setShowPreferences(!showPreferences)}
-                className="text-[11px] font-semibold text-gold hover:text-ivory uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer bg-transparent border-0 py-2 px-1"
+                className="text-[11px] font-semibold text-gold hover:text-ivory uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer bg-transparent border-0 py-2 px-1 focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none rounded"
               >
-                <Settings size={12} className={showPreferences ? "rotate-90 transition-transform duration-300" : "transition-transform duration-300"} />
+                <Settings size={12} className={showPreferences ? "rotate-90 transition-transform duration-300" : "transition-transform duration-300"} aria-hidden="true" />
                 <span>{showPreferences ? "Hide Toggles" : "Customize Protocols"}</span>
               </button>
 
               {/* Accept Necessary button */}
               {!showPreferences && (
                 <button
+                  type="button"
                   onClick={handleAcceptNecessary}
-                  className="text-[10px] text-ivory/70 hover:text-white uppercase tracking-wider transition-colors cursor-pointer py-2 px-3 border border-white/10 hover:border-white/30 rounded-sm hover:bg-white/5 font-medium"
+                  className="text-[10px] text-ivory/70 hover:text-white uppercase tracking-wider transition-colors cursor-pointer py-2 px-3 border border-white/10 hover:border-white/30 rounded-sm hover:bg-white/5 font-medium focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
                 >
                   Essential Only
                 </button>
@@ -213,26 +232,29 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
             {showPreferences ? (
               <div className="grid grid-cols-2 gap-2 mt-1">
                 <button
+                  type="button"
                   onClick={handleAcceptNecessary}
-                  className="border border-gold/20 hover:border-gold/40 text-ivory font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-sm bg-forest-light/20 transition-all duration-200 active:scale-95 hover:bg-gold/5 cursor-pointer"
+                  className="border border-gold/20 hover:border-gold/40 text-ivory font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-sm bg-forest-light/20 transition-all duration-200 active:scale-95 hover:bg-gold/5 cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
                 >
                   Essential Only
                 </button>
                 <button
+                  type="button"
                   onClick={handleSavePreferences}
-                  className="btn-gold font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-sm shadow-md transition-all duration-200 active:scale-95 hover:brightness-110 flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="btn-gold font-bold text-[10px] uppercase tracking-wider py-2.5 rounded-sm shadow-md transition-all duration-200 active:scale-95 hover:brightness-110 flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
                 >
-                  <Check size={11} className="text-forest" />
+                  <Check size={11} className="text-forest" aria-hidden="true" />
                   <span>Save Settings</span>
                 </button>
               </div>
             ) : (
               <button
+                type="button"
                 onClick={handleAcceptAll}
-                className="btn-gold font-bold text-[10px] uppercase tracking-wider py-3 rounded-sm shadow-md transition-all duration-200 active:scale-[0.98] hover:brightness-110 flex items-center justify-center gap-1.5 w-full cursor-pointer"
+                className="btn-gold font-bold text-[10px] uppercase tracking-wider py-3 rounded-sm shadow-md transition-all duration-200 active:scale-[0.98] hover:brightness-110 flex items-center justify-center gap-1.5 w-full cursor-pointer focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
               >
                 <span>Accept & Acknowledge All</span>
-                <ChevronRight size={12} className="text-forest stroke-[3]" />
+                <ChevronRight size={12} className="text-forest stroke-[3]" aria-hidden="true" />
               </button>
             )}
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Gavel,
@@ -192,6 +192,8 @@ export default function PracticeAreas() {
   const [selectedArea, setSelectedArea] = useState<PracticeArea | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const modalRef = useRef<HTMLDivElement>(null);
+  const lastFocusedTriggerRef = useRef<HTMLElement | null>(null);
 
   const filterCategories = [
     { id: "all", label: "All Specializations" },
@@ -201,6 +203,53 @@ export default function PracticeAreas() {
     { id: "consumer", label: "Consumer Protection" },
     { id: "tribunals", label: "Tribunals & ADR" },
   ];
+
+  // Focus trap & Escape key listener for the practice area modal
+  useEffect(() => {
+    if (selectedArea) {
+      const timer = setTimeout(() => {
+        const closeBtn = modalRef.current?.querySelector<HTMLElement>("#close-practice-modal");
+        closeBtn?.focus();
+      }, 50);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          setSelectedArea(null);
+          return;
+        }
+
+        if (e.key === "Tab" && modalRef.current) {
+          const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusable.length === 0) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener("keydown", handleKeyDown);
+        lastFocusedTriggerRef.current?.focus();
+      };
+    }
+  }, [selectedArea]);
 
   const filteredAreas = practiceData.filter((area) => {
     const query = searchQuery.toLowerCase().trim();
@@ -468,14 +517,36 @@ export default function PracticeAreas() {
           </form>
 
           {/* Category Filter Pills */}
-          <div className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto" aria-label="Filter practice areas">
-            {filterCategories.map((cat) => {
+          <div 
+            className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto" 
+            role="tablist" 
+            aria-label="Filter practice areas by category"
+          >
+            {filterCategories.map((cat, cIdx) => {
               const isActive = activeFilter === cat.id;
               return (
                 <button
                   key={cat.id}
+                  id={`practice-tab-${cat.id}`}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls="practice-areas-grid"
+                  tabIndex={isActive ? 0 : -1}
                   onClick={() => setActiveFilter(cat.id)}
-                  className={`px-4 py-2 rounded-full text-xs font-sans font-semibold tracking-wider uppercase transition-all duration-300 border cursor-pointer ${
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowRight") {
+                      e.preventDefault();
+                      const next = filterCategories[(cIdx + 1) % filterCategories.length];
+                      setActiveFilter(next.id);
+                      document.getElementById(`practice-tab-${next.id}`)?.focus();
+                    } else if (e.key === "ArrowLeft") {
+                      e.preventDefault();
+                      const prev = filterCategories[(cIdx - 1 + filterCategories.length) % filterCategories.length];
+                      setActiveFilter(prev.id);
+                      document.getElementById(`practice-tab-${prev.id}`)?.focus();
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-full text-xs font-sans font-semibold tracking-wider uppercase transition-all duration-300 border cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
                     isActive
                       ? "bg-forest border-forest text-gold shadow-md"
                       : "bg-sage-light/25 border-forest/10 text-forest/70 hover:bg-forest/10 hover:border-forest/25 hover:text-forest"
@@ -489,7 +560,7 @@ export default function PracticeAreas() {
         </div>
 
         {/* Practice Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 min-h-[300px]">
+        <div id="practice-areas-grid" role="region" aria-label="Practice areas cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 min-h-[300px]">
           <AnimatePresence mode="popLayout">
             {filteredAreas.map((area) => (
               <motion.article
@@ -517,7 +588,7 @@ export default function PracticeAreas() {
                 
                 <div className="relative z-10">
                   {/* Icon Circle */}
-                  <div className="w-14 h-14 rounded-sm bg-forest text-gold flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-hover:bg-gold group-hover:text-forest">
+                  <div className="w-14 h-14 rounded-sm bg-forest text-gold flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-hover:bg-gold group-hover:text-forest" aria-hidden="true">
                     {area.icon}
                   </div>
                   
@@ -535,12 +606,16 @@ export default function PracticeAreas() {
                 {/* Action Button */}
                 <motion.button
                   id={`btn-learn-more-${area.id}`}
-                  onClick={() => setSelectedArea(area)}
+                  onClick={(e) => {
+                    lastFocusedTriggerRef.current = e.currentTarget;
+                    setSelectedArea(area);
+                  }}
+                  aria-label={`Learn more about ${area.title}`}
                   whileTap={{ scale: 0.97 }}
-                  className="relative z-10 font-sans text-xs sm:text-sm text-gold group-hover:text-forest font-semibold tracking-wider uppercase inline-flex items-center gap-2 group-hover:bg-gold/10 px-3 py-1.5 rounded-sm transition-all duration-300 w-fit cursor-pointer"
+                  className="relative z-10 font-sans text-xs sm:text-sm text-gold group-hover:text-forest font-semibold tracking-wider uppercase inline-flex items-center gap-2 group-hover:bg-gold/10 px-3 py-1.5 rounded-sm transition-all duration-300 w-fit cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
                 >
                   Learn More
-                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  <span className="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
                 </motion.button>
               </motion.article>
             ))}
@@ -554,7 +629,7 @@ export default function PracticeAreas() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-16 max-w-md mx-auto"
           >
-            <div className="w-12 h-12 bg-sage-light/30 text-gold/60 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 bg-sage-light/30 text-gold/60 rounded-full flex items-center justify-center mx-auto mb-4" aria-hidden="true">
               <Search className="w-6 h-6" />
             </div>
             <h3 className="font-serif font-bold text-lg text-forest">No practices found</h3>
@@ -566,7 +641,7 @@ export default function PracticeAreas() {
                 setSearchQuery("");
                 setActiveFilter("all");
               }}
-              className="mt-6 text-xs font-sans font-bold tracking-wider uppercase text-gold hover:text-gold/80 transition-colors underline cursor-pointer"
+              className="mt-6 text-xs font-sans font-bold tracking-wider uppercase text-gold hover:text-gold/80 transition-colors underline cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none rounded"
             >
               Reset Search & Filters
             </button>
@@ -581,32 +656,38 @@ export default function PracticeAreas() {
             id="practice-area-modal-overlay"
             className="fixed inset-0 bg-forest/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6"
             onClick={() => setSelectedArea(null)}
+            role="presentation"
           >
             <motion.div
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="practice-modal-title"
+              aria-describedby="practice-modal-desc"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className="bg-ivory border border-gold/40 shadow-2xl rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-ivory border border-gold/40 shadow-2xl rounded-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto focus:outline-none"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="bg-forest text-ivory px-6 py-5 sm:px-8 flex items-center justify-between border-b border-gold/30">
                 <div className="flex items-center gap-3">
-                  <div className="text-gold">
+                  <div className="text-gold" aria-hidden="true">
                     {selectedArea.icon}
                   </div>
-                  <h3 className="font-serif text-xl sm:text-2xl font-bold tracking-wide">
+                  <h3 id="practice-modal-title" className="font-serif text-xl sm:text-2xl font-bold tracking-wide">
                     {selectedArea.title}
                   </h3>
                 </div>
                 <button
                   id="close-practice-modal"
                   onClick={() => setSelectedArea(null)}
-                  className="text-ivory/80 hover:text-gold p-1.5 rounded-full hover:bg-ivory/10 transition-colors"
-                  aria-label="Close details"
+                  className="text-ivory/80 hover:text-gold p-1.5 rounded-full hover:bg-ivory/10 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
+                  aria-label={`Close ${selectedArea.title} details dialog`}
                 >
-                  <X size={20} />
+                  <X size={20} aria-hidden="true" />
                 </button>
               </div>
 
@@ -614,7 +695,7 @@ export default function PracticeAreas() {
               <div className="p-6 sm:p-8 space-y-6">
                 <div>
                   <h4 className="font-serif text-lg font-semibold text-forest mb-2">Practice Overview</h4>
-                  <p className="font-sans text-sm sm:text-base text-charcoal/80 leading-relaxed font-light">
+                  <p id="practice-modal-desc" className="font-sans text-sm sm:text-base text-charcoal/80 leading-relaxed font-light">
                     {selectedArea.longDesc}
                   </p>
                 </div>
@@ -625,7 +706,7 @@ export default function PracticeAreas() {
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {selectedArea.mattersCovered.map((matter, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm text-charcoal/90 font-light">
-                        <CheckCircle2 size={16} className="text-gold shrink-0 mt-0.5" />
+                        <CheckCircle2 size={16} className="text-gold shrink-0 mt-0.5" aria-hidden="true" />
                         <span>{matter}</span>
                       </li>
                     ))}
@@ -635,7 +716,7 @@ export default function PracticeAreas() {
                 {/* Representative case outcome */}
                 <div className="border border-gold/30 bg-sage-light p-5 rounded-sm">
                   <div className="flex items-center gap-2 text-forest mb-2">
-                    <TrendingUp size={18} />
+                    <TrendingUp size={18} aria-hidden="true" />
                     <h4 className="font-serif text-base font-bold">Representative Settlement Outcome</h4>
                   </div>
                   <p className="font-sans text-xs uppercase tracking-widest text-gold font-bold">
@@ -663,7 +744,7 @@ export default function PracticeAreas() {
                         }, 100);
                       }
                     }}
-                    className="bg-forest hover:bg-forest/95 text-gold font-sans font-semibold text-xs tracking-wider uppercase px-4 py-2.5 rounded-sm transition-colors border border-gold/30 shadow-sm"
+                    className="bg-forest hover:bg-forest/95 text-gold font-sans font-semibold text-xs tracking-wider uppercase px-4 py-2.5 rounded-sm transition-colors border border-gold/30 shadow-sm focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
                   >
                     Enquire on this Area
                   </a>

@@ -85,7 +85,7 @@ export default function FAQ() {
         </div>
 
         {/* Compact Accordion Group */}
-        <div className="space-y-2.5" id="faq-accordion-group">
+        <div className="space-y-2.5" id="faq-accordion-group" role="region" aria-label="Frequently Asked Questions list">
           {faqs.map((faq, idx) => {
             const isOpen = openIdx === idx;
             const Icon = faq.icon;
@@ -102,14 +102,31 @@ export default function FAQ() {
                 <button
                   id={`faq-btn-${idx}`}
                   onClick={() => toggleFAQ(idx)}
-                  className="w-full flex items-center justify-between p-3.5 sm:p-4 text-left transition-colors focus:outline-none cursor-pointer group"
+                  onKeyDown={(e) => {
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      const nextBtn = document.getElementById(`faq-btn-${(idx + 1) % faqs.length}`);
+                      nextBtn?.focus();
+                    } else if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      const prevBtn = document.getElementById(`faq-btn-${(idx - 1 + faqs.length) % faqs.length}`);
+                      prevBtn?.focus();
+                    } else if (e.key === "Home") {
+                      e.preventDefault();
+                      document.getElementById("faq-btn-0")?.focus();
+                    } else if (e.key === "End") {
+                      e.preventDefault();
+                      document.getElementById(`faq-btn-${faqs.length - 1}`)?.focus();
+                    }
+                  }}
+                  className="w-full flex items-center justify-between p-3.5 sm:p-4 text-left transition-colors cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
                   aria-expanded={isOpen}
                   aria-controls={`faq-panel-${idx}`}
                 >
                   <div className="flex items-center gap-3 pr-2 min-w-0">
                     <div className={`w-7 h-7 rounded-sm flex items-center justify-center shrink-0 transition-colors ${
                       isOpen ? "bg-gold text-forest" : "bg-forest/5 text-forest/70 group-hover:bg-gold/20 group-hover:text-gold"
-                    }`}>
+                    }`} aria-hidden="true">
                       <Icon size={15} />
                     </div>
                     <div>
@@ -126,7 +143,7 @@ export default function FAQ() {
 
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 ${
                     isOpen ? "bg-forest text-gold rotate-180" : "text-charcoal/40 group-hover:text-forest"
-                  }`}>
+                  }`} aria-hidden="true">
                     <ChevronDown size={14} />
                   </div>
                 </button>
@@ -135,6 +152,8 @@ export default function FAQ() {
                   {isOpen && (
                     <motion.div
                       id={`faq-panel-${idx}`}
+                      role="region"
+                      aria-labelledby={`faq-btn-${idx}`}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -153,7 +172,7 @@ export default function FAQ() {
                                 key={hIdx}
                                 className="inline-flex items-center text-[11px] font-sans font-medium text-forest/85 bg-white border border-gold/20 rounded px-2 py-0.5"
                               >
-                                <span className="w-1 h-1 rounded-full bg-gold mr-1.5 shrink-0" />
+                                <span className="w-1 h-1 rounded-full bg-gold mr-1.5 shrink-0" aria-hidden="true" />
                                 {item}
                               </span>
                             ))}
@@ -171,10 +190,10 @@ export default function FAQ() {
         {/* Compact 1-line Help Note (Short, clean, doesn't inflate page height) */}
         <div className="mt-5 p-3 rounded-sm bg-forest/5 border border-forest/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center gap-2">
-            <HelpCircle size={15} className="text-gold shrink-0 hidden sm:block" />
+            <HelpCircle size={15} className="text-gold shrink-0 hidden sm:block" aria-hidden="true" />
             <p className="font-sans text-xs text-charcoal/80">
               Have a specific question about your matter? Reach our team directly at{" "}
-              <a href="tel:+919740577775" className="text-forest font-semibold underline decoration-gold hover:text-gold transition-colors">
+              <a href="tel:+919740577775" className="text-forest font-semibold underline decoration-gold hover:text-gold transition-colors focus-visible:ring-1 focus-visible:ring-gold rounded">
                 +91 97405 77775
               </a>
               {" "}or schedule an intake review.
@@ -182,7 +201,7 @@ export default function FAQ() {
           </div>
           <a
             href="#contact"
-            className="text-[11px] font-sans font-bold tracking-wider uppercase bg-forest text-gold hover:bg-forest-light px-3.5 py-1.5 rounded-sm transition-colors shrink-0"
+            className="text-[11px] font-sans font-bold tracking-wider uppercase bg-forest text-gold hover:bg-forest-light px-3.5 py-1.5 rounded-sm transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
           >
             Initiate Consultation
           </a>

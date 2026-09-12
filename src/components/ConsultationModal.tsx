@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ShieldCheck, Mail, Phone, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, ShieldCheck, Mail, Phone, Send, CheckCircle2, AlertCircle, Shield } from "lucide-react";
 import { submitConsultation, auth } from "../lib/firebase";
 import { createConsultationMailtoUrl, sendDirectEmailCopy } from "../lib/email";
+import { sanitizeInput, isValidSecureEmail, isValidSecurePhone, checkRateLimit, isHoneypotTriggered } from "../lib/security";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -34,6 +35,58 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
     message: "",
   });
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const triggerElementRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Focus trap & Escape key listener
+  useEffect(() => {
+    if (isOpen) {
+      triggerElementRef.current = document.activeElement as HTMLElement;
+
+      const timer = setTimeout(() => {
+        closeButtonRef.current?.focus();
+      }, 50);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          onClose();
+          return;
+        }
+
+        if (e.key === "Tab" && modalRef.current) {
+          const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          if (focusable.length === 0) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener("keydown", handleKeyDown);
+        triggerElementRef.current?.focus();
+      };
+    }
+  }, [isOpen, onClose]);
+
   useEffect(() => {
     if (isOpen && auth.currentUser) {
       setFields((prev) => ({
@@ -48,6 +101,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [botTrap, setBotTrap] = useState(""); // Invisible bot trap
 
   const validate = (): boolean => {
     const tempErrors: FormErrors = {};
@@ -56,12 +110,15 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
     if (!fields.name.trim()) {
       tempErrors.name = "Full name is required";
       isValid = false;
+    } else if (fields.name.trim().length < 3) {
+      tempErrors.name = "Full name must be at least 3 characters";
+      isValid = false;
     }
 
     if (!fields.email.trim()) {
       tempErrors.email = "Email address is required";
       isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) {
+    } else if (!isValidSecureEmail(fields.email)) {
       tempErrors.email = "Please enter a valid email address";
       isValid = false;
     }
@@ -69,8 +126,8 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
     if (!fields.phone.trim()) {
       tempErrors.phone = "Phone number is required";
       isValid = false;
-    } else if (!/^\+?[0-9\s\-()]{7,15}$/.test(fields.phone)) {
-      tempErrors.phone = "Please enter a valid telephone number";
+    } else if (!isValidSecurePhone(fields.phone)) {
+      tempErrors.phone = "Please enter a valid telephone number (7-15 digits)";
       isValid = false;
     }
 
@@ -104,24 +161,46 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
+
+    // 1. Silent Honeypot Detection (Bot Trap)
+    if (isHoneypotTriggered(botTrap)) {
+      setIsSuccess(true);
+      return;
+    }
+
+    // 2. Token Bucket Rate Limiting
+    const rateCheck = checkRateLimit("modal_consultation", 4000);
+    if (!rateCheck.allowed) {
+      setSubmitError(`Rate Limiter Active: Please wait ${rateCheck.remainingSec}s before submitting again.`);
+      return;
+    }
+
     if (validate()) {
       setIsSubmitting(true);
+
+      // 3. Defense-in-Depth Sanitization
+      const cleanName = sanitizeInput(fields.name, 200);
+      const cleanEmail = sanitizeInput(fields.email, 200);
+      const cleanPhone = sanitizeInput(fields.phone, 50);
+      const cleanSubject = sanitizeInput(fields.subject, 100);
+      const cleanMessage = sanitizeInput(fields.message, 5000);
+
       const mailUrl = createConsultationMailtoUrl({
-        name: fields.name,
-        email: fields.email,
-        phone: fields.phone,
-        subject: fields.subject,
-        message: fields.message
+        name: cleanName,
+        email: cleanEmail,
+        phone: cleanPhone,
+        subject: cleanSubject,
+        message: cleanMessage
       });
       setLastMailtoUrl(mailUrl);
 
       try {
         await submitConsultation({
-          name: fields.name,
-          email: fields.email,
-          phone: fields.phone,
-          practiceArea: fields.subject,
-          message: fields.message
+          name: cleanName,
+          email: cleanEmail,
+          phone: cleanPhone,
+          practiceArea: cleanSubject,
+          message: cleanMessage
         });
         setIsSubmitting(false);
         setIsSuccess(true);
@@ -144,44 +223,54 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="presentation"
+        >
           {/* Overlay Background */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            aria-hidden="true"
             className="absolute inset-0 bg-forest/80 backdrop-blur-sm"
           />
 
           {/* Modal Container */}
           <motion.div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="consultation-modal-title"
+            aria-describedby="consultation-modal-desc"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 350 }}
-            className="relative bg-ivory border border-gold/40 shadow-2xl rounded-sm max-w-xl w-full max-h-[90vh] overflow-y-auto z-10"
+            className="relative bg-ivory border border-gold/40 shadow-2xl rounded-sm max-w-xl w-full max-h-[90vh] overflow-y-auto z-10 focus:outline-none"
           >
             {/* Header */}
             <div className="bg-forest text-ivory px-6 py-5 flex items-center justify-between border-b border-gold/30">
               <div className="flex items-center gap-2.5">
-                <ShieldCheck className="text-gold" size={24} />
+                <ShieldCheck className="text-gold shrink-0" size={24} aria-hidden="true" />
                 <div>
-                  <h3 className="font-serif text-lg sm:text-xl font-bold tracking-wide">
+                  <h2 id="consultation-modal-title" className="font-serif text-lg sm:text-xl font-bold tracking-wide">
                     Privilege-Secured Consultation
-                  </h3>
-                  <p className="font-sans text-[10px] text-gold uppercase tracking-wider font-semibold">
+                  </h2>
+                  <p id="consultation-modal-desc" className="font-sans text-[10px] text-gold uppercase tracking-wider font-semibold">
                     Attorney-Client Privilege Intake
                   </p>
                 </div>
               </div>
               <button
+                ref={closeButtonRef}
                 id="close-consultation-modal"
                 onClick={onClose}
-                className="text-ivory/80 hover:text-gold p-1.5 rounded-full hover:bg-ivory/10 transition-colors"
-                aria-label="Close form"
+                className="text-ivory/80 hover:text-gold p-1.5 rounded-full hover:bg-ivory/10 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
+                aria-label="Close consultation modal dialog"
               >
-                <X size={20} />
+                <X size={20} aria-hidden="true" />
               </button>
             </div>
 
@@ -261,7 +350,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                           setIsSuccess(false);
                           onClose();
                         }}
-                        className="w-full bg-gold hover:bg-gold-hover text-forest font-sans font-semibold text-xs tracking-wider uppercase px-4 py-3 rounded-sm transition-all shadow-sm cursor-pointer"
+                        className="w-full bg-gold hover:bg-gold-hover text-forest font-sans font-semibold text-xs tracking-wider uppercase px-4 py-3 rounded-sm transition-all shadow-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
                       >
                         Close Intake Form
                       </button>
@@ -277,10 +366,14 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                     id="modal-intake-form"
                     onSubmit={handleSubmit}
                     className="space-y-5"
+                    noValidate
                   >
                     {submitError && (
-                      <div className="bg-red-50 border border-red-200 text-red-800 text-xs sm:text-sm rounded-sm p-4 flex items-start gap-3 transition-all duration-300">
-                        <AlertCircle className="text-red-600 shrink-0 mt-0.5" size={18} />
+                      <div 
+                        role="alert" 
+                        className="bg-red-50 border border-red-200 text-red-800 text-xs sm:text-sm rounded-sm p-4 flex items-start gap-3 transition-all duration-300"
+                      >
+                        <AlertCircle className="text-red-600 shrink-0 mt-0.5" size={18} aria-hidden="true" />
                         <div>
                           <span className="font-semibold font-sans text-red-950 block">Submission Error</span>
                           <p className="mt-1 font-light">{submitError}</p>
@@ -288,10 +381,24 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                       </div>
                     )}
 
+                    {/* Invisible Honeypot Anti-Bot Field */}
+                    <div className="hidden" aria-hidden="true">
+                      <label htmlFor="modal_bot_fax_trap">Leave empty</label>
+                      <input
+                        type="text"
+                        id="modal_bot_fax_trap"
+                        name="modal_bot_fax_trap"
+                        value={botTrap}
+                        onChange={(e) => setBotTrap(e.target.value)}
+                        tabIndex={-1}
+                        autoComplete="off"
+                      />
+                    </div>
+
                     {/* Name Input */}
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="modal-name" className="font-sans text-xs font-semibold uppercase text-forest tracking-wider">
-                        Full Name *
+                        Full Name <span aria-hidden="true">*</span>
                       </label>
                       <input
                         type="text"
@@ -299,14 +406,18 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                         name="name"
                         value={fields.name}
                         onChange={handleInputChange}
+                        required
+                        aria-required="true"
+                        aria-invalid={!!errors.name}
+                        aria-describedby={errors.name ? "modal-name-error" : undefined}
                         className={`font-sans text-sm bg-sage-light border ${
-                          errors.name ? "border-red-500 focus:outline-red-500" : "border-forest/20 focus:outline-gold"
-                        } px-4 py-3 rounded-sm text-charcoal`}
+                          errors.name ? "border-red-500 focus:outline-red-500 ring-1 ring-red-500/20" : "border-forest/20 focus:outline-gold focus-visible:ring-1 focus-visible:ring-gold"
+                        } px-4 py-3 rounded-sm text-charcoal transition-all`}
                         placeholder="Jane Doe"
                       />
                       {errors.name && (
-                        <span className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
-                          <AlertCircle size={12} />
+                        <span id="modal-name-error" role="alert" className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
+                          <AlertCircle size={12} aria-hidden="true" />
                           {errors.name}
                         </span>
                       )}
@@ -316,7 +427,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                       {/* Email Input */}
                       <div className="flex flex-col gap-1.5">
                         <label htmlFor="modal-email" className="font-sans text-xs font-semibold uppercase text-forest tracking-wider">
-                          Email Address *
+                          Email Address <span aria-hidden="true">*</span>
                         </label>
                         <input
                           type="email"
@@ -324,14 +435,18 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                           name="email"
                           value={fields.email}
                           onChange={handleInputChange}
+                          required
+                          aria-required="true"
+                          aria-invalid={!!errors.email}
+                          aria-describedby={errors.email ? "modal-email-error" : undefined}
                           className={`font-sans text-sm bg-sage-light border ${
-                            errors.email ? "border-red-500 focus:outline-red-500" : "border-forest/20 focus:outline-gold"
-                          } px-4 py-3 rounded-sm text-charcoal`}
+                            errors.email ? "border-red-500 focus:outline-red-500 ring-1 ring-red-500/20" : "border-forest/20 focus:outline-gold focus-visible:ring-1 focus-visible:ring-gold"
+                          } px-4 py-3 rounded-sm text-charcoal transition-all`}
                           placeholder="jane@example.com"
                         />
                         {errors.email && (
-                          <span className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
-                            <AlertCircle size={12} />
+                          <span id="modal-email-error" role="alert" className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
+                            <AlertCircle size={12} aria-hidden="true" />
                             {errors.email}
                           </span>
                         )}
@@ -340,7 +455,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                       {/* Phone Input */}
                       <div className="flex flex-col gap-1.5">
                         <label htmlFor="modal-phone" className="font-sans text-xs font-semibold uppercase text-forest tracking-wider">
-                          Phone Number *
+                          Phone Number <span aria-hidden="true">*</span>
                         </label>
                         <input
                           type="tel"
@@ -348,14 +463,18 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                           name="phone"
                           value={fields.phone}
                           onChange={handleInputChange}
+                          required
+                          aria-required="true"
+                          aria-invalid={!!errors.phone}
+                          aria-describedby={errors.phone ? "modal-phone-error" : undefined}
                           className={`font-sans text-sm bg-sage-light border ${
-                            errors.phone ? "border-red-500 focus:outline-red-500" : "border-forest/20 focus:outline-gold"
-                          } px-4 py-3 rounded-sm text-charcoal`}
-                          placeholder="(555) 019-2834"
+                            errors.phone ? "border-red-500 focus:outline-red-500 ring-1 ring-red-500/20" : "border-forest/20 focus:outline-gold focus-visible:ring-1 focus-visible:ring-gold"
+                          } px-4 py-3 rounded-sm text-charcoal transition-all`}
+                          placeholder="+91 98765 43210"
                         />
                         {errors.phone && (
-                          <span className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
-                            <AlertCircle size={12} />
+                          <span id="modal-phone-error" role="alert" className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
+                            <AlertCircle size={12} aria-hidden="true" />
                             {errors.phone}
                           </span>
                         )}
@@ -365,16 +484,20 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                     {/* Subject */}
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="modal-subject" className="font-sans text-xs font-semibold uppercase text-forest tracking-wider">
-                        Legal Practice Area *
+                        Legal Practice Area <span aria-hidden="true">*</span>
                       </label>
                       <select
                         id="modal-subject"
                         name="subject"
                         value={fields.subject}
                         onChange={handleInputChange}
+                        required
+                        aria-required="true"
+                        aria-invalid={!!errors.subject}
+                        aria-describedby={errors.subject ? "modal-subject-error" : undefined}
                         className={`font-sans text-sm bg-sage-light border ${
-                          errors.subject ? "border-red-500 focus:outline-red-500" : "border-forest/20 focus:outline-gold"
-                        } px-4 py-3 rounded-sm text-charcoal`}
+                          errors.subject ? "border-red-500 focus:outline-red-500 ring-1 ring-red-500/20" : "border-forest/20 focus:outline-gold focus-visible:ring-1 focus-visible:ring-gold"
+                        } px-4 py-3 rounded-sm text-charcoal transition-all`}
                       >
                         <option value="">Select a practice category...</option>
                         <option value="civil">Civil Litigation</option>
@@ -386,8 +509,8 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                         <option value="other">General Consultation</option>
                       </select>
                       {errors.subject && (
-                        <span className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
-                          <AlertCircle size={12} />
+                        <span id="modal-subject-error" role="alert" className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
+                          <AlertCircle size={12} aria-hidden="true" />
                           {errors.subject}
                         </span>
                       )}
@@ -396,7 +519,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                     {/* Message Input */}
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="modal-message" className="font-sans text-xs font-semibold uppercase text-forest tracking-wider">
-                        Brief Case Summary *
+                        Brief Case Summary <span aria-hidden="true">*</span>
                       </label>
                       <textarea
                         id="modal-message"
@@ -404,14 +527,18 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                         value={fields.message}
                         onChange={handleInputChange}
                         rows={3}
+                        required
+                        aria-required="true"
+                        aria-invalid={!!errors.message}
+                        aria-describedby={errors.message ? "modal-message-error" : undefined}
                         className={`font-sans text-sm bg-sage-light border ${
-                          errors.message ? "border-red-500 focus:outline-red-500" : "border-forest/20 focus:outline-gold"
-                        } px-4 py-3 rounded-sm text-charcoal resize-y`}
+                          errors.message ? "border-red-500 focus:outline-red-500 ring-1 ring-red-500/20" : "border-forest/20 focus:outline-gold focus-visible:ring-1 focus-visible:ring-gold"
+                        } px-4 py-3 rounded-sm text-charcoal resize-y transition-all`}
                         placeholder="Outline key timelines, dispute factors, or required statutory deadlines..."
                       />
                       {errors.message && (
-                        <span className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
-                          <AlertCircle size={12} />
+                        <span id="modal-message-error" role="alert" className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">
+                          <AlertCircle size={12} aria-hidden="true" />
                           {errors.message}
                         </span>
                       )}
@@ -422,20 +549,27 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                       type="submit"
                       id="modal-submit-btn"
                       disabled={isSubmitting}
-                      className="w-full flex items-center justify-center gap-2 btn-gold font-sans font-bold text-sm tracking-wider uppercase py-4 rounded-sm shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-4 cursor-pointer"
+                      aria-busy={isSubmitting}
+                      className="w-full flex items-center justify-center gap-2 btn-gold font-sans font-bold text-sm tracking-wider uppercase py-4 rounded-sm shadow-md hover-lift-gpu shimmer-wrapper active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-4 cursor-pointer focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-forest focus-visible:outline-none transition-all"
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-forest border-t-transparent rounded-full animate-spin" />
+                          <div className="w-5 h-5 border-2 border-forest border-t-transparent rounded-full animate-spin" aria-hidden="true" />
                           Encrypting Dossier...
                         </>
                       ) : (
                         <>
-                          <Send size={16} />
+                          <Send size={16} aria-hidden="true" />
                           Transmit Intake File
                         </>
                       )}
                     </button>
+
+                    {/* Privilege & Security Statement */}
+                    <div className="flex items-center justify-center gap-1.5 text-center text-[11px] text-forest/70 pt-2 font-sans">
+                      <Shield size={12} className="text-gold shrink-0" aria-hidden="true" />
+                      <span>Privileged Intake • Protected by Section 126 IEA</span>
+                    </div>
                   </motion.form>
                 )}
               </AnimatePresence>

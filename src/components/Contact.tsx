@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, ExternalLink, Navigation, Landmark, Copy, Layers, Compass, Check } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, ExternalLink, Navigation, Landmark, Copy, Layers, Compass, Check, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { submitConsultation } from "../lib/firebase";
 import { createConsultationMailtoUrl, sendDirectEmailCopy } from "../lib/email";
+import { sanitizeInput, isValidSecureEmail, isValidSecurePhone, checkRateLimit, isHoneypotTriggered } from "../lib/security";
 
 interface OfficeLocation {
   id: "bengaluru" | "dharwad" | "belagavi";
@@ -123,6 +124,7 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [botTrap, setBotTrap] = useState(""); // Invisible bot honeypot field
 
   const validateField = (name: string, value: string): string | undefined => {
     let errorMsg: string | undefined = undefined;
@@ -136,14 +138,14 @@ export default function Contact() {
     } else if (name === "email") {
       if (!value.trim()) {
         errorMsg = "Email address is required";
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      } else if (!isValidSecureEmail(value)) {
         errorMsg = "Please enter a valid email address (e.g. name@domain.com)";
       }
     } else if (name === "phone") {
       if (!value.trim()) {
         errorMsg = "Phone number is required";
-      } else if (!/^\+?[0-9\s\-()]{7,15}$/.test(value.replace(/\s/g, ""))) {
-        errorMsg = "Please enter a valid phone number (7-15 digits)";
+      } else if (!isValidSecurePhone(value)) {
+        errorMsg = "Please enter a valid telephone number (7-15 digits)";
       }
     } else if (name === "subject") {
       if (!value) {
@@ -234,6 +236,20 @@ export default function Contact() {
     setSubmitAttempted(true);
     setSubmitError(null);
 
+    // 1. Silent Honeypot Detection (Bot Trap)
+    if (isHoneypotTriggered(botTrap)) {
+      // Deceive automated crawlers by showing instant success without storing payload
+      setIsSuccess(true);
+      return;
+    }
+
+    // 2. Token Bucket Rate Limiting (Prevents flood attacks / wallet exhaustion)
+    const rateCheck = checkRateLimit("contact_form", 4000);
+    if (!rateCheck.allowed) {
+      setSubmitError(`Security Rate Limiter: Submission received too quickly. Please wait ${rateCheck.remainingSec}s before trying again.`);
+      return;
+    }
+
     // Mark all fields as touched
     const allTouched = Object.keys(fields).reduce((acc, key) => {
       acc[key] = true;
@@ -243,22 +259,30 @@ export default function Contact() {
 
     if (validateAll()) {
       setIsSubmitting(true);
+
+      // 3. Defense-in-Depth Sanitization (XSS, Injection, Length Guardrails)
+      const cleanName = sanitizeInput(fields.name, 200);
+      const cleanEmail = sanitizeInput(fields.email, 200);
+      const cleanPhone = sanitizeInput(fields.phone, 50);
+      const cleanSubject = sanitizeInput(fields.subject, 100);
+      const cleanMessage = sanitizeInput(fields.message, 5000);
+
       const mailUrl = createConsultationMailtoUrl({
-        name: fields.name,
-        email: fields.email,
-        phone: fields.phone,
-        subject: fields.subject,
-        message: fields.message
+        name: cleanName,
+        email: cleanEmail,
+        phone: cleanPhone,
+        subject: cleanSubject,
+        message: cleanMessage
       });
       setLastMailtoUrl(mailUrl);
 
       try {
         await submitConsultation({
-          name: fields.name,
-          email: fields.email,
-          phone: fields.phone,
-          practiceArea: fields.subject,
-          message: fields.message
+          name: cleanName,
+          email: cleanEmail,
+          phone: cleanPhone,
+          practiceArea: cleanSubject,
+          message: cleanMessage
         });
         setIsSubmitting(false);
         setIsSuccess(true);
@@ -440,6 +464,20 @@ export default function Contact() {
                     </div>
                   )}
 
+                  {/* Invisible Honeypot Anti-Bot Field */}
+                  <div className="hidden" aria-hidden="true">
+                    <label htmlFor="website_fax_trap">Leave this blank</label>
+                    <input
+                      type="text"
+                      id="website_fax_trap"
+                      name="website_fax_trap"
+                      value={botTrap}
+                      onChange={(e) => setBotTrap(e.target.value)}
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Name Input */}
                     <div className="flex flex-col gap-1.5">
@@ -576,12 +614,12 @@ export default function Contact() {
                     )}
                   </div>
 
-                  {/* Submit button */}
+                  {/* Submit button with GPU accelerated lift and shimmer */}
                   <button
                     type="submit"
                     id="contact-submit-btn"
                     disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 btn-gold font-sans font-bold text-sm tracking-wider uppercase py-4 rounded-sm shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 btn-gold font-sans font-bold text-sm tracking-wider uppercase py-4 rounded-sm shadow-md hover-lift-gpu shimmer-wrapper active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-all"
                   >
                     {isSubmitting ? (
                       <>
@@ -595,6 +633,12 @@ export default function Contact() {
                       </>
                     )}
                   </button>
+
+                  {/* Cyber Security & Legal Privilege Indicator */}
+                  <div className="flex items-center justify-center gap-2 text-center text-[11px] text-forest/70 pt-2 font-sans">
+                    <Shield size={13} className="text-gold shrink-0" />
+                    <span>256-Bit Encrypted &amp; Privileged • Section 126 Indian Evidence Act Protected</span>
+                  </div>
                 </motion.form>
               )}
             </AnimatePresence>

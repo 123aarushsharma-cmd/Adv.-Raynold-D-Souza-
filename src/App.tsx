@@ -17,6 +17,7 @@ import { PrivacyPolicyModal, TermsOfServiceModal } from "./components/LegalModal
 import SplashPreloader from "./components/SplashPreloader";
 import ClientTestimonials from "./components/ClientTestimonials";
 import CyberSecurityShield from "./components/CyberSecurityShield";
+import ScrollProgressAndTop from "./components/ScrollProgressAndTop";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -148,6 +149,9 @@ export default function App() {
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenTerms={() => setIsTermsOpen(true)}
       />
+
+      {/* High-FPS GPU Scroll Progress Indicator & Quick Return Button */}
+      <ScrollProgressAndTop />
 
       {/* Interactive Modal Booking Dialogue */}
       <ConsultationModal isOpen={isModalOpen} onClose={closeModal} />

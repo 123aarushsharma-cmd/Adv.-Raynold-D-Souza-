@@ -114,6 +114,16 @@ export default function AdminPortal({
   const [adminSession, setAdminSession] = useState<{ email: string; displayName: string } | null>(null);
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  useEffect(() => {
     // Listen for real auth changes
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -137,6 +147,28 @@ export default function AdminPortal({
       console.error("Failed to fetch administrative data", err);
     } finally {
       setDataLoading(false);
+    }
+  };
+
+  const adminTabKeys: ("consultations" | "notifications" | "analytics" | "team" | "branding")[] = [
+    "consultations",
+    "notifications",
+    "analytics",
+    "team",
+    "branding"
+  ];
+
+  const handleTabKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      const nextIndex = (index + 1) % adminTabKeys.length;
+      setActiveTab(adminTabKeys[nextIndex]);
+      document.getElementById(`admin-tab-${adminTabKeys[nextIndex]}`)?.focus();
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      const prevIndex = (index - 1 + adminTabKeys.length) % adminTabKeys.length;
+      setActiveTab(adminTabKeys[prevIndex]);
+      document.getElementById(`admin-tab-${adminTabKeys[prevIndex]}`)?.focus();
     }
   };
 
@@ -381,20 +413,20 @@ export default function AdminPortal({
         {/* Form area */}
         <div className="p-6 sm:p-8">
           {authError && (
-            <div className="bg-red-50 border border-red-200 text-red-800 text-xs sm:text-sm rounded-sm p-3 flex gap-2 items-start mb-5 font-sans">
-              <AlertCircle size={16} className="text-red-600 shrink-0 mt-0.5" />
+            <div role="alert" className="bg-red-50 border border-red-200 text-red-800 text-xs sm:text-sm rounded-sm p-3 flex gap-2 items-start mb-5 font-sans">
+              <AlertCircle size={16} className="text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
               <div>{authError}</div>
             </div>
           )}
 
           {authSuccess && (
-            <div className="bg-green-50 border border-green-200 text-green-800 text-xs sm:text-sm rounded-sm p-3 flex gap-2 items-start mb-5 font-sans">
-              <CheckCircle size={16} className="text-green-600 shrink-0 mt-0.5" />
+            <div role="alert" className="bg-green-50 border border-green-200 text-green-800 text-xs sm:text-sm rounded-sm p-3 flex gap-2 items-start mb-5 font-sans">
+              <CheckCircle size={16} className="text-green-600 shrink-0 mt-0.5" aria-hidden="true" />
               <div>{authSuccess}</div>
             </div>
           )}
 
-          <form onSubmit={handleEmailAuth} className="space-y-4 font-sans">
+          <form onSubmit={handleEmailAuth} className="space-y-4 font-sans" aria-label="Administrator credentials form">
             <div>
               <label 
                 htmlFor="admin-email-input"
@@ -404,11 +436,12 @@ export default function AdminPortal({
               </label>
               
               {/* Quick Authorized Email Selection Pills */}
-              <div className="flex flex-col gap-1.5 mb-2">
+              <div className="flex flex-col gap-1.5 mb-2" role="group" aria-label="Authorized administrator accounts">
                 <button
                   type="button"
+                  aria-label="Use Primary Admin advrdsouza181@gmail.com"
                   onClick={() => setEmail("advrdsouza181@gmail.com")}
-                  className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer ${
+                  className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
                     email === "advrdsouza181@gmail.com" 
                       ? "bg-forest/10 border-forest font-semibold text-forest" 
                       : "bg-sage-light/50 border-forest/15 text-charcoal/80 hover:bg-sage-light"
@@ -419,8 +452,9 @@ export default function AdminPortal({
                 </button>
                 <button
                   type="button"
+                  aria-label="Use Secondary Admin 123.aarushsharma@gmail.com"
                   onClick={() => setEmail("123.aarushsharma@gmail.com")}
-                  className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer ${
+                  className={`text-left text-xs px-3 py-1.5 rounded border transition-colors flex items-center justify-between cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
                     email === "123.aarushsharma@gmail.com" 
                       ? "bg-forest/10 border-forest font-semibold text-forest" 
                       : "bg-sage-light/50 border-forest/15 text-charcoal/80 hover:bg-sage-light"
@@ -438,7 +472,7 @@ export default function AdminPortal({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold font-sans"
+                className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold font-sans"
                 placeholder="Enter authorized administrator email"
               />
             </div>
@@ -459,7 +493,7 @@ export default function AdminPortal({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-gold font-sans"
+                className="w-full text-sm bg-sage-light border border-forest/20 px-4 py-2.5 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold font-sans"
                 placeholder="Enter security password"
               />
             </div>
@@ -469,17 +503,17 @@ export default function AdminPortal({
                 id="admin-sign-in-btn"
                 type="submit"
                 disabled={isAuthenticating}
-                className="flex-1 bg-forest hover:bg-forest/95 text-gold font-bold text-xs uppercase tracking-wider py-3 rounded-sm border border-gold/30 cursor-pointer shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                className="flex-1 bg-forest hover:bg-forest/95 text-gold font-bold text-xs uppercase tracking-wider py-3 rounded-sm border border-gold/30 cursor-pointer shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
               >
                 {isAuthenticating ? (
                   <>
-                    <RefreshCw className="animate-spin" size={14} />
-                    Verifying...
+                    <RefreshCw className="animate-spin" size={14} aria-hidden="true" />
+                    <span>Verifying...</span>
                   </>
                 ) : (
                   <>
-                    <Lock size={14} />
-                    Authenticate Session
+                    <Lock size={14} aria-hidden="true" />
+                    <span>Authenticate Session</span>
                   </>
                 )}
               </button>
@@ -488,17 +522,18 @@ export default function AdminPortal({
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={isAuthenticating}
-                className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-charcoal border border-gray-300 px-4 py-3 rounded-sm cursor-pointer shadow-sm transition-colors text-xs font-bold disabled:opacity-60"
+                className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-charcoal border border-gray-300 px-4 py-3 rounded-sm cursor-pointer shadow-sm transition-colors text-xs font-bold disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
                 title="Sign in directly with authorized Google Account"
+                aria-label="Sign in directly with authorized Google Workspace account"
               >
-                <Shield size={14} className="text-forest" />
-                Google Workspace
+                <Shield size={14} className="text-forest" aria-hidden="true" />
+                <span>Google Workspace</span>
               </button>
             </div>
           </form>
 
           <div className="mt-6 pt-4 border-t border-forest/10 flex items-start gap-2.5 text-charcoal/60">
-            <Shield size={16} className="text-forest shrink-0 mt-0.5" />
+            <Shield size={16} className="text-forest shrink-0 mt-0.5" aria-hidden="true" />
             <p className="text-[10px] leading-relaxed font-sans">
               <strong>Statutory Compliance Notice:</strong> Access is restricted strictly to Advocate Reynold D'Souza and authorized partners of Olive Law Firm. All access sessions are logged in compliance with the Information Technology Act, 2000, Bar Council of India standards, and the Digital Personal Data Protection Act, 2023.
             </p>
@@ -510,9 +545,10 @@ export default function AdminPortal({
           <button
             id="return-to-site-btn"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 text-xs text-forest hover:text-gold font-sans font-semibold transition-colors cursor-pointer"
+            aria-label="Return to public website"
+            className="inline-flex items-center gap-1.5 text-xs text-forest hover:text-gold font-sans font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none rounded p-1"
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={14} aria-hidden="true" />
             Return to Public Website
           </button>
         </div>
@@ -578,10 +614,11 @@ export default function AdminPortal({
             {/* Notifications Alert pill */}
             <button 
               onClick={() => setActiveTab("notifications")}
-              className="relative p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all text-ivory group border border-ivory/10 cursor-pointer"
+              className="relative p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all text-ivory group border border-ivory/10 cursor-pointer focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
               title="View system alerts"
+              aria-label={`View system alerts, ${unreadNotificationsCount} unread`}
             >
-              <Bell size={16} className="group-hover:rotate-12 transition-transform" />
+              <Bell size={16} className="group-hover:rotate-12 transition-transform" aria-hidden="true" />
               {unreadNotificationsCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white font-bold text-[9px] w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-forest animate-pulse">
                   {unreadNotificationsCount}
@@ -593,34 +630,38 @@ export default function AdminPortal({
             <button
               onClick={loadBackendData}
               disabled={dataLoading}
-              className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all text-ivory border border-ivory/10 cursor-pointer disabled:opacity-50"
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-all text-ivory border border-ivory/10 cursor-pointer disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
               title="Refresh database collections"
+              aria-label="Refresh database collections"
             >
-              <RefreshCw size={16} className={dataLoading ? "animate-spin" : ""} />
+              <RefreshCw size={16} className={dataLoading ? "animate-spin" : ""} aria-hidden="true" />
             </button>
 
             {/* Clear Local Cache Button */}
             <button
               onClick={handlePurgeAll}
-              className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-full transition-all text-red-300 border border-red-500/20 cursor-pointer"
+              className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-full transition-all text-red-300 border border-red-500/20 cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
               title="Purge cached history and start completely fresh"
+              aria-label="Purge cached history and start completely fresh"
             >
-              <Trash2 size={16} />
+              <Trash2 size={16} aria-hidden="true" />
             </button>
 
             {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 bg-gold hover:bg-gold-hover text-forest font-bold text-xs uppercase tracking-wider px-3.5 py-2 rounded-sm border border-gold/40 cursor-pointer transition-all shadow-sm"
+              className="flex items-center gap-1.5 bg-gold hover:bg-gold-hover text-forest font-bold text-xs uppercase tracking-wider px-3.5 py-2 rounded-sm border border-gold/40 cursor-pointer transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
+              aria-label="Sign out of administrative portal"
             >
-              <LogOut size={13} />
+              <LogOut size={13} aria-hidden="true" />
               Sign Out
             </button>
             
             {/* Close button */}
             <button
               onClick={onClose}
-              className="bg-white/10 hover:bg-white/20 text-ivory text-xs px-3 py-2 rounded-sm border border-white/20 cursor-pointer transition-colors"
+              className="bg-white/10 hover:bg-white/20 text-ivory text-xs px-3 py-2 rounded-sm border border-white/20 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
+              aria-label="Close administrative console"
             >
               Close Console
             </button>
@@ -698,12 +739,18 @@ export default function AdminPortal({
         </div>
 
         {/* Dynamic Tab Switching Rail */}
-        <div className="flex border-b border-forest/10 gap-2">
+        <div role="tablist" aria-label="Administrative Console Navigation" className="flex border-b border-forest/10 gap-2 overflow-x-auto pb-0.5">
           <button
+            role="tab"
+            id="admin-tab-consultations"
+            aria-selected={activeTab === "consultations"}
+            aria-controls="admin-tabpanel"
+            tabIndex={activeTab === "consultations" ? 0 : -1}
+            onKeyDown={(e) => handleTabKeyDown(e, 0)}
             onClick={() => setActiveTab("consultations")}
-            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 ${
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
               activeTab === "consultations"
-                ? "border-gold text-forest bg-white/40"
+                ? "border-gold text-forest bg-white/40 font-bold"
                 : "border-transparent text-charcoal/60 hover:text-forest"
             }`}
           >
@@ -711,10 +758,16 @@ export default function AdminPortal({
           </button>
           
           <button
+            role="tab"
+            id="admin-tab-notifications"
+            aria-selected={activeTab === "notifications"}
+            aria-controls="admin-tabpanel"
+            tabIndex={activeTab === "notifications" ? 0 : -1}
+            onKeyDown={(e) => handleTabKeyDown(e, 1)}
             onClick={() => setActiveTab("notifications")}
-            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 ${
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
               activeTab === "notifications"
-                ? "border-gold text-forest bg-white/40"
+                ? "border-gold text-forest bg-white/40 font-bold"
                 : "border-transparent text-charcoal/60 hover:text-forest"
             }`}
           >
@@ -722,10 +775,16 @@ export default function AdminPortal({
           </button>
 
           <button
+            role="tab"
+            id="admin-tab-analytics"
+            aria-selected={activeTab === "analytics"}
+            aria-controls="admin-tabpanel"
+            tabIndex={activeTab === "analytics" ? 0 : -1}
+            onKeyDown={(e) => handleTabKeyDown(e, 2)}
             onClick={() => setActiveTab("analytics")}
-            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 ${
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
               activeTab === "analytics"
-                ? "border-gold text-forest bg-white/40"
+                ? "border-gold text-forest bg-white/40 font-bold"
                 : "border-transparent text-charcoal/60 hover:text-forest"
             }`}
           >
@@ -733,14 +792,20 @@ export default function AdminPortal({
           </button>
 
           <button
+            role="tab"
+            id="admin-tab-team"
+            aria-selected={activeTab === "team"}
+            aria-controls="admin-tabpanel"
+            tabIndex={activeTab === "team" ? 0 : -1}
+            onKeyDown={(e) => handleTabKeyDown(e, 3)}
             onClick={() => setActiveTab("team")}
-            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 ${
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
               activeTab === "team"
-                ? "border-gold text-forest bg-white/40"
+                ? "border-gold text-forest bg-white/40 font-bold"
                 : "border-transparent text-charcoal/60 hover:text-forest"
             }`}
           >
-            <Camera size={14} className={activeTab === "team" ? "text-gold" : "text-charcoal/40"} />
+            <Camera size={14} className={activeTab === "team" ? "text-gold" : "text-charcoal/40"} aria-hidden="true" />
             <span>Manage Team &amp; Photos</span>
             <span className="bg-gold/20 text-forest text-[10px] font-bold px-1.5 py-0.5 rounded">
               New
@@ -748,14 +813,20 @@ export default function AdminPortal({
           </button>
 
           <button
+            role="tab"
+            id="admin-tab-branding"
+            aria-selected={activeTab === "branding"}
+            aria-controls="admin-tabpanel"
+            tabIndex={activeTab === "branding" ? 0 : -1}
+            onKeyDown={(e) => handleTabKeyDown(e, 4)}
             onClick={() => setActiveTab("branding")}
-            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 ${
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
               activeTab === "branding"
-                ? "border-gold text-forest bg-white/40"
+                ? "border-gold text-forest bg-white/40 font-bold"
                 : "border-transparent text-charcoal/60 hover:text-forest"
             }`}
           >
-            <ImageIcon size={14} className={activeTab === "branding" ? "text-gold" : "text-charcoal/40"} />
+            <ImageIcon size={14} className={activeTab === "branding" ? "text-gold" : "text-charcoal/40"} aria-hidden="true" />
             <span>Firm Logo &amp; Brand</span>
             <span className="bg-gold/20 text-forest text-[10px] font-bold px-1.5 py-0.5 rounded">
               Edit
@@ -763,6 +834,8 @@ export default function AdminPortal({
           </button>
         </div>
 
+        {/* Tab Panel Container */}
+        <div role="tabpanel" id="admin-tabpanel" aria-labelledby={`admin-tab-${activeTab}`} tabIndex={0} className="focus:outline-none">
         {/* Tab 1: Client Consultations Manager */}
         {activeTab === "consultations" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
@@ -773,23 +846,25 @@ export default function AdminPortal({
               {/* Search & Filter bar */}
               <div className="bg-white p-4 rounded-sm border border-forest/10 shadow-sm flex flex-col sm:flex-row gap-3">
                 <div className="flex-grow relative flex items-center">
-                  <Search size={16} className="text-charcoal/40 absolute left-3" />
+                  <Search size={16} className="text-charcoal/40 absolute left-3" aria-hidden="true" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search client dossiers..."
-                    className="w-full text-xs bg-sage-light border border-forest/15 rounded px-9 py-2 focus:outline-gold font-medium"
+                    aria-label="Search client dossiers by name, email, or message"
+                    className="w-full text-xs bg-sage-light border border-forest/15 rounded px-9 py-2 focus:outline-none focus:ring-2 focus:ring-gold font-medium"
                   />
                 </div>
 
                 <div className="flex gap-2">
                   <div className="flex items-center gap-1.5">
-                    <Filter size={12} className="text-charcoal/60" />
+                    <Filter size={12} className="text-charcoal/60" aria-hidden="true" />
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
-                      className="bg-sage-light border border-forest/15 rounded text-[10px] sm:text-xs py-1.5 px-2 focus:outline-gold font-medium"
+                      aria-label="Filter dossiers by status"
+                      className="bg-sage-light border border-forest/15 rounded text-[10px] sm:text-xs py-1.5 px-2 focus:outline-none focus:ring-2 focus:ring-gold font-medium"
                     >
                       <option value="all">All Statuses</option>
                       <option value="pending">Pending</option>
@@ -802,7 +877,8 @@ export default function AdminPortal({
                   <select
                     value={areaFilter}
                     onChange={(e) => setAreaFilter(e.target.value)}
-                    className="bg-sage-light border border-forest/15 rounded text-[10px] sm:text-xs py-1.5 px-2 focus:outline-gold font-medium"
+                    aria-label="Filter dossiers by legal specialty"
+                    className="bg-sage-light border border-forest/15 rounded text-[10px] sm:text-xs py-1.5 px-2 focus:outline-none focus:ring-2 focus:ring-gold font-medium"
                   >
                     <option value="all">All Specialties</option>
                     <option value="constitutional">Constitutional</option>
@@ -817,15 +893,15 @@ export default function AdminPortal({
               </div>
 
               {/* Dossiers List cards */}
-              <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-1">
+              <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-1" role="feed" aria-label="Client dossiers feed">
                 {dataLoading && consultations.length === 0 ? (
-                  <div className="text-center py-12 bg-white rounded border border-forest/10 shadow-sm">
-                    <RefreshCw className="animate-spin text-forest mx-auto" size={32} />
+                  <div className="text-center py-12 bg-white rounded border border-forest/10 shadow-sm" role="status" aria-live="polite">
+                    <RefreshCw className="animate-spin text-forest mx-auto" size={32} aria-hidden="true" />
                     <p className="font-serif text-sm italic text-charcoal/60 mt-3">Fetching secure legal database archives...</p>
                   </div>
                 ) : filteredConsultations.length === 0 ? (
                   <div className="text-center py-12 px-6 bg-white rounded border border-forest/10 shadow-sm flex flex-col items-center">
-                    <Shield className="text-forest/30 mb-3" size={36} />
+                    <Shield className="text-forest/30 mb-3" size={36} aria-hidden="true" />
                     <h4 className="font-serif text-base font-bold text-forest">
                       {consultations.length === 0 
                         ? "No Client Inquiries Received Yet" 
@@ -850,8 +926,18 @@ export default function AdminPortal({
                     return (
                       <div
                         key={doc.id}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={selectedDoc?.id === doc.id}
+                        aria-label={`Client dossier for ${doc.name}, status ${doc.status}, specialty ${doc.practiceArea}`}
                         onClick={() => handleSelectDoc(doc)}
-                        className={`bg-white border p-4 sm:p-5 rounded-sm transition-all duration-200 cursor-pointer flex flex-col gap-3 shadow-sm hover:shadow ${
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleSelectDoc(doc);
+                          }
+                        }}
+                        className={`bg-white border p-4 sm:p-5 rounded-sm transition-all duration-200 cursor-pointer flex flex-col gap-3 shadow-sm hover:shadow focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
                           selectedDoc?.id === doc.id
                             ? "border-gold ring-1 ring-gold/40 bg-gold/5"
                             : "border-forest/10 hover:border-forest/20"
@@ -923,13 +1009,18 @@ export default function AdminPortal({
                     {/* Status Select form */}
                     <div className="border-t border-forest/10 pt-4 space-y-3">
                       <div>
-                        <label className="font-semibold text-forest uppercase tracking-wider text-[10px] block mb-1.5">
+                        <label 
+                          htmlFor="admin-status-select"
+                          className="font-semibold text-forest uppercase tracking-wider text-[10px] block mb-1.5"
+                        >
                           Change Administrative Status
                         </label>
                         <select
+                          id="admin-status-select"
                           value={docStatus}
                           onChange={(e) => setDocStatus(e.target.value as Consultation["status"])}
-                          className="w-full text-xs bg-sage-light border border-forest/20 rounded-sm p-2 focus:outline-gold font-medium"
+                          aria-label="Change administrative status"
+                          className="w-full text-xs bg-sage-light border border-forest/20 rounded-sm p-2 focus:outline-none focus:ring-2 focus:ring-gold font-medium"
                         >
                           <option value="pending">Pending Review (New Actionable)</option>
                           <option value="reviewed">Under Active Review (Strategizing)</option>
@@ -939,15 +1030,20 @@ export default function AdminPortal({
                       </div>
 
                       <div>
-                        <label className="font-semibold text-forest uppercase tracking-wider text-[10px] block mb-1.5">
+                        <label 
+                          htmlFor="admin-internal-notes"
+                          className="font-semibold text-forest uppercase tracking-wider text-[10px] block mb-1.5"
+                        >
                           Internal Notes (Confidential)
                         </label>
                         <textarea
+                          id="admin-internal-notes"
                           rows={4}
                           value={adminNotes}
                           onChange={(e) => setAdminNotes(e.target.value)}
                           placeholder="Record trial strategies, notes on consultation date, court schedules, or legal theories..."
-                          className="w-full text-xs bg-sage-light border border-forest/20 rounded-sm p-3 focus:outline-gold font-light"
+                          aria-label="Confidential trial strategies and advocate notes"
+                          className="w-full text-xs bg-sage-light border border-forest/20 rounded-sm p-3 focus:outline-none focus:ring-2 focus:ring-gold font-light"
                         />
                       </div>
                     </div>
@@ -957,29 +1053,31 @@ export default function AdminPortal({
                   <div className="flex gap-2.5 pt-2 border-t border-forest/10 justify-between">
                     <button
                       onClick={() => handleDeleteDoc(selectedDoc.id || "")}
-                      className="bg-red-50 hover:bg-red-100 text-red-600 p-2.5 rounded border border-red-200 transition-colors cursor-pointer"
+                      className="bg-red-50 hover:bg-red-100 text-red-600 p-2.5 rounded border border-red-200 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
                       title="Delete dossier"
+                      aria-label={`Delete dossier for ${selectedDoc.name}`}
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={16} aria-hidden="true" />
                     </button>
 
                     <button
                       onClick={handleSaveDocDetails}
                       disabled={isSaving}
-                      className="flex-grow bg-forest hover:bg-forest/95 text-gold font-bold text-xs uppercase tracking-wider py-2.5 rounded shadow-sm border border-gold/30 cursor-pointer flex items-center justify-center gap-2 transition-all"
+                      aria-label="Save case updates"
+                      className="flex-grow bg-forest hover:bg-forest/95 text-gold font-bold text-xs uppercase tracking-wider py-2.5 rounded shadow-sm border border-gold/30 cursor-pointer flex items-center justify-center gap-2 transition-all focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
                     >
                       {isSaving ? (
-                        <RefreshCw className="animate-spin" size={14} />
+                        <RefreshCw className="animate-spin" size={14} aria-hidden="true" />
                       ) : (
-                        <Save size={14} />
+                        <Save size={14} aria-hidden="true" />
                       )}
-                      Save Case Updates
+                      <span>Save Case Updates</span>
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="bg-white border border-dashed border-forest/20 rounded-sm shadow-sm p-8 text-center flex flex-col items-center justify-center h-full min-h-60">
-                  <Shield className="text-forest/20 mb-4" size={44} />
+                  <Shield className="text-forest/20 mb-4" size={44} aria-hidden="true" />
                   <h4 className="font-serif text-lg font-bold text-forest">Dossier Workspace Empty</h4>
                   <p className="font-sans text-xs text-charcoal/50 max-w-xs mt-1 leading-relaxed">
                     Select a client dossier from the list to view secure credentials, internal advocate notes, and statutory progression markers.
@@ -1009,7 +1107,7 @@ export default function AdminPortal({
             <div className="flex flex-col gap-2.5 max-h-[60vh] overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="text-center py-16">
-                  <Bell className="text-charcoal/20 mx-auto mb-3" size={32} />
+                  <Bell className="text-charcoal/20 mx-auto mb-3" size={32} aria-hidden="true" />
                   <p className="font-serif text-sm italic text-charcoal/50">Inbox is completely clear. No incoming secure requests.</p>
                 </div>
               ) : (
@@ -1024,7 +1122,7 @@ export default function AdminPortal({
                   >
                     <div className="flex gap-3 items-start">
                       <div className={`p-2 rounded-full mt-0.5 ${note.read ? "bg-forest/5 text-forest" : "bg-amber-100 text-amber-700"}`}>
-                        <Bell size={16} />
+                        <Bell size={16} aria-hidden="true" />
                       </div>
                       <div>
                         <h4 className={`text-sm font-sans ${note.read ? "text-charcoal/70" : "font-semibold text-forest"}`}>
@@ -1047,20 +1145,22 @@ export default function AdminPortal({
                               alert("Related case dossier has been removed or archived.");
                             }
                           }}
-                          className="bg-forest/5 hover:bg-forest/10 text-forest text-[11px] font-bold px-3 py-1.5 rounded transition-colors flex items-center gap-1 cursor-pointer"
+                          aria-label={`Go to dossier related to ${note.title}`}
+                          className="bg-forest/5 hover:bg-forest/10 text-forest text-[11px] font-bold px-3 py-1.5 rounded transition-colors flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
                         >
-                          <ChevronRight size={12} />
-                          Go to dossier
+                          <ChevronRight size={12} aria-hidden="true" />
+                          <span>Go to dossier</span>
                         </button>
                       )}
 
                       {!note.read && (
                         <button
                           onClick={() => handleMarkNotificationRead(note.id || "")}
-                          className="bg-gold hover:bg-gold-hover text-forest text-[11px] font-bold px-3 py-1.5 rounded transition-colors flex items-center gap-1 cursor-pointer"
+                          aria-label={`Mark notification ${note.title} as read`}
+                          className="bg-gold hover:bg-gold-hover text-forest text-[11px] font-bold px-3 py-1.5 rounded transition-colors flex items-center gap-1 cursor-pointer focus-visible:ring-2 focus-visible:ring-forest focus-visible:outline-none"
                         >
-                          <Check size={12} />
-                          Mark Read
+                          <Check size={12} aria-hidden="true" />
+                          <span>Mark Read</span>
                         </button>
                       )}
                     </div>
@@ -1167,6 +1267,8 @@ export default function AdminPortal({
         {activeTab === "branding" && (
           <AdminLogoManager onClose={onClose} />
         )}
+
+        </div> {/* End Tabpanel */}
 
       </main>
 
