@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import SectionHeaderReveal from "./SectionHeaderReveal";
+import { useFirmContent } from "../hooks/useFirmContent";
 import {
   Gavel,
   ShieldAlert,
@@ -17,7 +18,8 @@ import {
   Share2,
   Copy,
   Check,
-  ExternalLink
+  ExternalLink,
+  Scale
 } from "lucide-react";
 
 interface PracticeArea {
@@ -40,7 +42,19 @@ interface PracticeArea {
   schemaCategory: string;
 }
 
-const practiceData: PracticeArea[] = [
+const getIconForArea = (id: string) => {
+  switch (id) {
+    case "constitutional": return <Landmark size={24} />;
+    case "criminal": return <ShieldAlert size={24} />;
+    case "property": return <Building2 size={24} />;
+    case "consumer": return <HeartHandshake size={24} />;
+    case "labour": return <FileText size={24} />;
+    case "arbitration": return <Gavel size={24} />;
+    default: return <Scale size={24} />;
+  }
+};
+
+const staticPracticeData: PracticeArea[] = [
   {
     id: "constitutional",
     title: "Constitutional & Human Rights Law",
@@ -194,11 +208,37 @@ const practiceData: PracticeArea[] = [
 ];
 
 export default function PracticeAreas() {
+  const { content } = useFirmContent();
   const [selectedArea, setSelectedArea] = useState<PracticeArea | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const modalRef = useRef<HTMLDivElement>(null);
   const lastFocusedTriggerRef = useRef<HTMLElement | null>(null);
+
+  const practiceData: PracticeArea[] = useMemo(() => {
+    return content.practiceAreas.map((item) => {
+      const staticMatch = staticPracticeData.find(s => s.id === item.id);
+      return {
+        id: item.id,
+        title: item.title,
+        shortDesc: item.shortDesc,
+        longDesc: item.longDesc,
+        icon: getIconForArea(item.id),
+        iconName: staticMatch?.iconName || "Scale",
+        mattersCovered: item.mattersCovered || [],
+        successCase: {
+          title: item.successCaseTitle || staticMatch?.successCase?.title || "Significant Matter Milestone",
+          result: item.successCaseResult || staticMatch?.successCase?.result || "Secured comprehensive legal relief for client."
+        },
+        keyAttorney: item.keyAttorney || "Advocate Reynold D'Souza",
+        seoTitle: staticMatch?.seoTitle || `${item.title} | Olive Law Firm®`,
+        seoDescription: staticMatch?.seoDescription || item.shortDesc,
+        seoKeywords: staticMatch?.seoKeywords || `${item.title}, legal counsel Karnataka, High Court advocate`,
+        serviceType: staticMatch?.serviceType || item.title,
+        schemaCategory: staticMatch?.schemaCategory || item.title
+      };
+    });
+  }, [content.practiceAreas]);
 
   const filterCategories = [
     { id: "all", label: "All Specializations" },

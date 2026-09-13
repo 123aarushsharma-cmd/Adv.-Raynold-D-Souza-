@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, ExternalLink, Navigation, Landmark, Copy, Layers, Compass, Check, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { submitConsultation } from "../lib/firebase";
@@ -23,7 +23,7 @@ interface OfficeLocation {
   landmarkInfo: string;
 }
 
-const FIRM_LOCATIONS: OfficeLocation[] = [
+const DEFAULT_LOCATIONS: OfficeLocation[] = [
   {
     id: "bengaluru",
     category: "Firm Head Office",
@@ -100,6 +100,66 @@ interface FormErrors {
 
 export default function Contact() {
   const { contact } = useFirmSettings();
+
+  const firmLocations: OfficeLocation[] = useMemo(() => [
+    {
+      id: "bengaluru",
+      category: "Firm Head Office",
+      name: "Bengaluru Head Office",
+      shortName: "Bengaluru (HQ)",
+      badge: "Head Office",
+      coordinates: "12.9237° N, 77.5513° E",
+      addressLines: contact.bengaluruAddress ? contact.bengaluruAddress.split(", ").map(s => s.trim()) : [
+        "2nd Floor, #520, 10th Cross,",
+        "12th Main, Padmanabhanagar,",
+        "Bengaluru 560070, Karnataka, India"
+      ],
+      fullAddressText: contact.bengaluruAddress || "2nd Floor, #520, 10th Cross, 12th Main, Padmanabhanagar, Bengaluru 560070, Karnataka, India",
+      embedMapUrlRoadmap: `https://maps.google.com/maps?q=${encodeURIComponent(contact.bengaluruAddress || "12.923708,77.551322 (Olive Law Firm Bengaluru)")}&t=m&z=17&output=embed`,
+      embedMapUrlSatellite: `https://maps.google.com/maps?q=${encodeURIComponent(contact.bengaluruAddress || "12.923708,77.551322 (Olive Law Firm Bengaluru)")}&t=k&z=18&output=embed`,
+      embedMapUrlHybrid: `https://maps.google.com/maps?q=${encodeURIComponent(contact.bengaluruAddress || "12.923708,77.551322 (Olive Law Firm Bengaluru)")}&t=h&z=18&output=embed`,
+      directMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.bengaluruAddress || "12.923708,77.551322")}`,
+      landmarkInfo: "Padmanabhanagar • 10th Cross / 12th Main Rd"
+    },
+    {
+      id: "dharwad",
+      category: "Distinct Satellite Location",
+      name: "Dharwad Satellite Location",
+      shortName: "Dharwad",
+      badge: "Satellite Location",
+      coordinates: "15.4660° N, 75.0080° E",
+      addressLines: contact.dharwadAddress ? contact.dharwadAddress.split(", ").map(s => s.trim()) : [
+        "#300, Olive Tree Apartment,",
+        "1st Cross, Sadankeri,",
+        "Dharwad, 560070"
+      ],
+      fullAddressText: contact.dharwadAddress || "#300, Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad, 560070",
+      embedMapUrlRoadmap: `https://maps.google.com/maps?q=${encodeURIComponent(contact.dharwadAddress || "Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad 560070")}&t=m&z=17&output=embed`,
+      embedMapUrlSatellite: `https://maps.google.com/maps?q=${encodeURIComponent(contact.dharwadAddress || "Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad 560070")}&t=k&z=18&output=embed`,
+      embedMapUrlHybrid: `https://maps.google.com/maps?q=${encodeURIComponent(contact.dharwadAddress || "Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad 560070")}&t=h&z=18&output=embed`,
+      directMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.dharwadAddress || "Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad 560070")}`,
+      landmarkInfo: "Sadankeri • 1st Cross • Olive Tree Apartment"
+    },
+    {
+      id: "belagavi",
+      category: "Distinct Satellite Location",
+      name: "Belagavi Satellite Location",
+      shortName: "Belagavi",
+      badge: "Satellite Location",
+      coordinates: "15.8582° N, 74.5098° E",
+      addressLines: contact.belagaviAddress ? contact.belagaviAddress.split(", ").map(s => s.trim()) : [
+        "Chamber Complex, Opp. Civil Court,",
+        "Club Road, Belagavi - 590001, Karnataka, India"
+      ],
+      fullAddressText: contact.belagaviAddress || "Chamber Complex, Opp. Civil Court, Club Road, Belagavi - 590001, Karnataka, India",
+      embedMapUrlRoadmap: `https://maps.google.com/maps?q=${encodeURIComponent(contact.belagaviAddress || "15.858220,74.509810 (Chamber Complex Civil Court Belagavi)")}&t=m&z=17&output=embed`,
+      embedMapUrlSatellite: `https://maps.google.com/maps?q=${encodeURIComponent(contact.belagaviAddress || "15.858220,74.509810 (Chamber Complex Civil Court Belagavi)")}&t=k&z=18&output=embed`,
+      embedMapUrlHybrid: `https://maps.google.com/maps?q=${encodeURIComponent(contact.belagaviAddress || "15.858220,74.509810 (Chamber Complex Civil Court Belagavi)")}&t=h&z=18&output=embed`,
+      directMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.belagaviAddress || "15.858220,74.509810")}`,
+      landmarkInfo: "Club Road • Opp. Civil Court Complex"
+    }
+  ], [contact]);
+
   const [activeLocationId, setActiveLocationId] = useState<"bengaluru" | "dharwad" | "belagavi">("bengaluru");
   const [mapMode, setMapMode] = useState<"roadmap" | "satellite" | "hybrid">("roadmap");
   const [copiedLocationId, setCopiedLocationId] = useState<string | null>(null);
@@ -694,7 +754,7 @@ export default function Contact() {
 
               {/* City Selection Buttons */}
               <div className="bg-forest/95 px-2.5 py-2 border-b border-gold/15 flex flex-wrap gap-1.5">
-                {FIRM_LOCATIONS.map((loc) => {
+                {firmLocations.map((loc) => {
                   const isSelected = activeLocationId === loc.id;
                   return (
                     <button
@@ -716,7 +776,7 @@ export default function Contact() {
 
               {/* Active Map Info Banner */}
               {(() => {
-                const currentLoc = FIRM_LOCATIONS.find((l) => l.id === activeLocationId) || FIRM_LOCATIONS[0];
+                const currentLoc = firmLocations.find((l) => l.id === activeLocationId) || firmLocations[0];
                 return (
                   <div className="bg-ivory px-3.5 py-2.5 border-b border-forest/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                     <div className="space-y-0.5 truncate">
@@ -771,7 +831,7 @@ export default function Contact() {
               {/* Map Frame */}
               <div className="relative h-[290px] w-full bg-sage">
                 {(() => {
-                  const currentLoc = FIRM_LOCATIONS.find((l) => l.id === activeLocationId) || FIRM_LOCATIONS[0];
+                  const currentLoc = firmLocations.find((l) => l.id === activeLocationId) || firmLocations[0];
                   const mapEmbedSrc = mapMode === "satellite" 
                     ? currentLoc.embedMapUrlSatellite 
                     : mapMode === "hybrid" 
@@ -829,13 +889,7 @@ export default function Contact() {
                             Bengaluru Head Office
                           </p>
                           <p className="font-sans text-xs text-ivory/90 mt-1">
-                            2nd Floor, #520, 10th Cross,
-                          </p>
-                          <p className="font-sans text-xs text-ivory/90">
-                            12th Main, Padmanabhanagar,
-                          </p>
-                          <p className="font-sans text-xs text-ivory/90">
-                            Bengaluru 560070, Karnataka, India
+                            {contact.bengaluruAddress || "2nd Floor, #520, 10th Cross, 12th Main, Padmanabhanagar, Bengaluru 560070, Karnataka, India"}
                           </p>
                         </div>
                       </div>
@@ -868,7 +922,7 @@ export default function Contact() {
                           <div>
                             <p className="font-serif text-sm font-semibold text-gold">Dharwad Satellite Location</p>
                             <p className="font-sans text-xs text-ivory/80 mt-1">
-                              #300, Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad, 560070
+                              {contact.dharwadAddress || "#300, Olive Tree Apartment, 1st Cross, Sadankeri, Dharwad, 560070"}
                             </p>
                           </div>
                           <span className={`text-[9px] uppercase font-sans font-semibold px-2 py-0.5 rounded shrink-0 ${
@@ -894,7 +948,7 @@ export default function Contact() {
                           <div>
                             <p className="font-serif text-sm font-semibold text-gold">Belagavi Satellite Location</p>
                             <p className="font-sans text-xs text-ivory/80 mt-1">
-                              Chamber Complex, Opp. Civil Court, Club Road, Belagavi - 590001
+                              {contact.belagaviAddress || "Chamber Complex, Opp. Civil Court, Club Road, Belagavi - 590001, Karnataka, India"}
                             </p>
                           </div>
                           <span className={`text-[9px] uppercase font-sans font-semibold px-2 py-0.5 rounded shrink-0 ${

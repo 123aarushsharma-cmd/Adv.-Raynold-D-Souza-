@@ -55,17 +55,19 @@ import {
   Sliders,
   Radio,
   Zap,
-  Database
+  Database,
+  Globe
 } from "lucide-react";
 import AdminTeamManager from "./AdminTeamManager";
 import AdminOperationsManager from "./AdminOperationsManager";
+import AdminContentManager from "./AdminContentManager";
 import { useTeamProfiles } from "../hooks/useTeamProfiles";
 import CyberSecurityShield from "./CyberSecurityShield";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
 interface AdminPortalProps {
   onClose: () => void;
-  initialTab?: "consultations" | "notifications" | "team" | "analytics" | "branding" | "operations";
+  initialTab?: "consultations" | "notifications" | "team" | "content" | "analytics" | "branding" | "operations";
   initialTeamTarget?: "founder" | string;
 }
 
@@ -100,7 +102,7 @@ export default function AdminPortal({
   const [isSaving, setIsSaving] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<"consultations" | "notifications" | "team" | "analytics" | "branding" | "operations">(
+  const [activeTab, setActiveTab] = useState<"consultations" | "notifications" | "team" | "content" | "analytics" | "branding" | "operations">(
     initialTab || "consultations"
   );
 
@@ -210,12 +212,13 @@ export default function AdminPortal({
     }
   };
 
-  const adminTabKeys: ("consultations" | "notifications" | "analytics" | "team" | "branding" | "operations")[] = [
+  const adminTabKeys: ("consultations" | "notifications" | "analytics" | "team" | "branding" | "content" | "operations")[] = [
     "consultations",
     "notifications",
     "analytics",
     "team",
     "branding",
+    "content",
     "operations"
   ];
 
@@ -896,11 +899,32 @@ export default function AdminPortal({
 
           <button
             role="tab"
+            id="admin-tab-content"
+            aria-selected={activeTab === "content"}
+            aria-controls="admin-tabpanel"
+            tabIndex={activeTab === "content" ? 0 : -1}
+            onKeyDown={(e) => handleTabKeyDown(e, 5)}
+            onClick={() => setActiveTab("content")}
+            className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
+              activeTab === "content"
+                ? "border-gold text-forest bg-white/40 font-bold"
+                : "border-transparent text-charcoal/60 hover:text-forest"
+            }`}
+          >
+            <Globe size={14} className={activeTab === "content" ? "text-gold" : "text-charcoal/40"} aria-hidden="true" />
+            <span>Website Copy &amp; Content</span>
+            <span className="bg-gold/20 text-forest text-[10px] font-bold px-1.5 py-0.5 rounded">
+              Live Sync
+            </span>
+          </button>
+
+          <button
+            role="tab"
             id="admin-tab-operations"
             aria-selected={activeTab === "operations"}
             aria-controls="admin-tabpanel"
             tabIndex={activeTab === "operations" ? 0 : -1}
-            onKeyDown={(e) => handleTabKeyDown(e, 5)}
+            onKeyDown={(e) => handleTabKeyDown(e, 6)}
             onClick={() => setActiveTab("operations")}
             className={`px-5 py-3 font-sans text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors cursor-pointer border-b-2 flex items-center gap-2 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none ${
               activeTab === "operations"
@@ -1350,7 +1374,12 @@ export default function AdminPortal({
           <AdminLogoManager onClose={onClose} />
         )}
 
-        {/* Tab 6: Firm Operations, Urgent Broadcast & Data Vault */}
+        {/* Tab 6: Website Copy & Live Content Studio */}
+        {activeTab === "content" && (
+          <AdminContentManager />
+        )}
+
+        {/* Tab 7: Firm Operations, Urgent Broadcast & Data Vault */}
         {activeTab === "operations" && (
           <AdminOperationsManager 
             consultations={consultations}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Quote, ChevronLeft, ChevronRight, Star, Award, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import SectionHeaderReveal from "./SectionHeaderReveal";
+import { useFirmContent } from "../hooks/useFirmContent";
 
 interface Testimonial {
   id: number;
@@ -14,7 +15,7 @@ interface Testimonial {
   verifiedDate: string;
 }
 
-const testimonials: Testimonial[] = [
+const defaultTestimonials: Testimonial[] = [
   {
     id: 1,
     quote: "Advocate Reynold D'Souza represents the peak of legal scholarship in the High Court of Karnataka. In our writ petition challenging an arbitrary municipal acquisition, his command of administrative law and masterfully drafted petition secured an interim stay, and ultimately a favorable final order. He was incredibly structured, composed, and unyielding.",
@@ -58,10 +59,15 @@ const testimonials: Testimonial[] = [
 ];
 
 export default function ClientTestimonials() {
+  const { content } = useFirmContent();
+  const testimonials = content.testimonials && content.testimonials.length > 0 ? content.testimonials : defaultTestimonials;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
   const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Guard index range if count changes
+  const activeIndex = currentIndex >= testimonials.length ? 0 : currentIndex;
 
   const slideNext = () => {
     setDirection(1);
@@ -156,7 +162,7 @@ export default function ClientTestimonials() {
           <div className="relative w-full flex-grow overflow-hidden">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
-                key={currentIndex}
+                key={activeIndex}
                 custom={direction}
                 variants={slideVariants}
                 initial="enter"
@@ -175,12 +181,12 @@ export default function ClientTestimonials() {
                     <div className="flex items-center gap-1.5 bg-forest/5 px-3 py-1 rounded-full border border-forest/10">
                       <ShieldCheck className="text-gold w-4 h-4" />
                       <span className="font-sans text-[10px] tracking-wider text-forest font-bold uppercase">
-                        {testimonials[currentIndex].practiceArea}
+                        {testimonials[activeIndex]?.practiceArea || "Legal Counsel"}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-1">
-                      {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
+                      {[...Array(testimonials[activeIndex]?.rating || 5)].map((_, i) => (
                         <Star key={i} size={14} className="fill-gold text-gold" />
                       ))}
                     </div>
@@ -189,7 +195,7 @@ export default function ClientTestimonials() {
                   {/* Testimonial Quote */}
                   <blockquote className="mb-8">
                     <p className="font-serif text-lg sm:text-xl md:text-2xl text-charcoal/90 leading-relaxed font-light italic">
-                      "{testimonials[currentIndex].quote}"
+                      "{testimonials[activeIndex]?.quote}"
                     </p>
                   </blockquote>
                 </div>
@@ -199,14 +205,14 @@ export default function ClientTestimonials() {
                   <div className="flex items-center gap-4">
                     {/* Placeholder initial-badge icon to ensure premium feel */}
                     <div className="w-12 h-12 rounded-full bg-forest text-gold flex items-center justify-center font-serif text-lg font-bold border border-gold/25 shadow-sm">
-                      {testimonials[currentIndex].author.replace("Advocate ", "").replace("Justice ", "").charAt(0)}
+                      {testimonials[activeIndex]?.author?.replace("Advocate ", "").replace("Justice ", "").charAt(0) || "C"}
                     </div>
                     <div>
                       <h4 className="font-serif text-base font-bold text-forest leading-snug">
-                        {testimonials[currentIndex].author}
+                        {testimonials[activeIndex]?.author}
                       </h4>
                       <p className="font-sans text-xs text-charcoal/60">
-                        {testimonials[currentIndex].title}, <span className="font-medium text-forest/85">{testimonials[currentIndex].organization}</span>
+                        {testimonials[activeIndex]?.title}, <span className="font-medium text-forest/85">{testimonials[activeIndex]?.organization}</span>
                       </p>
                     </div>
                   </div>
@@ -214,7 +220,7 @@ export default function ClientTestimonials() {
                   <div className="flex items-center gap-2 bg-sage-light/40 px-3 py-1.5 rounded border border-forest/5">
                     <Award size={13} className="text-gold" />
                     <span className="font-sans text-[9px] tracking-widest text-charcoal/70 uppercase font-semibold">
-                      Verified {testimonials[currentIndex].verifiedDate}
+                      Verified {testimonials[activeIndex]?.verifiedDate || "Term"}
                     </span>
                   </div>
                 </div>
@@ -250,7 +256,7 @@ export default function ClientTestimonials() {
                   key={idx}
                   onClick={() => handleDotClick(idx)}
                   className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                    currentIndex === idx 
+                    activeIndex === idx 
                       ? "w-8 bg-gold" 
                       : "w-2 bg-forest/15 hover:bg-forest/30"
                   }`}

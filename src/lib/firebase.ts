@@ -1156,7 +1156,7 @@ export async function fetchBrandLogo(): Promise<string> {
     const snapshot = await getDoc(docRef);
     if (snapshot.exists()) {
       const data = snapshot.data();
-      if (data && typeof data.logoUrl === "string") {
+      if (data && typeof data.logoUrl === "string" && data.logoUrl.trim().length > 0) {
         saveLocalBrandLogo(data.logoUrl);
         return data.logoUrl;
       }

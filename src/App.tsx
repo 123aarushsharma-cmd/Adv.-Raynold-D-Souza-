@@ -18,6 +18,7 @@ import SplashPreloader from "./components/SplashPreloader";
 import ClientTestimonials from "./components/ClientTestimonials";
 import CyberSecurityShield from "./components/CyberSecurityShield";
 import ScrollProgressAndTop from "./components/ScrollProgressAndTop";
+import DisclaimerModal from "./components/DisclaimerModal";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -144,10 +145,16 @@ export default function App() {
 
       {/* Regulatory Cookie Consent Banner */}
       {!isSplashActive && (
-        <CookieConsent 
-          onOpenPrivacy={() => setIsPrivacyOpen(true)}
-          onOpenTerms={() => setIsTermsOpen(true)}
-        />
+        <>
+          <DisclaimerModal 
+            onOpenPrivacy={() => setIsPrivacyOpen(true)}
+            onOpenTerms={() => setIsTermsOpen(true)}
+          />
+          <CookieConsent 
+            onOpenPrivacy={() => setIsPrivacyOpen(true)}
+            onOpenTerms={() => setIsTermsOpen(true)}
+          />
+        </>
       )}
 
       {/* Legal Protected Disclaimers & Modals */}

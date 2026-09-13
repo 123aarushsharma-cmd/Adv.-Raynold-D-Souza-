@@ -164,22 +164,39 @@
   will-change: box-shadow;
 }
 
-/* GPU Hardware Acceleration Utilities (60-120 FPS Rendering) */
+/* GPU Hardware Acceleration Utilities (Ultra-Smooth 120 FPS Rendering) */
 .gpu-layer {
   transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   perspective: 1000px;
   will-change: transform, opacity;
 }
 
 .hover-lift-gpu {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
   transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
   will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .hover-lift-gpu:hover {
-  transform: translate3d(0, -4px, 0);
+  transform: translate3d(0, -5px, 0);
+}
+
+/* 120 FPS Silk Smooth Springs & Animations */
+.smooth-scroll-container {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fast-gpu-spring {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 /* Luxury Gold Sheen Effect */
@@ -216,6 +233,17 @@
 .optimize-offscreen {
   content-visibility: auto;
   contain-intrinsic-size: 1px 700px;
+}
+
+/* 3D Emblem rendering optimization for iOS (WebKit) & Android */
+.emblem-3d-shadow {
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.6)) drop-shadow(0 4px 16px rgba(201, 162, 39, 0.4));
+  -webkit-filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.6)) drop-shadow(0 4px 16px rgba(201, 162, 39, 0.4));
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Accessibility: graceful degradation for users preferring reduced motion */

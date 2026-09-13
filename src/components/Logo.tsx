@@ -8,7 +8,7 @@ interface LogoProps {
   showText?: boolean;
   showLocations?: boolean;
   inverse?: boolean;
-  variant?: "standard" | "seal" | "watermark" | "transparent";
+  variant?: "standard" | "seal" | "watermark" | "transparent" | "hero-3d";
 }
 
 export default function Logo({
@@ -21,6 +21,24 @@ export default function Logo({
   variant = "standard"
 }: LogoProps) {
   const { logoSrc } = useBrandLogo();
+
+  if (variant === "hero-3d") {
+    return (
+      <div 
+        className={`relative flex items-center justify-center shrink-0 group ${className}`}
+        style={{ width: "100%", height: "100%", maxWidth: size, maxHeight: size }}
+      >
+        <img
+          src={logoSrc}
+          alt="Olive Law Firm® 3D Emblem"
+          width={size}
+          height={size}
+          referrerPolicy="no-referrer"
+          className={`w-full h-full object-contain pointer-events-none select-none emblem-3d-shadow transition-transform duration-700 hover:scale-[1.03] ${imgClassName}`}
+        />
+      </div>
+    );
+  }
 
   if (variant === "watermark" || variant === "transparent") {
     return (
@@ -50,16 +68,16 @@ export default function Logo({
         <div className="absolute -inset-1.5 bg-gold/25 rounded-full blur-md group-hover:bg-gold/40 transition-all duration-500 pointer-events-none" />
         
         {/* Outer concentric metallic gold frame */}
-        <div className="relative w-full h-full p-1 rounded-full bg-gradient-to-br from-gold via-amber-200 to-gold/70 border border-gold/90 shadow-[0_4px_18px_rgba(201,162,39,0.35)] flex items-center justify-center">
-          {/* Inner crisp circular medallion with logo */}
-          <div className="w-full h-full rounded-full bg-white flex items-center justify-center p-2 shadow-inner overflow-hidden border border-forest/10">
+        <div className="relative w-full h-full p-1 rounded-full bg-gradient-to-br from-gold/30 via-gold/10 to-transparent border border-gold/70 shadow-[0_4px_18px_rgba(201,162,39,0.35)] flex items-center justify-center">
+          {/* Inner medallion with transparent 3D logo */}
+          <div className="w-full h-full rounded-full flex items-center justify-center p-1 overflow-hidden">
             <img
               src={logoSrc}
               alt="Olive Law Firm® Insignia"
               width={size}
               height={size}
               referrerPolicy="no-referrer"
-              className="w-full h-full object-contain transform scale-110 drop-shadow-[0_1px_3px_rgba(0,0,0,0.12)] transition-transform duration-300 group-hover:scale-115"
+              className="w-full h-full object-contain transform scale-105 emblem-3d-shadow transition-transform duration-300 group-hover:scale-110"
             />
           </div>
         </div>
@@ -69,13 +87,9 @@ export default function Logo({
 
   const logoImage = (
     <div
-      className={`relative flex items-center justify-center shrink-0 transition-transform duration-300 hover:scale-105 rounded-full overflow-hidden bg-white ${
+      className={`relative flex items-center justify-center shrink-0 transition-transform duration-300 hover:scale-105 ${
         !showText ? className : ""
-      } ${imgClassName} ${
-        inverse
-          ? "border-2 border-gold/80 shadow-[0_2px_10px_rgba(201,162,39,0.35)]"
-          : "border border-forest/20 shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
-      }`}
+      } ${imgClassName}`}
       style={{ width: size, height: size }}
     >
       <img
@@ -84,7 +98,7 @@ export default function Logo({
         width={size}
         height={size}
         referrerPolicy="no-referrer"
-        className="w-full h-full object-contain p-1 transform scale-105"
+        className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
       />
     </div>
   );

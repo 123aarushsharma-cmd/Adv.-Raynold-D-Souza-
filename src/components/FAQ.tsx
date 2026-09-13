@@ -2,17 +2,28 @@ import React, { useState } from "react";
 import { ChevronDown, MessageSquare, PhoneCall, HelpCircle, ShieldCheck, Clock, FileText, MapPin, Scale } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import SectionHeaderReveal from "./SectionHeaderReveal";
+import { useFirmContent } from "../hooks/useFirmContent";
 
 interface FAQItem {
   id: string;
   question: string;
   category: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
   answer: string;
   highlights?: string[];
 }
 
-const faqs: FAQItem[] = [
+const getIconForCategory = (category: string) => {
+  const cat = (category || "").toLowerCase();
+  if (cat.includes("document") || cat.includes("preparation")) return FileText;
+  if (cat.includes("privacy") || cat.includes("confidential")) return ShieldCheck;
+  if (cat.includes("urgent") || cat.includes("timeline")) return Clock;
+  if (cat.includes("location") || cat.includes("office") || cat.includes("meeting")) return MapPin;
+  if (cat.includes("consultation")) return Scale;
+  return HelpCircle;
+};
+
+const defaultFaqs: FAQItem[] = [
   {
     id: "consultation-expectations",
     category: "First Consultation",
@@ -56,6 +67,8 @@ const faqs: FAQItem[] = [
 ];
 
 export default function FAQ() {
+  const { content } = useFirmContent();
+  const faqs = content.faqs && content.faqs.length > 0 ? content.faqs : defaultFaqs;
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   const toggleFAQ = (idx: number) => {
@@ -82,7 +95,7 @@ export default function FAQ() {
         <div className="space-y-2.5" id="faq-accordion-group" role="region" aria-label="Frequently Asked Questions list">
           {faqs.map((faq, idx) => {
             const isOpen = openIdx === idx;
-            const Icon = faq.icon;
+            const Icon = (faq as any).icon || getIconForCategory(faq.category);
 
             return (
               <div

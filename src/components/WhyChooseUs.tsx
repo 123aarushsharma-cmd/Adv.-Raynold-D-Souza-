@@ -1,8 +1,9 @@
 import React from "react";
-import { Scale, HeartHandshake, Coins, Trophy, CheckCircle } from "lucide-react";
+import { Scale, HeartHandshake, Coins, Trophy, CheckCircle, ShieldCheck, Award, Users } from "lucide-react";
 import { motion } from "motion/react";
 import ScrollAnimate from "./ScrollAnimate";
 import SectionHeaderReveal from "./SectionHeaderReveal";
+import { useFirmContent } from "../hooks/useFirmContent";
 
 interface Feature {
   icon: React.ReactNode;
@@ -34,6 +35,8 @@ const features: Feature[] = [
 ];
 
 export default function WhyChooseUs() {
+  const { content } = useFirmContent();
+  const stats = content.stats;
 
   return (
     <section id="why-choose-us" className="py-14 md:py-16 bg-forest text-ivory relative overflow-hidden">
@@ -54,6 +57,32 @@ export default function WhyChooseUs() {
           maxWidth="max-w-2xl"
           className="mb-10"
         />
+
+        {/* Dynamic Firm Key Statistics Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
+          {stats.map((stat, idx) => (
+            <motion.div
+              key={stat.id || idx}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              className="bg-ivory/5 border border-gold/20 p-5 rounded-sm flex flex-col justify-between hover:border-gold/50 transition-colors"
+            >
+              <div>
+                <span className="font-serif text-2xl sm:text-3xl lg:text-4xl text-gold font-bold block tracking-tight">
+                  {stat.value}
+                </span>
+                <span className="font-serif text-sm font-bold text-ivory block mt-1">
+                  {stat.label}
+                </span>
+              </div>
+              <p className="font-sans text-[11px] text-ivory/70 mt-2 font-light">
+                {stat.subtext}
+              </p>
+            </motion.div>
+          ))}
+        </div>
 
         {/* Features Row Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

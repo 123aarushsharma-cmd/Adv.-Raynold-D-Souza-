@@ -301,17 +301,8 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin }: HeaderP
               })}
             </nav>
 
-            {/* Symmetrical Balance Column */}
-            <div className="hidden nav:flex flex-1 items-center justify-end">
-              <button
-                onClick={onOpenAdmin}
-                className="p-2 rounded-full text-ivory/40 hover:text-gold/80 hover:bg-forest-light/60 transition-all active:scale-95 focus-visible:ring-1 focus-visible:ring-gold"
-                title="Admin Portal"
-                aria-label="Admin Portal"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-gold/40" />
-              </button>
-            </div>
+            {/* Right Spacing / Symmetrical Balance Column */}
+            <div className="hidden nav:flex flex-1 items-center justify-end" />
           </div>
         </div>
       </header>

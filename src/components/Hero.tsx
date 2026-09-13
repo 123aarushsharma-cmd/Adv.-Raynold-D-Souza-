@@ -1,70 +1,62 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Shield } from "lucide-react";
 import Logo from "./Logo";
+import { useFirmContent } from "../hooks/useFirmContent";
 
 export default function Hero() {
+  const { content } = useFirmContent();
+  const hero = content.hero;
+
   return (
     <section
       id="home"
-      className="relative min-h-screen bg-forest flex items-center justify-center overflow-hidden pt-24 md:pt-28"
+      className="relative bg-forest min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16 sm:pt-24 sm:pb-20"
     >
-      {/* Background Motifs */}
-      <div className="absolute inset-0 opacity-15 mix-blend-overlay pointer-events-none">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FAF9F6" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
+      {/* 1. Underground Atmospheric Backlight & Warm Golden Aura to the Side */}
+      <div 
+        className="absolute top-1/2 right-0 md:right-[5%] lg:right-[8%] -translate-y-1/2 w-[340px] sm:w-[540px] md:w-[700px] lg:w-[860px] h-[340px] sm:h-[540px] md:h-[700px] lg:h-[860px] bg-gradient-to-br from-gold/25 via-forest-light/35 to-transparent rounded-full blur-[100px] sm:blur-[140px] pointer-events-none" 
+      />
+
+      {/* 2. Majestic Underground Watermark Logo Positioned to the Side in the Background */}
+      <div 
+        className="absolute top-1/2 right-[-10%] sm:right-[-4%] md:right-[3%] lg:right-[6%] -translate-y-1/2 w-[320px] sm:w-[480px] md:w-[620px] lg:w-[760px] xl:w-[860px] h-[320px] sm:h-[480px] md:h-[620px] lg:h-[760px] xl:h-[860px] opacity-[0.22] mix-blend-screen pointer-events-none select-none flex items-center justify-center z-0 transition-opacity duration-1000"
+        style={{
+          filter: "drop-shadow(0 0 50px rgba(201,162,39,0.4))",
+          maskImage: "radial-gradient(circle at center, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 85%)",
+          WebkitMaskImage: "radial-gradient(circle at center, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 85%)"
+        }}
+        aria-hidden="true"
+      >
+        <Logo size={860} showText={false} variant="hero-3d" imgClassName="scale-110" />
       </div>
 
-      {/* Subtle Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/10 rounded-full blur-[140px] pointer-events-none" />
-
-      {/* Giant Custom Logo Background Watermark */}
-      <div className="absolute right-[-80px] bottom-[-40px] md:right-[-20px] md:bottom-[-10px] w-[350px] md:w-[580px] h-auto opacity-[0.08] pointer-events-none select-none">
-        <Logo size={580} showText={false} variant="watermark" />
-      </div>
-
-      {/* Floating Leaf Particles */}
-      <div className="absolute top-1/4 left-10 opacity-35 pointer-events-none select-none animate-bounce" style={{ animationDuration: "5s" }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-gold">
-          <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 12 22 12 22C12 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C15.31 6 18 8.69 18 12C18 15.31 15.31 18 12 18Z" fill="currentColor" fillOpacity="0.4"/>
-        </svg>
-      </div>
-      <div className="absolute bottom-1/4 right-1/4 opacity-25 pointer-events-none select-none animate-pulse" style={{ animationDuration: "3s" }}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-gold">
-          <path d="M21 3C11.61 3 4 10.61 4 20H6C6 11.73 12.73 5 21 5V3Z" fill="currentColor" />
-        </svg>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12 md:py-20">
-        <div className="max-w-4xl flex flex-col justify-center text-left">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full my-auto py-8 sm:py-12 md:py-16">
+        <div className="max-w-3xl text-center md:text-left mx-auto md:mx-0">
           {/* Powerful Headline */}
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-ivory font-bold tracking-tight leading-[1.15] mb-6"
+            transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+            style={{ willChange: "transform, opacity", transform: "translateZ(0)" }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-serif text-ivory font-bold tracking-tight leading-[1.12] mb-6 sm:mb-8"
           >
-            Justice, Rooted in <br />
-            <span className="text-gold font-serif italic font-normal">Uncompromising Integrity</span>
+            {hero.headlinePrefix} <br />
+            <span className="text-gold font-serif italic font-normal">{hero.headlineHighlight}</span>
           </motion.h1>
 
           {/* Subheadline */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-ivory/85 font-sans leading-relaxed max-w-2xl font-light"
+            transition={{ duration: 0.7, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            style={{ willChange: "transform, opacity", transform: "translateZ(0)" }}
+            className="text-base sm:text-lg md:text-xl lg:text-2xl text-ivory/90 font-sans leading-relaxed max-w-2xl font-light mx-auto md:mx-0"
           >
-            Advocate Reynold D'Souza stands as a dedicated guardian of rights and unyielding advocate for justice, litigating before high courts and tribunals with highly rigorous scholarship.
+            {hero.subheadline}
           </motion.p>
         </div>
       </div>
     </section>
   );
 }
+
