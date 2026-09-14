@@ -18,7 +18,8 @@ import {
   getLocalFounderProfile,
   getLocalAdvocates,
   saveLocalFounderProfile,
-  saveLocalAdvocates
+  saveLocalAdvocates,
+  subscribeToFirmBroadcast
 } from "../lib/firebase";
 
 export function useTeamProfiles() {
@@ -58,6 +59,13 @@ export function useTeamProfiles() {
       setAdvocates(getLocalAdvocates());
     };
     window.addEventListener("olive_team_updated", handleUpdate);
+    window.addEventListener("focus", handleUpdate);
+
+    const unsubBroadcast = subscribeToFirmBroadcast((msg) => {
+      if (msg.type === "team") {
+        handleUpdate();
+      }
+    });
 
     // 2. Real-time Firestore Cloud listener for Founder Profile
     const founderDocRef = doc(db, "founder_profile", "main");
@@ -100,6 +108,8 @@ export function useTeamProfiles() {
 
     return () => {
       window.removeEventListener("olive_team_updated", handleUpdate);
+      window.removeEventListener("focus", handleUpdate);
+      unsubBroadcast();
       unsubscribeFounder();
       unsubscribeAdvocates();
     };

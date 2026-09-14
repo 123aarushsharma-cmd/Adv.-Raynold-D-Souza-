@@ -72,6 +72,8 @@
     "firm_settings": {
       "fields": {
         "logoUrl": { "type": "string", "optional": true },
+        "faviconUrl": { "type": "string", "optional": true },
+        "ogImageUrl": { "type": "string", "optional": true },
         "firmName": { "type": "string", "optional": true },
         "updatedAt": { "type": "timestamp" }
       }

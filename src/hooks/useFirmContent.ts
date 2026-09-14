@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { doc, onSnapshot, setDoc, Timestamp } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { doc, getDoc, onSnapshot, setDoc, Timestamp } from "firebase/firestore";
+import { db, subscribeToFirmBroadcast, broadcastFirmSync } from "../lib/firebase";
 
 export interface HeroContent {
   headlinePrefix: string;
@@ -314,6 +314,7 @@ function saveLocalContent(content: FirmContentState) {
     localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(content));
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent(EVENT_CONTENT_UPDATE));
+      broadcastFirmSync("content");
     }
   } catch (e) {
     console.error("Local storage error saving firm content:", e);
@@ -332,8 +333,70 @@ export function useFirmContent() {
     };
     window.addEventListener(EVENT_CONTENT_UPDATE, handleLocalUpdate);
     window.addEventListener("storage", handleLocalUpdate);
+    window.addEventListener("focus", handleLocalUpdate);
 
-    // 2. Real-time Firestore Cloud listener for Hero & Stats
+    const unsubBroadcast = subscribeToFirmBroadcast((msg) => {
+      if (msg.type === "content") {
+        handleLocalUpdate();
+      }
+    });
+
+    // 2. Initial Eager Cloud Fetch
+    Promise.all([
+      getDoc(doc(db, "firm_settings", "content_hero")),
+      getDoc(doc(db, "firm_settings", "content_practice")),
+      getDoc(doc(db, "firm_settings", "content_testimonials")),
+      getDoc(doc(db, "firm_settings", "content_faqs")),
+      getDoc(doc(db, "firm_settings", "content_stats"))
+    ]).then(([heroSnap, practiceSnap, testSnap, faqsSnap, statsSnap]) => {
+      setContent(prev => {
+        let changed = false;
+        let updated = { ...prev };
+
+        if (heroSnap.exists()) {
+          updated.hero = { ...DEFAULT_HERO_CONTENT, ...(heroSnap.data() as HeroContent) };
+          changed = true;
+        }
+        if (practiceSnap.exists()) {
+          const d = practiceSnap.data();
+          if (Array.isArray(d?.items) && d.items.length > 0) {
+            updated.practiceAreas = d.items;
+            changed = true;
+          }
+        }
+        if (testSnap.exists()) {
+          const d = testSnap.data();
+          if (Array.isArray(d?.items) && d.items.length > 0) {
+            updated.testimonials = d.items;
+            changed = true;
+          }
+        }
+        if (faqsSnap.exists()) {
+          const d = faqsSnap.data();
+          if (Array.isArray(d?.items) && d.items.length > 0) {
+            updated.faqs = d.items;
+            changed = true;
+          }
+        }
+        if (statsSnap.exists()) {
+          const d = statsSnap.data();
+          if (Array.isArray(d?.items) && d.items.length > 0) {
+            updated.stats = d.items;
+            changed = true;
+          }
+        }
+
+        if (changed) {
+          saveLocalContent(updated);
+          return updated;
+        }
+        return prev;
+      });
+    }).catch(err => {
+      console.warn("Initial content eager fetch note:", err);
+    });
+
+    // 3. Real-time Firestore Cloud listener for Hero & Stats
     const heroDocRef = doc(db, "firm_settings", "content_hero");
     const unsubscribeHero = onSnapshot(heroDocRef, (snap) => {
       if (snap.exists()) {
@@ -350,7 +413,7 @@ export function useFirmContent() {
       setSyncStatus("offline");
     });
 
-    // 3. Real-time Firestore Cloud listener for Practice Areas
+    // 4. Real-time Firestore Cloud listener for Practice Areas
     const practiceDocRef = doc(db, "firm_settings", "content_practice");
     const unsubscribePractice = onSnapshot(practiceDocRef, (snap) => {
       if (snap.exists()) {
@@ -367,7 +430,7 @@ export function useFirmContent() {
       console.warn("Practice areas firestore listener note:", err);
     });
 
-    // 4. Real-time Firestore Cloud listener for Testimonials
+    // 5. Real-time Firestore Cloud listener for Testimonials
     const testimonialsDocRef = doc(db, "firm_settings", "content_testimonials");
     const unsubscribeTestimonials = onSnapshot(testimonialsDocRef, (snap) => {
       if (snap.exists()) {
@@ -384,7 +447,7 @@ export function useFirmContent() {
       console.warn("Testimonials firestore listener note:", err);
     });
 
-    // 5. Real-time Firestore Cloud listener for FAQs
+    // 6. Real-time Firestore Cloud listener for FAQs
     const faqsDocRef = doc(db, "firm_settings", "content_faqs");
     const unsubscribeFaqs = onSnapshot(faqsDocRef, (snap) => {
       if (snap.exists()) {
@@ -401,7 +464,7 @@ export function useFirmContent() {
       console.warn("FAQs firestore listener note:", err);
     });
 
-    // 6. Real-time Firestore Cloud listener for Stats
+    // 7. Real-time Firestore Cloud listener for Stats
     const statsDocRef = doc(db, "firm_settings", "content_stats");
     const unsubscribeStats = onSnapshot(statsDocRef, (snap) => {
       if (snap.exists()) {
@@ -421,6 +484,8 @@ export function useFirmContent() {
     return () => {
       window.removeEventListener(EVENT_CONTENT_UPDATE, handleLocalUpdate);
       window.removeEventListener("storage", handleLocalUpdate);
+      window.removeEventListener("focus", handleLocalUpdate);
+      unsubBroadcast();
       unsubscribeHero();
       unsubscribePractice();
       unsubscribeTestimonials();

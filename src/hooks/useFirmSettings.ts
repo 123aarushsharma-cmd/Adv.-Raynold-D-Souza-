@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { doc, onSnapshot, setDoc, getDoc, Timestamp } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { db, subscribeToFirmBroadcast, broadcastFirmSync } from "../lib/firebase";
 
 export interface FirmNotice {
   enabled: boolean;
@@ -71,6 +71,7 @@ function saveLocalNotice(notice: FirmNotice) {
     localStorage.setItem(LOCAL_NOTICE_KEY, JSON.stringify(notice));
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent(EVENT_NOTICE_UPDATE));
+      broadcastFirmSync("settings", { type: "notice" });
     }
   } catch (e) {
     console.error("Local storage error saving notice:", e);
@@ -97,6 +98,7 @@ function saveLocalContact(contact: FirmContactSettings) {
     localStorage.setItem(LOCAL_CONTACT_KEY, JSON.stringify(contact));
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent(EVENT_CONTACT_UPDATE));
+      broadcastFirmSync("settings", { type: "contact" });
     }
   } catch (e) {
     console.error("Local storage error saving contact settings:", e);
@@ -118,8 +120,36 @@ export function useFirmSettings() {
     window.addEventListener(EVENT_CONTACT_UPDATE, handleLocalContactUpdate);
     window.addEventListener("storage", handleLocalNoticeUpdate);
     window.addEventListener("storage", handleLocalContactUpdate);
+    window.addEventListener("focus", handleLocalNoticeUpdate);
+    window.addEventListener("focus", handleLocalContactUpdate);
 
-    // 2. Real-time Firestore Cloud listener for Notice
+    const unsubBroadcast = subscribeToFirmBroadcast((msg) => {
+      if (msg.type === "settings") {
+        handleLocalNoticeUpdate();
+        handleLocalContactUpdate();
+      }
+    });
+
+    // 2. Initial Eager Cloud Fetch
+    Promise.all([
+      getDoc(doc(db, "firm_settings", "notice")),
+      getDoc(doc(db, "firm_settings", "chambers"))
+    ]).then(([noticeSnap, contactSnap]) => {
+      if (noticeSnap.exists()) {
+        const liveNotice = { ...DEFAULT_FIRM_NOTICE, ...(noticeSnap.data() as FirmNotice) };
+        setNotice(liveNotice);
+        saveLocalNotice(liveNotice);
+      }
+      if (contactSnap.exists()) {
+        const liveContact = { ...DEFAULT_FIRM_CONTACT, ...(contactSnap.data() as FirmContactSettings) };
+        setContact(liveContact);
+        saveLocalContact(liveContact);
+      }
+    }).catch(err => {
+      console.warn("Initial firm settings eager cloud fetch note:", err);
+    });
+
+    // 3. Real-time Firestore Cloud listener for Notice
     const noticeDocRef = doc(db, "firm_settings", "notice");
     const unsubscribeNotice = onSnapshot(noticeDocRef, (snap) => {
       if (snap.exists()) {
@@ -134,7 +164,7 @@ export function useFirmSettings() {
       setSyncStatus("offline");
     });
 
-    // 3. Real-time Firestore Cloud listener for Contact & Chambers
+    // 4. Real-time Firestore Cloud listener for Contact & Chambers
     const contactDocRef = doc(db, "firm_settings", "chambers");
     const unsubscribeContact = onSnapshot(contactDocRef, (snap) => {
       if (snap.exists()) {
@@ -154,6 +184,9 @@ export function useFirmSettings() {
       window.removeEventListener(EVENT_CONTACT_UPDATE, handleLocalContactUpdate);
       window.removeEventListener("storage", handleLocalNoticeUpdate);
       window.removeEventListener("storage", handleLocalContactUpdate);
+      window.removeEventListener("focus", handleLocalNoticeUpdate);
+      window.removeEventListener("focus", handleLocalContactUpdate);
+      unsubBroadcast();
       unsubscribeNotice();
       unsubscribeContact();
     };

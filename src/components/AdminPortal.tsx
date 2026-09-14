@@ -891,9 +891,9 @@ export default function AdminPortal({
             }`}
           >
             <ImageIcon size={14} className={activeTab === "branding" ? "text-gold" : "text-charcoal/40"} aria-hidden="true" />
-            <span>Firm Logo &amp; Brand</span>
-            <span className="bg-gold/20 text-forest text-[10px] font-bold px-1.5 py-0.5 rounded">
-              Edit
+            <span>Logo, Favicon &amp; OG Share</span>
+            <span className="bg-emerald-500/20 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">
+              Live Sync
             </span>
           </button>
 

@@ -20,8 +20,12 @@ import CyberSecurityShield from "./components/CyberSecurityShield";
 import ScrollProgressAndTop from "./components/ScrollProgressAndTop";
 import DisclaimerModal from "./components/DisclaimerModal";
 import { assetPreloader, CRITICAL_FIRM_ASSETS } from "./lib/assetPreloader";
+import { useFirmBranding } from "./hooks/useFirmBranding";
 
 export default function App() {
+  // Global real-time branding synchronization engine (Favicon, OG Image, Master Logo)
+  useFirmBranding();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);

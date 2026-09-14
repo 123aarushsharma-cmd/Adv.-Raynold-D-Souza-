@@ -851,9 +851,49 @@ export const DEFAULT_ADVOCATES: AdvocateProfile[] = [
   }
 ];
 
+// ============================================================================
+// REAL-TIME BROADCAST CHANNEL & CROSS-TAB EVENT SYNC
+// ============================================================================
+
+const SYNC_CHANNEL_NAME = "olive_firm_cloud_sync_v1";
+let globalSyncChannel: BroadcastChannel | null = null;
+
+if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+  try {
+    globalSyncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
+  } catch (e) {
+    console.warn("BroadcastChannel initialization skipped:", e);
+  }
+}
+
+export function broadcastFirmSync(type: "branding" | "team" | "content" | "settings" | "consultations" | "notifications", detail?: any) {
+  if (typeof window === "undefined") return;
+  try {
+    if (globalSyncChannel) {
+      globalSyncChannel.postMessage({ type, detail, timestamp: Date.now() });
+    }
+  } catch (e) {
+    // Ignore postMessage issues
+  }
+}
+
+export function subscribeToFirmBroadcast(callback: (msg: { type: string; detail?: any; timestamp: number }) => void): () => void {
+  if (typeof window === "undefined" || !globalSyncChannel) return () => {};
+  const handler = (event: MessageEvent) => {
+    if (event.data && typeof event.data === "object") {
+      callback(event.data);
+    }
+  };
+  globalSyncChannel.addEventListener("message", handler);
+  return () => {
+    globalSyncChannel?.removeEventListener("message", handler);
+  };
+}
+
 function notifyTeamUpdated() {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("olive_team_updated"));
+    broadcastFirmSync("team");
   }
 }
 
@@ -1113,16 +1153,21 @@ export async function resetTeamToDefaults(): Promise<{ founder: FounderProfile; 
 }
 
 // ============================================================================
-// 14. BRAND SETTINGS & LOGO MANAGEMENT
+// 14. BRAND SETTINGS, LOGO, FAVICON & SOCIAL OG ASSET MANAGEMENT
 // ============================================================================
-export interface FirmSettings {
+export interface FirmBrandingSettings {
   logoUrl?: string;
+  faviconUrl?: string;
+  ogImageUrl?: string;
   firmName?: string;
   updatedAt?: any;
 }
 
-const LOCAL_BRAND_LOGO_KEY = "olive_official_brand_logo_v3";
+const LOCAL_BRAND_LOGO_KEY = "olive_official_brand_logo_v4";
+const LOCAL_FAVICON_KEY = "olive_official_favicon_v4";
+const LOCAL_OG_IMAGE_KEY = "olive_official_og_image_v4";
 
+// --- BRAND LOGO ---
 export function getLocalBrandLogo(): string {
   try {
     const raw = localStorage.getItem(LOCAL_BRAND_LOGO_KEY);
@@ -1143,7 +1188,8 @@ export function saveLocalBrandLogo(logoUrl: string): void {
       localStorage.removeItem(LOCAL_BRAND_LOGO_KEY);
     }
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("olive_brand_logo_updated"));
+      window.dispatchEvent(new CustomEvent("olive_brand_logo_updated", { detail: { logoUrl } }));
+      broadcastFirmSync("branding", { type: "logo", logoUrl });
     }
   } catch (e) {
     console.error("Error saving local brand logo:", e);
@@ -1174,7 +1220,7 @@ export async function saveBrandLogo(logoUrl: string): Promise<boolean> {
     await setDoc(docRef, {
       logoUrl,
       updatedAt: Timestamp.now()
-    });
+    }, { merge: true });
     return true;
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, "firm_settings/logo");
@@ -1190,9 +1236,159 @@ export async function resetBrandLogo(): Promise<void> {
     await setDoc(docRef, {
       logoUrl: "",
       updatedAt: Timestamp.now()
-    });
+    }, { merge: true });
   } catch (err) {
     console.warn("Firestore resetBrandLogo failed, reset locally:", err);
+  }
+}
+
+// --- FAVICON LIVE SYSTEM ---
+export function getLocalFavicon(): string {
+  try {
+    const raw = localStorage.getItem(LOCAL_FAVICON_KEY);
+    if (raw && raw.trim().length > 0) {
+      return raw;
+    }
+  } catch (e) {
+    console.warn("Could not read local favicon", e);
+  }
+  return "";
+}
+
+export function saveLocalFavicon(faviconUrl: string): void {
+  try {
+    if (faviconUrl && faviconUrl.trim().length > 0) {
+      localStorage.setItem(LOCAL_FAVICON_KEY, faviconUrl);
+    } else {
+      localStorage.removeItem(LOCAL_FAVICON_KEY);
+    }
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("olive_favicon_updated", { detail: { faviconUrl } }));
+      broadcastFirmSync("branding", { type: "favicon", faviconUrl });
+    }
+  } catch (e) {
+    console.error("Error saving local favicon:", e);
+  }
+}
+
+export async function fetchFavicon(): Promise<string> {
+  try {
+    const docRef = doc(db, "firm_settings", "favicon");
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      if (data && typeof data.faviconUrl === "string" && data.faviconUrl.trim().length > 0) {
+        saveLocalFavicon(data.faviconUrl);
+        return data.faviconUrl;
+      }
+    }
+  } catch (err) {
+    console.warn("Firestore fetchFavicon unavailable, using local cache:", err);
+  }
+  return getLocalFavicon();
+}
+
+export async function saveFavicon(faviconUrl: string): Promise<boolean> {
+  saveLocalFavicon(faviconUrl);
+  try {
+    const docRef = doc(db, "firm_settings", "favicon");
+    await setDoc(docRef, {
+      faviconUrl,
+      updatedAt: Timestamp.now()
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, "firm_settings/favicon");
+    console.warn("Firestore saveFavicon failed, saved locally:", err);
+    return true;
+  }
+}
+
+export async function resetFavicon(): Promise<void> {
+  saveLocalFavicon("");
+  try {
+    const docRef = doc(db, "firm_settings", "favicon");
+    await setDoc(docRef, {
+      faviconUrl: "",
+      updatedAt: Timestamp.now()
+    }, { merge: true });
+  } catch (err) {
+    console.warn("Firestore resetFavicon failed, reset locally:", err);
+  }
+}
+
+// --- SOCIAL SHARE / OG IMAGE LIVE SYSTEM ---
+export function getLocalOgImage(): string {
+  try {
+    const raw = localStorage.getItem(LOCAL_OG_IMAGE_KEY);
+    if (raw && raw.trim().length > 0) {
+      return raw;
+    }
+  } catch (e) {
+    console.warn("Could not read local og image", e);
+  }
+  return "";
+}
+
+export function saveLocalOgImage(ogImageUrl: string): void {
+  try {
+    if (ogImageUrl && ogImageUrl.trim().length > 0) {
+      localStorage.setItem(LOCAL_OG_IMAGE_KEY, ogImageUrl);
+    } else {
+      localStorage.removeItem(LOCAL_OG_IMAGE_KEY);
+    }
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("olive_og_image_updated", { detail: { ogImageUrl } }));
+      broadcastFirmSync("branding", { type: "og_image", ogImageUrl });
+    }
+  } catch (e) {
+    console.error("Error saving local og image:", e);
+  }
+}
+
+export async function fetchOgImage(): Promise<string> {
+  try {
+    const docRef = doc(db, "firm_settings", "og_image");
+    const snapshot = await getDoc(docRef);
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      if (data && typeof data.ogImageUrl === "string" && data.ogImageUrl.trim().length > 0) {
+        saveLocalOgImage(data.ogImageUrl);
+        return data.ogImageUrl;
+      }
+    }
+  } catch (err) {
+    console.warn("Firestore fetchOgImage unavailable, using local cache:", err);
+  }
+  return getLocalOgImage();
+}
+
+export async function saveOgImage(ogImageUrl: string): Promise<boolean> {
+  saveLocalOgImage(ogImageUrl);
+  try {
+    const docRef = doc(db, "firm_settings", "og_image");
+    await setDoc(docRef, {
+      ogImageUrl,
+      updatedAt: Timestamp.now()
+    }, { merge: true });
+    return true;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, "firm_settings/og_image");
+    console.warn("Firestore saveOgImage failed, saved locally:", err);
+    return true;
+  }
+}
+
+export async function resetOgImage(): Promise<void> {
+  saveLocalOgImage("");
+  try {
+    const docRef = doc(db, "firm_settings", "og_image");
+    await setDoc(docRef, {
+      ogImageUrl: "",
+      updatedAt: Timestamp.now()
+    }, { merge: true });
+  } catch (err) {
+    console.warn("Firestore resetOgImage failed, reset locally:", err);
   }
 }
 
