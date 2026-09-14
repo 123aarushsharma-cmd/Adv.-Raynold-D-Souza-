@@ -19,6 +19,7 @@ import ClientTestimonials from "./components/ClientTestimonials";
 import CyberSecurityShield from "./components/CyberSecurityShield";
 import ScrollProgressAndTop from "./components/ScrollProgressAndTop";
 import DisclaimerModal from "./components/DisclaimerModal";
+import { assetPreloader, CRITICAL_FIRM_ASSETS } from "./lib/assetPreloader";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,6 +29,11 @@ export default function App() {
   const [isSplashActive, setIsSplashActive] = useState(true);
   const [adminInitialTab, setAdminInitialTab] = useState<"consultations" | "notifications" | "team" | "analytics" | "branding">("consultations");
   const [adminTeamTarget, setAdminTeamTarget] = useState<"founder" | string>("founder");
+
+  // Pre-cache critical brand & aesthetic assets in the background on initial idle loop
+  useEffect(() => {
+    assetPreloader.preload(CRITICAL_FIRM_ASSETS, "high");
+  }, []);
 
   // Monitor URL Path, Hash or Query to open the Admin Portal securely
   useEffect(() => {

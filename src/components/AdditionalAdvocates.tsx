@@ -3,6 +3,7 @@ import { Award, Briefcase, GraduationCap, MapPin, Shield } from "lucide-react";
 import { motion } from "motion/react";
 import { useTeamProfiles } from "../hooks/useTeamProfiles";
 import SectionHeaderReveal from "./SectionHeaderReveal";
+import LazyImage from "./LazyImage";
 
 export default function AdditionalAdvocates() {
   const { advocates } = useTeamProfiles();
@@ -40,11 +41,12 @@ export default function AdditionalAdvocates() {
                   <div className="flex items-center gap-3">
                     <div className="w-14 h-16 rounded-sm bg-forest text-gold overflow-hidden border border-forest/20 flex items-center justify-center font-serif text-base font-bold shadow-sm relative shrink-0">
                       {advocate.photoUrl ? (
-                        <img
+                        <LazyImage
                           src={advocate.photoUrl}
                           alt={advocate.name}
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          containerClassName="w-full h-full"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          rootMargin="250px 0px"
                         />
                       ) : (
                         <span className="group-hover:text-gold transition-colors">

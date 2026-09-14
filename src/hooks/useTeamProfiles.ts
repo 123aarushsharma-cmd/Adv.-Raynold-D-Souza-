@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { doc, collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { assetPreloader } from "../lib/assetPreloader";
 import {
   db,
   FounderProfile,
@@ -24,6 +25,14 @@ export function useTeamProfiles() {
   const [founder, setFounder] = useState<FounderProfile>(() => getLocalFounderProfile());
   const [advocates, setAdvocates] = useState<AdvocateProfile[]>(() => getLocalAdvocates());
   const [loading, setLoading] = useState(true);
+
+  // Background asset pre-caching for team photos
+  useEffect(() => {
+    const urlsToPreload = [founder.photoUrl, ...advocates.map(a => a.photoUrl)].filter(Boolean);
+    if (urlsToPreload.length > 0) {
+      assetPreloader.preload(urlsToPreload, "idle");
+    }
+  }, [founder.photoUrl, advocates]);
 
   const loadData = useCallback(async () => {
     try {

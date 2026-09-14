@@ -33,8 +33,10 @@ export default function Logo({
           alt="Olive Law Firm® 3D Emblem"
           width={size}
           height={size}
+          decoding="async"
+          loading="eager"
           referrerPolicy="no-referrer"
-          className={`w-full h-full object-contain pointer-events-none select-none emblem-3d-shadow transition-transform duration-700 hover:scale-[1.03] ${imgClassName}`}
+          className={`w-full h-full object-contain pointer-events-none select-none emblem-3d-shadow transition-transform duration-700 hover:scale-[1.03] gpu-layer ${imgClassName}`}
         />
       </div>
     );
@@ -51,8 +53,10 @@ export default function Logo({
           alt="Olive Law Firm® Watermark"
           width={size}
           height={size}
+          decoding="async"
+          loading="lazy"
           referrerPolicy="no-referrer"
-          className="w-full h-full object-contain pointer-events-none select-none drop-shadow-none"
+          className="w-full h-full object-contain pointer-events-none select-none drop-shadow-none gpu-layer"
         />
       </div>
     );
@@ -76,8 +80,10 @@ export default function Logo({
               alt="Olive Law Firm® Insignia"
               width={size}
               height={size}
+              decoding="async"
+              loading="eager"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-contain transform scale-105 emblem-3d-shadow transition-transform duration-300 group-hover:scale-110"
+              className="w-full h-full object-contain transform scale-105 emblem-3d-shadow transition-transform duration-300 group-hover:scale-110 gpu-layer"
             />
           </div>
         </div>
@@ -97,8 +103,10 @@ export default function Logo({
         alt="Olive Law Firm® Insignia"
         width={size}
         height={size}
+        decoding="async"
+        loading="eager"
         referrerPolicy="no-referrer"
-        className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]"
+        className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)] gpu-layer"
       />
     </div>
   );

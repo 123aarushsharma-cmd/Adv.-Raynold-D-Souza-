@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Scale, Shield, Check, BookOpen, Clock } from "lucide-react";
 import { useTeamProfiles } from "../hooks/useTeamProfiles";
 import SectionHeaderReveal from "./SectionHeaderReveal";
+import LazyImage from "./LazyImage";
 
 const pillars = [
   {
@@ -41,11 +42,12 @@ export default function About() {
               <div className="relative aspect-[3/4] overflow-hidden rounded-sm border border-gold/20 p-1 bg-ivory">
                 <div className="w-full h-full relative overflow-hidden rounded-sm bg-forest/5 flex items-center justify-center">
                   {founder.photoUrl ? (
-                    <img
+                    <LazyImage
                       src={founder.photoUrl}
                       alt={founder.name}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      containerClassName="w-full h-full"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      rootMargin="300px 0px"
                     />
                   ) : (
                     <div className="w-full h-full bg-forest text-gold flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
