@@ -67,21 +67,21 @@ export default function DisclaimerModal({ onOpenPrivacy, onOpenTerms }: Disclaim
             {/* Modal Body Content */}
             <div className="p-6 sm:p-8 space-y-4 max-h-[60vh] overflow-y-auto text-xs sm:text-sm font-sans text-neutral-700 leading-relaxed bg-white">
               <p className="font-medium text-neutral-900">
-                Under the rules of the Bar Council of India, Olive Law (the "Firm") is prohibited from soliciting work or advertising. By clicking, "I Agree" below, the user acknowledges that:
+                Under the rules of the Bar Council of India, OLIVE LAW FIRM is prohibited from soliciting work or advertising. By clicking, "I Agree" below, the user acknowledges that:
               </p>
 
               <ul className="space-y-3 pl-4 list-disc text-neutral-700">
                 <li className="leading-relaxed">
-                  There has been no advertisement, personal communication, solicitation, invitation or inducement of any sort whatsoever from the Firm or any of its members to solicit any work or advertise through this website.
+                  There has been no advertisement, personal communication, solicitation, invitation or inducement of any sort whatsoever from Olive Law Firm or any of its members to solicit any work or advertise through this website.
                 </li>
                 <li className="leading-relaxed">
-                  The purpose of this website is to provide the user with information about the Firm, its practice areas, its advocates and solicitors. This website is not intended to be a source of advertising or solicitation and the contents hereof should not be construed as legal advice in any manner whatsoever. In cases where the user requires any assistance, he/she must seek independent legal advice.
+                  The purpose of this website is to provide the user with information about Olive Law Firm, its practice areas, its advocates and solicitors. This website is not intended to be a source of advertising or solicitation and the contents hereof should not be construed as legal advice in any manner whatsoever. In cases where the user requires any assistance, he/she must seek independent legal advice.
                 </li>
                 <li className="leading-relaxed">
-                  The information about the Firm is provided to the user only on his/her specific request and any information obtained or materials downloaded from this website are completely at the user's volition and any transmission, receipt or use of this website would not create any lawyer-client relationship.
+                  The information about Olive Law Firm is provided to the user only on his/her specific request and any information obtained or materials downloaded from this website are completely at the user's volition and any transmission, receipt or use of this website would not create any lawyer-client relationship.
                 </li>
                 <li className="leading-relaxed font-medium text-neutral-900">
-                  The content of this website is Intellectual Property of the Firm.
+                  The content of this website is Intellectual Property of Olive Law Firm.
                 </li>
               </ul>
 
