@@ -69,10 +69,10 @@ export default function CookieConsent({ onOpenPrivacy, onOpenTerms }: CookieCons
               </div>
               <div>
                 <span className="font-display text-xs tracking-[0.15em] text-gold uppercase block font-medium">
-                  Regulatory Mandate
+                  Client Privacy
                 </span>
                 <span className="font-serif text-sm font-semibold tracking-wide text-ivory block -mt-0.5">
-                  DPDPA Compliance Directive
+                  Privacy &amp; Data Security
                 </span>
               </div>
             </div>

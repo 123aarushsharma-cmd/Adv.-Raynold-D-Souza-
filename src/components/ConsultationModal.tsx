@@ -470,7 +470,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                           className={`font-sans text-sm bg-sage-light border ${
                             errors.phone ? "border-red-500 focus:outline-red-500 ring-1 ring-red-500/20" : "border-forest/20 focus:outline-gold focus-visible:ring-1 focus-visible:ring-gold"
                           } px-4 py-3 rounded-sm text-charcoal transition-all`}
-                          placeholder="+91 98765 43210"
+                          placeholder="+91 97405 77775"
                         />
                         {errors.phone && (
                           <span id="modal-phone-error" role="alert" className="flex items-center gap-1 text-xs text-red-600 font-medium mt-1">

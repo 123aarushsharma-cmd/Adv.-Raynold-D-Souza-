@@ -963,27 +963,40 @@ export default function Contact() {
                     </div>
                   </div>
 
-                  {/* Phone & Email Row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gold/15">
-                    <div className="flex items-start gap-3">
-                      <Phone className="text-gold shrink-0 mt-0.5" size={16} />
-                      <div>
-                        <span className="font-sans text-[9px] tracking-wider text-gold uppercase font-bold block">
+                  {/* Admissions Desk & Electronic Mail Row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-4 border-t border-gold/20">
+                    <div className="flex items-center gap-3 bg-gold/10 hover:bg-gold/15 border border-gold/25 p-3 rounded-sm transition-all group">
+                      <div className="w-8 h-8 rounded bg-gold/20 text-gold flex items-center justify-center shrink-0 border border-gold/30 group-hover:scale-105 transition-transform" aria-hidden="true">
+                        <Phone size={15} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="font-sans text-[10px] tracking-wider text-gold uppercase font-bold block">
                           Admissions Desk
                         </span>
-                        <a href={`tel:${contact.primaryPhone.replace(/\s+/g, "")}`} className="font-sans text-xs text-ivory hover:text-gold transition-colors block mt-0.5">
-                          {contact.primaryPhone}
+                        <a 
+                          href={`tel:${(contact.primaryPhone || "+91 97405 77775").replace(/\s+/g, "")}`} 
+                          className="font-sans text-xs sm:text-[13px] text-ivory hover:text-gold transition-colors block mt-0.5 font-semibold tracking-wide truncate"
+                          title="Call Olive Law Firm Admissions Desk"
+                        >
+                          {contact.primaryPhone || "+91 97405 77775"}
                         </a>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <Mail className="text-gold shrink-0 mt-0.5" size={16} />
-                      <div>
-                        <span className="font-sans text-[9px] tracking-wider text-gold uppercase font-bold block">
+
+                    <div className="flex items-center gap-3 bg-ivory/5 hover:bg-ivory/10 border border-gold/15 p-3 rounded-sm transition-all group">
+                      <div className="w-8 h-8 rounded bg-gold/15 text-gold flex items-center justify-center shrink-0 border border-gold/20 group-hover:scale-105 transition-transform" aria-hidden="true">
+                        <Mail size={15} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="font-sans text-[10px] tracking-wider text-gold uppercase font-bold block">
                           Electronic Mail
                         </span>
-                        <a href={`mailto:${contact.primaryEmail}`} className="font-sans text-xs text-ivory hover:text-gold transition-colors block mt-0.5 truncate">
-                          {contact.primaryEmail}
+                        <a 
+                          href={`mailto:${contact.primaryEmail || "advrdsouza181@gmail.com"}`} 
+                          className="font-sans text-xs sm:text-[13px] text-ivory hover:text-gold transition-colors block mt-0.5 font-medium truncate"
+                          title="Email Olive Law Firm"
+                        >
+                          {contact.primaryEmail || "advrdsouza181@gmail.com"}
                         </a>
                       </div>
                     </div>

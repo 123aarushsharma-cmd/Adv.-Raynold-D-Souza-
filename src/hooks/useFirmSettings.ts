@@ -35,9 +35,9 @@ export const DEFAULT_FIRM_NOTICE: FirmNotice = {
 };
 
 export const DEFAULT_FIRM_CONTACT: FirmContactSettings = {
-  primaryPhone: "+91 98450 12345",
-  emergencyPhone: "+91 94480 67890",
-  whatsappNumber: "+91 98450 12345",
+  primaryPhone: "+91 97405 77775",
+  emergencyPhone: "+91 97405 77775",
+  whatsappNumber: "+91 97405 77775",
   primaryEmail: "advrdsouza181@gmail.com",
   filingEmail: "filings@olivelawfirm.in",
   officeHours: "Monday – Saturday: 9:00 AM – 8:00 PM (Emergency 24/7 for Bail & Injunctions)",
@@ -78,13 +78,28 @@ function saveLocalNotice(notice: FirmNotice) {
   }
 }
 
+function sanitizeContactNumbers(c: FirmContactSettings): FirmContactSettings {
+  const clean = { ...c };
+  const FINAL_PHONE = "+91 97405 77775";
+  if (!clean.primaryPhone || clean.primaryPhone.includes("98450") || clean.primaryPhone.includes("94480")) {
+    clean.primaryPhone = FINAL_PHONE;
+  }
+  if (!clean.emergencyPhone || clean.emergencyPhone.includes("98450") || clean.emergencyPhone.includes("94480")) {
+    clean.emergencyPhone = FINAL_PHONE;
+  }
+  if (!clean.whatsappNumber || clean.whatsappNumber.includes("98450") || clean.whatsappNumber.includes("94480")) {
+    clean.whatsappNumber = FINAL_PHONE;
+  }
+  return clean;
+}
+
 function getLocalContact(): FirmContactSettings {
   try {
     const raw = localStorage.getItem(LOCAL_CONTACT_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object") {
-        return { ...DEFAULT_FIRM_CONTACT, ...parsed };
+        return sanitizeContactNumbers({ ...DEFAULT_FIRM_CONTACT, ...parsed });
       }
     }
   } catch (e) {
@@ -141,9 +156,14 @@ export function useFirmSettings() {
         saveLocalNotice(liveNotice);
       }
       if (contactSnap.exists()) {
-        const liveContact = { ...DEFAULT_FIRM_CONTACT, ...(contactSnap.data() as FirmContactSettings) };
+        const rawCloudData = contactSnap.data() as FirmContactSettings;
+        const liveContact = sanitizeContactNumbers({ ...DEFAULT_FIRM_CONTACT, ...rawCloudData });
         setContact(liveContact);
         saveLocalContact(liveContact);
+        // If the cloud had old numbers, persist the standardized final number to Firestore
+        if (rawCloudData.primaryPhone !== liveContact.primaryPhone || rawCloudData.emergencyPhone !== liveContact.emergencyPhone) {
+          setDoc(doc(db, "firm_settings", "chambers"), { ...liveContact, updatedAt: Timestamp.now() }, { merge: true }).catch(() => {});
+        }
       }
     }).catch(err => {
       console.warn("Initial firm settings eager cloud fetch note:", err);
@@ -169,7 +189,7 @@ export function useFirmSettings() {
     const unsubscribeContact = onSnapshot(contactDocRef, (snap) => {
       if (snap.exists()) {
         const data = snap.data() as FirmContactSettings;
-        const liveContact = { ...DEFAULT_FIRM_CONTACT, ...data };
+        const liveContact = sanitizeContactNumbers({ ...DEFAULT_FIRM_CONTACT, ...data });
         setContact(liveContact);
         saveLocalContact(liveContact);
       }

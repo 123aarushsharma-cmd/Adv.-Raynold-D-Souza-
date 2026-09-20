@@ -316,7 +316,7 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin }: HeaderP
       <motion.nav 
         id="mobile-floating-dock"
         aria-label="Mobile bottom navigation"
-        className="fixed bottom-3 sm:bottom-5 left-1/2 z-40 w-[92%] max-w-[350px] bg-forest/70 hover:bg-forest/90 backdrop-blur-xl border border-gold/25 hover:border-gold/45 rounded-full px-2.5 sm:px-3 py-1 shadow-[0_12px_32px_rgba(0,0,0,0.35),_inset_0_1px_1px_rgba(255,255,255,0.12)] flex items-center justify-between transition-all duration-300"
+        className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:bottom-5 left-1/2 z-40 w-[92%] max-w-[360px] nav:hidden bg-forest/85 hover:bg-forest/95 backdrop-blur-xl border border-gold/30 hover:border-gold/50 rounded-full px-2.5 sm:px-3 py-1 shadow-[0_12px_32px_rgba(0,0,0,0.45),_inset_0_1px_1px_rgba(255,255,255,0.15)] flex items-center justify-between transition-all duration-300"
         initial={{ y: 20, opacity: 0, x: "-50%" }}
         animate={{ y: 0, opacity: 1, x: "-50%" }}
         transition={{ delay: 0.5, duration: 0.5 }}
@@ -331,7 +331,7 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin }: HeaderP
               key={link.name}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="flex items-center justify-center relative w-10 h-10 group focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none rounded-full"
+              className="flex items-center justify-center relative w-11 h-11 group focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none rounded-full"
               id={`dock-link-${id}`}
               aria-label={link.name}
               aria-current={isActive ? "page" : undefined}

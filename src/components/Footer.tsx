@@ -48,7 +48,7 @@ export default function Footer({ onOpenPrivacy, onOpenTerms }: FooterProps) {
       <div className="absolute inset-0 opacity-5 pointer-events-none motif-bg" />
 
       {/* Primary footer layout links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-40 sm:pb-32 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] sm:pb-32 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 border-b border-gold/15 pb-12">
           
           {/* Column 1: Brand & Blurb */}
@@ -100,11 +100,11 @@ export default function Footer({ onOpenPrivacy, onOpenTerms }: FooterProps) {
 
         </div>
 
-        {/* Bottom Compliance & Copyright Row */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ivory/60 font-light">
+        {/* Bottom Legal Attribution & Copyright Row */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-ivory/65 font-light">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 justify-center sm:justify-start">
             <span>© {currentYear} Olive Law Firm®. All rights reserved.</span>
-            <span className="hidden sm:inline w-1 h-1 rounded-full bg-gold" />
+            <span className="hidden sm:inline w-1 h-1 rounded-full bg-gold/50" />
             <button 
               onClick={(e) => {
                 e.preventDefault();
@@ -114,7 +114,7 @@ export default function Footer({ onOpenPrivacy, onOpenTerms }: FooterProps) {
             >
               Privacy Policy
             </button>
-            <span className="hidden sm:inline w-1 h-1 rounded-full bg-gold" />
+            <span className="hidden sm:inline w-1 h-1 rounded-full bg-gold/50" />
             <button 
               onClick={(e) => {
                 e.preventDefault();
@@ -126,8 +126,8 @@ export default function Footer({ onOpenPrivacy, onOpenTerms }: FooterProps) {
             </button>
           </div>
           
-          <div className="text-center sm:text-right text-[10px] tracking-wide uppercase text-gold/80 font-medium">
-            Attorney Advertising • Prior Results Do Not Guarantee Similar Outflow
+          <div className="text-center md:text-right text-[11px] tracking-wider uppercase text-gold/80 font-medium">
+            Supreme Court of India &amp; High Court of Karnataka Practice
           </div>
         </div>
 

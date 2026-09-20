@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ShieldCheck, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { db } from "../lib/firebase";
 
 interface DisclaimerModalProps {
   onOpenPrivacy: () => void;
@@ -22,7 +24,25 @@ export default function DisclaimerModal({ onOpenPrivacy, onOpenTerms }: Disclaim
   }, []);
 
   const handleAgree = () => {
+    const nowIso = new Date().toISOString();
     localStorage.setItem("olive_law_disclaimer_accepted", "true");
+    localStorage.setItem("olive_law_disclaimer_timestamp", nowIso);
+    
+    // Store compliance audit record directly in database without UI clutter
+    try {
+      addDoc(collection(db, "compliance_audit_logs"), {
+        consentType: "BAR_COUNCIL_OF_INDIA_RULE_36",
+        status: "ACKNOWLEDGED",
+        timestamp: Timestamp.now(),
+        isoDate: nowIso,
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        statutoryBasis: "Advocates Act 1961 & DPDPA 2023",
+        firm: "Olive Law Firm"
+      }).catch(() => {});
+    } catch (e) {
+      // Non-blocking fallback
+    }
+
     setIsOpen(false);
   };
 

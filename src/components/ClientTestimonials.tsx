@@ -273,13 +273,6 @@ export default function ClientTestimonials() {
 
         </div>
 
-        {/* Fine-print legal standard alignment */}
-        <div className="mt-14 text-center max-w-2xl mx-auto border-t border-forest/5 pt-6">
-          <p className="font-sans text-[10px] text-charcoal/50 leading-relaxed font-light">
-            In compliance with chapter standards and legal advertising guidelines, these testimonials represent historical reflections of counsel by professional peers and past clients. These representations do not constitute a forecast, warranty, or guarantee regarding the final outcome of any active or future legal litigation matters.
-          </p>
-        </div>
-
       </div>
     </section>
   );

@@ -44,7 +44,7 @@ export default function StickyBottomDock({
     <aside 
       id="sticky-bottom-action-dock" 
       aria-label="Quick Action Floating Toolbar"
-      className="fixed bottom-20 sm:bottom-8 right-3 sm:right-6 z-40 flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-auto"
+      className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom,0px))] sm:bottom-8 right-3 sm:right-6 z-40 flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-auto"
     >
       {/* 1. TOP BUTTON: CALL (LOGO ONLY, UPER) */}
       <div 

@@ -185,11 +185,6 @@ export default function About() {
                 ))}
               </div>
             </div>
-
-            {/* Quick trust blurb */}
-            <p className="font-sans text-[10px] text-center text-charcoal/60 leading-relaxed max-w-xs mx-auto font-light">
-              *All advocacy procedures are in absolute compliance with Advocate professional standards under the Advocates Act.
-            </p>
           </div>
         </div>
       </div>

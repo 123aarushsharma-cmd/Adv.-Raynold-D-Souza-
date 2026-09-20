@@ -106,7 +106,7 @@ export function PrivacyPolicyModal({ isOpen, onClose }: LegalModalProps) {
                 <div>
                   <h2 id="privacy-policy-title" className="font-serif text-xl font-bold text-ivory">Global Privacy Policy & Data Protection Charter</h2>
                   <p id="privacy-policy-desc" className="text-[10px] uppercase tracking-widest text-gold/80 font-bold font-sans">
-                    DPDPA 2023 • GDPR (EU/UK) • CCPA/CPRA (US) • PIPEDA • APPs COMPLIANT
+                    Statutory Data Protection &amp; Confidentiality Charter
                   </p>
                 </div>
               </div>
@@ -275,7 +275,7 @@ export function TermsOfServiceModal({ isOpen, onClose }: LegalModalProps) {
                 <div>
                   <h2 id="terms-modal-title" className="font-serif text-xl font-bold text-ivory">Terms of Service</h2>
                   <p id="terms-modal-desc" className="text-[10px] uppercase tracking-widest text-gold/80 font-bold font-sans">
-                    BAR COUNCIL OF INDIA COMPLIANT DISCLAIMER
+                    Bar Council of India Rule 36 User Declaration
                   </p>
                 </div>
               </div>
