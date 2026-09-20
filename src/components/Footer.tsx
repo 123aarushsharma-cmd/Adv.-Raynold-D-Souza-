@@ -54,7 +54,7 @@ export default function Footer({ onOpenPrivacy, onOpenTerms }: FooterProps) {
           {/* Column 1: Brand & Blurb */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             <a href="#home" onClick={(e) => handleLinkClick(e, "#home")} className="w-fit">
-              <Logo inverse={true} size={46} />
+              <Logo inverse={true} size={54} />
             </a>
             <p className="font-sans text-sm text-ivory/80 leading-relaxed font-light max-w-xl">
               Olive Law Firm® is a premier multi-disciplinary advocacy practice in Bengaluru led by Advocate Reynold D'Souza. 

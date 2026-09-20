@@ -124,13 +124,12 @@ export async function compressBrandLogo(file: File, maxDim = 600): Promise<strin
           return;
         }
 
-        // Draw preserving transparency
+        // Draw preserving quality and background
         ctx.clearRect(0, 0, width, height);
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
 
         try {
-          // PNG for transparent logos
           const dataUrl = canvas.toDataURL("image/png");
           resolve(dataUrl);
         } catch (err) {

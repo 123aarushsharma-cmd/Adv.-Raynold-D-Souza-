@@ -166,7 +166,7 @@ export default function Header({ onOpenConsultationModal, onOpenAdmin }: HeaderP
                 id="header-logo-link"
                 aria-label="Olive Law Firm - Return to Home"
               >
-                <Logo inverse={true} size={isScrolled ? 34 : 40} />
+                <Logo inverse={true} size={isScrolled ? 30 : 36} />
               </a>
             </div>
 

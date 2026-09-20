@@ -30,13 +30,13 @@ export default function Logo({
       >
         <img
           src={logoSrc}
-          alt="Olive Law Firm® 3D Emblem"
+          alt="Olive Law Firm® Emblem"
           width={size}
           height={size}
           decoding="async"
           loading="eager"
           referrerPolicy="no-referrer"
-          className={`w-full h-full object-contain pointer-events-none select-none emblem-3d-shadow transition-transform duration-700 hover:scale-[1.03] gpu-layer ${imgClassName}`}
+          className={`w-full h-full object-contain pointer-events-none select-none transition-transform duration-700 hover:scale-[1.03] gpu-layer ${imgClassName}`}
         />
       </div>
     );
@@ -50,13 +50,13 @@ export default function Logo({
       >
         <img
           src={logoSrc}
-          alt="Olive Law Firm® Watermark"
+          alt="Olive Law Firm®"
           width={size}
           height={size}
           decoding="async"
           loading="lazy"
           referrerPolicy="no-referrer"
-          className="w-full h-full object-contain pointer-events-none select-none drop-shadow-none gpu-layer"
+          className="w-full h-full object-contain pointer-events-none select-none"
         />
       </div>
     );
@@ -68,45 +68,41 @@ export default function Logo({
         className={`relative inline-flex items-center justify-center shrink-0 group ${className}`}
         style={{ width: size, height: size }}
       >
-        {/* Subtle ambient gold aura */}
-        <div className="absolute -inset-1.5 bg-gold/25 rounded-full blur-md group-hover:bg-gold/40 transition-all duration-500 pointer-events-none" />
-        
-        {/* Outer concentric metallic gold frame */}
-        <div className="relative w-full h-full p-1 rounded-full bg-gradient-to-br from-gold/30 via-gold/10 to-transparent border border-gold/70 shadow-[0_4px_18px_rgba(201,162,39,0.35)] flex items-center justify-center">
-          {/* Inner medallion with transparent 3D logo */}
-          <div className="w-full h-full rounded-full flex items-center justify-center p-1 overflow-hidden">
-            <img
-              src={logoSrc}
-              alt="Olive Law Firm® Insignia"
-              width={size}
-              height={size}
-              decoding="async"
-              loading="eager"
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-contain transform scale-105 emblem-3d-shadow transition-transform duration-300 group-hover:scale-110 gpu-layer"
-            />
-          </div>
+        <div className="relative w-full h-full rounded-full overflow-hidden bg-white border-2 border-gold/80 shadow-[0_4px_18px_rgba(201,162,39,0.35)] flex items-center justify-center p-1.5">
+          <img
+            src={logoSrc}
+            alt="Olive Law Firm® Insignia"
+            width={size}
+            height={size}
+            decoding="async"
+            loading="eager"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-contain"
+          />
         </div>
       </div>
     );
   }
 
+  const cardWidth = Math.round(size * 1.4);
+  const cardHeight = size;
+
   const logoImage = (
     <div
-      className={`relative flex items-center justify-center shrink-0 transition-transform duration-300 hover:scale-105 ${
+      className={`relative flex items-center justify-center shrink-0 overflow-hidden rounded bg-white shadow-sm border border-gold/30 transition-transform duration-300 group-hover:scale-105 p-1 ${
         !showText ? className : ""
       } ${imgClassName}`}
-      style={{ width: size, height: size }}
+      style={{ width: cardWidth, height: cardHeight }}
     >
       <img
         src={logoSrc}
         alt="Olive Law Firm® Insignia"
-        width={size}
-        height={size}
+        width={cardWidth}
+        height={cardHeight}
         decoding="async"
         loading="eager"
         referrerPolicy="no-referrer"
-        className="w-full h-full object-contain filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)] gpu-layer"
+        className="w-full h-full object-contain pointer-events-none select-none"
       />
     </div>
   );
@@ -116,24 +112,24 @@ export default function Logo({
   }
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={`flex items-center gap-2.5 sm:gap-3.5 ${className}`}>
       {logoImage}
-      <div className="flex flex-col">
+      <div className="flex flex-col justify-center">
         <span
-          className={`font-display text-base sm:text-xl tracking-[0.18em] font-medium uppercase leading-none ${
+          className={`font-serif text-[17px] sm:text-[20px] md:text-[22px] tracking-[0.16em] font-medium uppercase leading-tight ${
             inverse ? "text-ivory" : "text-forest"
           }`}
         >
           Olive®
         </span>
         <span
-          className="font-sans text-[8px] sm:text-[10px] tracking-[0.25em] uppercase font-semibold leading-none mt-1 sm:mt-1.5 text-gold"
+          className="font-sans text-[8.5px] sm:text-[9.5px] md:text-[10px] tracking-[0.24em] uppercase font-semibold leading-tight mt-0.5 text-gold"
         >
           Law Firm®
         </span>
         {showLocations && (
           <span
-            className={`font-sans text-[8px] tracking-wider uppercase font-medium mt-0.5 ${
+            className={`font-sans text-[8px] sm:text-[9px] tracking-wider uppercase font-medium mt-0.5 ${
               inverse ? "text-ivory/70" : "text-forest/70"
             }`}
           >

@@ -77,7 +77,6 @@ export const assetPreloader = new AssetPreloader();
  */
 export const CRITICAL_FIRM_ASSETS = [
   "/logo.png",
-  "/logo_transparent.png",
   "/apple-touch-icon.png",
   "/favicon.png"
 ];
